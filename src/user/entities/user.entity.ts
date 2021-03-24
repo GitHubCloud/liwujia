@@ -5,7 +5,9 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Exclude, Transform } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
+import * as moment from 'moment';
 
 @Entity()
 export class User {
@@ -18,10 +20,12 @@ export class User {
   @Column()
   nickname: string;
 
+  @Exclude()
   @Column()
   loginPasswd: string;
 
   @CreateDateColumn()
+  @Transform((d) => moment(d.value).toDate().getTime())
   createTime: Date;
 
   @BeforeInsert()

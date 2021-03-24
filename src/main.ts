@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as helmet from 'helmet';
 import { AppModule } from './app.module';
+import { RESTfulResponseInterceptor } from './restful-response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,6 +24,10 @@ async function bootstrap() {
     }),
   );
 
+  // format RESTful response
+  app.useGlobalInterceptors(new RESTfulResponseInterceptor());
+
+  app.enableCors();
   await app.listen(3000);
 }
 bootstrap();

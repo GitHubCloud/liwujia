@@ -9,11 +9,11 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiBody({
-    schema: { example: { loginName: '', loginPasswd: '' } },
+    schema: { example: { loginName: 'string', loginPasswd: 'string' } },
   })
   @UseGuards(AuthGuard('local'))
   @Post('login')
   async login(@Req() req) {
-    return req.user;
+    return this.authService.jwtSign(req.user);
   }
 }
