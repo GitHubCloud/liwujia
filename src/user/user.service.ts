@@ -15,10 +15,6 @@ export class UserService {
     return await this.userRepo.save(this.userRepo.create(createUserDto));
   }
 
-  async findAll(): Promise<User[]> {
-    return await this.userRepo.find();
-  }
-
   async findOne(id: number): Promise<User> {
     return await this.userRepo.findOne(id);
   }

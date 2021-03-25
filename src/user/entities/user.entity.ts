@@ -3,11 +3,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Exclude, Transform } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import * as moment from 'moment';
+import { Article } from 'src/article/entities/article.entity';
 
 @Entity()
 export class User {
@@ -15,7 +18,7 @@ export class User {
   id: number;
 
   @Column({ nullable: true })
-  avatar: string;
+  avatar?: string;
 
   @Column()
   nickname: string;
@@ -27,6 +30,10 @@ export class User {
   @CreateDateColumn()
   @Transform((d) => moment(d.value).toDate().getTime())
   createTime: Date;
+
+  @JoinColumn()
+  @OneToMany(() => Article, (article) => article.author)
+  articles: number;
 
   @BeforeInsert()
   encryptPasswd() {

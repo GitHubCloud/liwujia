@@ -4699,6 +4699,11 @@ neo-async@^2.6.2:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
+nestjs-typeorm-paginate@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/nestjs-typeorm-paginate/-/nestjs-typeorm-paginate-2.3.2.tgz#34acb0ef02894b0399b9adb1f9b11e901da9f9a4"
+  integrity sha512-TjQO1x39Q/QZfez0/sD7vSGzFP/xSeOOjiL8e8A5YyyRwd7qp6TiF8/SMxz6qZb/gH/Q8M5ZpmCcPLpxd2Hc/w==
+
 nice-try@^1.0.4:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/nice-try/-/nice-try-1.0.5.tgz#a3378a7696ce7d223e88fc9b764bd7ef1089e366"
