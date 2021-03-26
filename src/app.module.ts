@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ArticleModule } from './article/article.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -19,12 +20,14 @@ import { ArticleModule } from './article/article.module';
         database: configService.get('MYSQL_DATABASE'),
         autoLoadEntities: true,
         synchronize: true,
+        // logging: 'all',
       }),
       inject: [ConfigService],
     }),
     UserModule,
     AuthModule,
     ArticleModule,
+    CommentModule,
   ],
 })
 export class AppModule {}

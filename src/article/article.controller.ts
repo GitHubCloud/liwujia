@@ -14,19 +14,26 @@ import {
   Req,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { CommentService } from 'src/comment/comment.service';
+import { CreateCommentDto } from 'src/comment/dto/create-comment.dto';
 import { Article } from './entities/article.entity';
+import { Comment } from 'src/comment/entities/comment.entity';
+import { PaginationDto } from 'src/pagination.dto';
 
 @ApiTags('Article')
 @Controller('article')
 @UseGuards(AuthGuard('jwt'))
 @UseInterceptors(ClassSerializerInterceptor)
 export class ArticleController {
-  constructor(private readonly articleService: ArticleService) {}
+  constructor(
+    private readonly articleService: ArticleService,
+    private readonly commentService: CommentService,
+  ) {}
 
   @Post()
   async create(
@@ -39,13 +46,10 @@ export class ArticleController {
   }
 
   @Get()
-  @ApiQuery({ name: 'page', required: false, schema: { default: 1 } })
-  @ApiQuery({ name: 'limit', required: false, schema: { default: 10 } })
   async paginate(
-    @Query('page') page = 1,
-    @Query('limit') limit = 10,
+    @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Article>> {
-    return await this.articleService.paginate(page, limit >= 100 ? 100 : limit);
+    return await this.articleService.paginate(paginationDto);
   }
 
   @Get(':id')
@@ -66,8 +70,33 @@ export class ArticleController {
     return await this.articleService.remove(id);
   }
 
-  @Patch('/favorite/:id')
+  @Patch('/:id/favorite')
   async favorite(@Param('id') id: number) {
     return await this.articleService.favorite(id);
+  }
+
+  @Post('/:id/comment')
+  async createComment(
+    @Req() req,
+    @Param('id') id: number,
+    @Body() createCommentDto: CreateCommentDto,
+  ): Promise<Comment> {
+    createCommentDto.article = id;
+    createCommentDto.author = req.user.id;
+
+    return await this.commentService.create(createCommentDto);
+  }
+
+  @Get('/:id/comment')
+  async paginateComment(
+    @Param('id') id: number,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<Pagination<Comment>> {
+    paginationDto.query = {
+      article: id,
+      replyTo: null,
+    };
+
+    return await this.commentService.paginate(paginationDto);
   }
 }

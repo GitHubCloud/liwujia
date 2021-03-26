@@ -1,3 +1,4 @@
+import { ApiHideProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateArticleDto {
@@ -10,6 +11,6 @@ export class CreateArticleDto {
   @IsNotEmpty({ message: '内容不能为空' })
   content: string;
 
-  @IsOptional()
+  @ApiHideProperty()
   author: number;
 }

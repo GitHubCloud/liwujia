@@ -5,6 +5,7 @@ import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { Article } from './entities/article.entity';
+import { PaginationDto } from 'src/pagination.dto';
 
 @Injectable()
 export class ArticleService {
@@ -15,11 +16,12 @@ export class ArticleService {
 
   async create(createArticleDto: CreateArticleDto): Promise<Article> {
     return await this.articleRepo.save(
-      this.articleRepo.create(createArticleDto)
+      this.articleRepo.create(createArticleDto),
     );
   }
 
-  async paginate(page: number, limit: number): Promise<Pagination<Article>> {
+  async paginate(paginationDto: PaginationDto): Promise<Pagination<Article>> {
+    const { page, limit } = paginationDto;
     return await paginate(this.articleRepo, { page, limit });
   }
 

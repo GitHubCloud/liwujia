@@ -11,6 +11,7 @@ import { Exclude, Transform } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import * as moment from 'moment';
 import { Article } from 'src/article/entities/article.entity';
+import { Comment } from 'src/comment/entities/comment.entity';
 
 @Entity()
 export class User {
@@ -34,6 +35,10 @@ export class User {
   @JoinColumn()
   @OneToMany(() => Article, (article) => article.author)
   articles: number;
+
+  @JoinColumn()
+  @OneToMany(() => Comment, (comment) => comment.author)
+  comments: number;
 
   @BeforeInsert()
   encryptPasswd() {
