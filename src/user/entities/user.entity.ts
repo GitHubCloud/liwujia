@@ -12,6 +12,7 @@ import * as bcrypt from 'bcrypt';
 import * as moment from 'moment';
 import { Article } from 'src/article/entities/article.entity';
 import { Comment } from 'src/comment/entities/comment.entity';
+import { Message } from 'src/message/entities/message.entity';
 
 @Entity()
 export class User {
@@ -39,6 +40,14 @@ export class User {
   @JoinColumn()
   @OneToMany(() => Comment, (comment) => comment.author)
   comments: number;
+
+  @JoinColumn()
+  @OneToMany(() => Message, (message) => message.from)
+  messagesSend: number;
+
+  @JoinColumn()
+  @OneToMany(() => Message, (message) => message.to)
+  messagesReceive: number;
 
   @BeforeInsert()
   encryptPasswd() {

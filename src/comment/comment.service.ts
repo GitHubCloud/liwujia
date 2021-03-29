@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getConnection, Repository } from 'typeorm';
+import { getRepository, Repository } from 'typeorm';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { Comment } from './entities/comment.entity';
@@ -30,12 +30,19 @@ export class CommentService {
   async paginate(paginationDto: PaginationDto): Promise<Pagination<Comment>> {
     const { page, limit, query } = paginationDto;
 
+    /* const queryBuilder = await getRepository(Comment)
+      .createQueryBuilder('comment')
+      .leftJoinAndSelect('comment.replys', 'replys') // limit 1
+      .leftJoinAndSelect('comment.author', 'author')
+      .where(query);
+    console.log(queryBuilder.getSql());
+    return await paginate(queryBuilder, { page, limit }); */
+
     return await paginate(
       this.commentRepo,
       { page, limit },
       {
         where: query,
-        relations: ['replys'],
       },
     );
   }

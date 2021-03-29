@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { EventEmitter2 } from 'eventemitter2';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
@@ -8,12 +9,15 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async validateLogin(loginName: string, loginPasswd: string) {
     const exists = await this.userService.findByName(loginName);
 
     if (exists && bcrypt.compareSync(loginPasswd, exists.loginPasswd)) {
+      this.eventEmitter.emit('auth.login', exists);
+
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { loginPasswd, ...result } = exists;
       return result;
