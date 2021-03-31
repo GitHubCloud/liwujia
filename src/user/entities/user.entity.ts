@@ -13,6 +13,7 @@ import * as moment from 'moment';
 import { Article } from 'src/article/entities/article.entity';
 import { Comment } from 'src/comment/entities/comment.entity';
 import { Message } from 'src/message/entities/message.entity';
+import { Stuff } from 'src/stuff/entities/stuff.entity';
 
 @Entity()
 export class User {
@@ -32,6 +33,10 @@ export class User {
   @CreateDateColumn()
   @Transform((d) => moment(d.value).toDate().getTime())
   createTime: Date;
+
+  @JoinColumn()
+  @OneToMany(() => Stuff, (stuff) => stuff.owner)
+  stuffs: number;
 
   @JoinColumn()
   @OneToMany(() => Article, (article) => article.author)
