@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Query,
@@ -11,6 +10,7 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   Req,
+  Put,
 } from '@nestjs/common';
 import { StuffService } from './stuff.service';
 import { CreateStuffDto } from './dto/create-stuff.dto';
@@ -50,7 +50,7 @@ export class StuffController {
     return await this.stuffService.findOne(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   async update(
     @Param('id') id: number,
     @Body() updateStuffDto: UpdateStuffDto,

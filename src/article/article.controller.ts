@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Query,
@@ -70,7 +69,7 @@ export class ArticleController {
     return await this.articleService.remove(id);
   }
 
-  @Patch('/:id/favorite')
+  @Put('/:id/favorite')
   async favorite(@Param('id') id: number) {
     return await this.articleService.favorite(id);
   }
