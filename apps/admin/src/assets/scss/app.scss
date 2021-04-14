@@ -1,0 +1,28 @@
+@import './reset.scss';
+
+body {
+  background: #e3e3e3;
+}
+
+// aside
+.el-aside {
+  width: 200px;
+}
+.el-menu:not(.el-menu--collapse) {
+  min-height: 100vh;
+}
+
+// header
+.el-header {
+  background: white;
+  border-bottom: 1px solid #e6e6e6;
+}
+.el-header .title {
+  font-size: 20px;
+  line-height: 60px;
+}
+
+// main
+.el-main {
+  background: #e3e3e3;
+}
