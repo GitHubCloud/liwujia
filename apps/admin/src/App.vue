@@ -16,18 +16,25 @@
   </el-container>
 </template>
 
-<style lang="scss">
-@import './assets/scss/app.scss';
-</style>
+<script>
+import * as moment from 'moment';
+import './assets/sass/app.scss';
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import sidemenu from "@/components/sidemenu.vue";
-
-@Options({
+import sidemenu from './components/sidemenu.vue';
+export default {
   components: {
     sidemenu,
   },
-})
-export default class extends Vue { }
+  async created() {
+    if (this.$store.state.token && moment().isBefore(this.$store.state.tokenExpire)) return;
+    const res = await this.$api(this.$store.state, 'auth/login', {
+      body: {
+        loginName: 'Cloud',
+        loginPasswd: 'kelaode520',
+      },
+    });
+
+    this.$store.dispatch('setToken', res.data);
+  },
+};
 </script>

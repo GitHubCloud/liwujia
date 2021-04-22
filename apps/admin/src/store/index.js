@@ -1,0 +1,29 @@
+import * as moment from 'moment';
+import { createStore } from 'vuex'
+import persistedState from 'vuex-persistedstate'
+
+export default createStore({
+  state: {
+    token: '',
+    tokenExpire: null,
+  },
+  mutations: {
+    setToken(state, token) {
+      state.token = token;
+      state.tokenExpire = moment().add(1, 'hour').toDate();
+
+      console.log({
+        token,
+        tokenExpire: state.tokenExpire
+      });
+    }
+  },
+  actions: {
+    setToken({ commit }, token) {
+      commit('setToken', token);
+    }
+  },
+  modules: {
+  },
+  plugins: [persistedState()]
+})

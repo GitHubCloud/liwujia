@@ -15,6 +15,7 @@
           <span>Article</span>
         </template>
         <el-menu-item index="/article/create">create</el-menu-item>
+        <el-menu-item index="/article/list">list</el-menu-item>
       </el-submenu>
     </el-menu>
   </el-aside>
@@ -24,8 +25,8 @@
 export default {
   data() {
     return {
-      isCollapse: false
-    }
-  }
-}
+      isCollapse: false,
+    };
+  },
+};
 </script>
