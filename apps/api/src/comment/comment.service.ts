@@ -30,21 +30,13 @@ export class CommentService {
   async paginate(paginationDto: PaginationDto): Promise<Pagination<Comment>> {
     const { page, limit, query } = paginationDto;
 
-    /* const queryBuilder = await getRepository(Comment)
+    const queryBuilder = getRepository(Comment)
       .createQueryBuilder('comment')
-      .leftJoinAndSelect('comment.replys', 'replys') // limit 1
+      .leftJoinAndSelect('comment.replys', 'replys')
+      .leftJoinAndSelect('replys.author', 'replys.author')
       .leftJoinAndSelect('comment.author', 'author')
       .where(query);
-    console.log(queryBuilder.getSql());
-    return await paginate(queryBuilder, { page, limit }); */
-
-    return await paginate(
-      this.commentRepo,
-      { page, limit },
-      {
-        where: query,
-      },
-    );
+    return await paginate(queryBuilder, { page, limit });
   }
 
   async findOne(id: number): Promise<Comment> {

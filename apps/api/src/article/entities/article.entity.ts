@@ -12,7 +12,6 @@ import * as moment from 'moment';
 import { User } from 'apps/api/src/user/entities/user.entity';
 import { Comment } from 'apps/api/src/comment/entities/comment.entity';
 import { ArticleTypes } from '../articleType.enum';
-console.log({ ArticleTypes });
 
 @Entity()
 export class Article {

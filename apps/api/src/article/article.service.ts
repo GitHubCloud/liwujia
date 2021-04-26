@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { paginate, Pagination } from 'nestjs-typeorm-paginate';
+import { getRepository, Repository } from 'typeorm';
+import { paginateRawAndEntities, Pagination } from 'nestjs-typeorm-paginate';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { Article } from './entities/article.entity';
@@ -20,9 +20,25 @@ export class ArticleService {
     );
   }
 
-  async paginate(paginationDto: PaginationDto): Promise<Pagination<Article>> {
-    const { page, limit } = paginationDto;
-    return await paginate(this.articleRepo, { page, limit });
+  async paginate(paginationDto: PaginationDto): Promise<Pagination<any>> {
+    const { page, limit, query } = paginationDto;
+
+    const queryBuilder = getRepository(Article)
+      .createQueryBuilder('article')
+      .leftJoin('article.comments', 'comments')
+      .addSelect('COUNT(comments.id) as comments')
+      .where(query)
+      .groupBy('article.id');
+    const [pagination, rawResults] = await paginateRawAndEntities(
+      queryBuilder,
+      { page, limit },
+    );
+
+    pagination.items.map((item, index) => {
+      const raw = rawResults[index];
+      item.comments = Number(raw.comments);
+    });
+    return pagination;
   }
 
   async findOne(id: number): Promise<Article> {
