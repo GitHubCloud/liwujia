@@ -34,7 +34,7 @@ export default {
       },
     });
 
-    this.$store.dispatch('setToken', res.data);
+    this.$store.dispatch('setToken', res.data.token);
   },
 };
 </script>

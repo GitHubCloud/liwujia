@@ -14,7 +14,10 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @Post('login')
   async login(@Req() req) {
-    return this.authService.jwtSign(req.user);
+    return {
+      ...req.user,
+      token: this.authService.jwtSign(req.user),
+    };
   }
 
   @ApiBody({
@@ -25,6 +28,9 @@ export class AuthController {
   @UseGuards(AuthGuard('miniProgram'))
   @Post('miniProgram')
   async miniProgram(@Req() req) {
-    return this.authService.jwtSign(req.user);
+    return {
+      ...req.user,
+      token: this.authService.jwtSign(req.user),
+    };
   }
 }
