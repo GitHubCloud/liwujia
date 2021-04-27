@@ -27,8 +27,11 @@ export class User {
   nickname: string;
 
   @Exclude()
-  @Column()
-  loginPasswd: string;
+  @Column({ nullable: true })
+  loginPasswd?: string;
+
+  @Column({ nullable: true, unique: true })
+  wechatOpenID?: string;
 
   @CreateDateColumn()
   @Transform((d) => moment(d.value).toDate().getTime())
@@ -56,9 +59,15 @@ export class User {
 
   @BeforeInsert()
   encryptPasswd() {
-    this.loginPasswd = bcrypt.hashSync(
-      this.loginPasswd,
-      bcrypt.genSaltSync(10),
-    );
+    if (this.loginPasswd) {
+      this.loginPasswd = bcrypt.hashSync(
+        this.loginPasswd,
+        bcrypt.genSaltSync(10),
+      );
+    }
+
+    if (!this.nickname) {
+      this.nickname = `理物小能手${Math.random().toString(36).substring(7)}`;
+    }
   }
 }

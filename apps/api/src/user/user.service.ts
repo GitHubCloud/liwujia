@@ -26,6 +26,12 @@ export class UserService {
     });
   }
 
+  async findByOpenID(openid: string): Promise<User> {
+    return await this.userRepo.findOne({
+      wechatOpenID: openid,
+    });
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto) {
     return await this.userRepo.update(id, updateUserDto);
   }

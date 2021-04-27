@@ -27,8 +27,8 @@ export class Article {
   @Column({ nullable: true })
   tags?: string;
 
-  @Column()
-  content: string;
+  @Column({ nullable: true })
+  content?: string;
 
   @JoinColumn()
   @ManyToOne(() => User, (user) => user.articles, { eager: true })

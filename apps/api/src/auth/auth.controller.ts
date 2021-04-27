@@ -16,4 +16,15 @@ export class AuthController {
   async login(@Req() req) {
     return this.authService.jwtSign(req.user);
   }
+
+  @ApiBody({
+    schema: { example: { code: 'string' } },
+    description:
+      '微信小程序登录流程：https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/login.html',
+  })
+  @UseGuards(AuthGuard('miniProgram'))
+  @Post('miniProgram')
+  async miniProgram(@Req() req) {
+    return this.authService.jwtSign(req.user);
+  }
 }

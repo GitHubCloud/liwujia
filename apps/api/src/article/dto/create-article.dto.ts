@@ -1,5 +1,5 @@
 import { ApiHideProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, ValidateIf } from 'class-validator';
 import { ArticleTypes } from '../articleType.enum';
 
 export class CreateArticleDto {
@@ -13,6 +13,7 @@ export class CreateArticleDto {
   @IsOptional()
   tags?: string;
 
+  @ValidateIf((o) => o.type !== ArticleTypes.交流) // 交流无需内容
   @IsNotEmpty({ message: '内容不能为空' })
   content: string;
 

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { HttpModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
@@ -8,9 +8,11 @@ import { AuthListener } from './auth.listener';
 import { AuthController } from './auth.controller';
 import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
+import { MiniProgramStrategy } from './mini-program.strategy';
 
 @Module({
   imports: [
+    HttpModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -22,7 +24,13 @@ import { JwtStrategy } from './jwt.strategy';
     }),
     UserModule,
   ],
-  providers: [AuthService, AuthListener, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    AuthListener,
+    LocalStrategy,
+    JwtStrategy,
+    MiniProgramStrategy,
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })

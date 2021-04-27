@@ -6,6 +6,7 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { Article } from './entities/article.entity';
 import { PaginationDto } from 'apps/api/src/pagination.dto';
+import { ArticleTypes } from './articleType.enum';
 
 @Injectable()
 export class ArticleService {
@@ -15,6 +16,8 @@ export class ArticleService {
   ) {}
 
   async create(createArticleDto: CreateArticleDto): Promise<Article> {
+    createArticleDto.type = createArticleDto.type || ArticleTypes.交流;
+
     return await this.articleRepo.save(
       this.articleRepo.create(createArticleDto),
     );
