@@ -23,12 +23,12 @@ import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Stuff')
 @Controller('stuff')
-@UseGuards(AuthGuard('jwt'))
 @UseInterceptors(ClassSerializerInterceptor)
 export class StuffController {
   constructor(private readonly stuffService: StuffService) {}
 
   @Post()
+  @UseGuards(AuthGuard('jwt'))
   async create(
     @Req() req,
     @Body() createStuffDto: CreateStuffDto,
@@ -39,7 +39,6 @@ export class StuffController {
   }
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
   async paginate(
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Stuff>> {
@@ -47,12 +46,12 @@ export class StuffController {
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard('jwt'))
   async findOne(@Param('id') id: number): Promise<Stuff> {
     return await this.stuffService.findOne(id);
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard('jwt'))
   async update(
     @Param('id') id: number,
     @Body() updateStuffDto: UpdateStuffDto,
@@ -61,6 +60,7 @@ export class StuffController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard('jwt'))
   async remove(@Param('id') id: number) {
     return await this.stuffService.remove(id);
   }

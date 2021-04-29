@@ -12,13 +12,11 @@ import { Category } from './entities/category.entity';
 
 @ApiTags('Category')
 @Controller('category')
-@UseGuards(AuthGuard('jwt'))
 @UseInterceptors(ClassSerializerInterceptor)
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
   async findAll(): Promise<Category[]> {
     return this.categoryService.findAll();
   }

@@ -19,12 +19,12 @@ import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Message')
 @Controller('message')
-@UseGuards(AuthGuard('jwt'))
 @UseInterceptors(ClassSerializerInterceptor)
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
   @Post()
+  @UseGuards(AuthGuard('jwt'))
   async create(
     @Req() req,
     @Body() createMessageDto: CreateMessageDto,

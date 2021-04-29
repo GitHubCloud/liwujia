@@ -20,12 +20,12 @@ import { Comment } from './entities/comment.entity';
 
 @ApiTags('Comment')
 @Controller('comment')
-@UseGuards(AuthGuard('jwt'))
 @UseInterceptors(ClassSerializerInterceptor)
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Post('/:id/reply')
+  @UseGuards(AuthGuard('jwt'))
   async reply(
     @Req() req,
     @Param('id') id: number,
@@ -38,7 +38,6 @@ export class CommentController {
   }
 
   @Get('/:id/reply')
-  @UseGuards(AuthGuard('jwt'))
   async paginateComment(
     @Param('id') id: number,
     @Query() paginationDto: PaginationDto,

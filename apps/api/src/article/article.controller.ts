@@ -34,6 +34,7 @@ export class ArticleController {
   ) {}
 
   @Post()
+  @UseGuards(AuthGuard('jwt'))
   async create(
     @Req() req,
     @Body() createArticleDto: CreateArticleDto,
@@ -44,7 +45,6 @@ export class ArticleController {
   }
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
   async paginate(
     @Query('type') type: string,
     @Query() paginationDto: PaginationDto,
@@ -55,12 +55,12 @@ export class ArticleController {
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard('jwt'))
   async findOne(@Param('id') id: number): Promise<Article> {
     return await this.articleService.findOne(id);
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard('jwt'))
   async update(
     @Param('id') id: number,
     @Body() updateArticleDto: UpdateArticleDto,
@@ -69,16 +69,19 @@ export class ArticleController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard('jwt'))
   async remove(@Param('id') id: number) {
     return await this.articleService.remove(id);
   }
 
   @Put('/:id/favorite')
+  @UseGuards(AuthGuard('jwt'))
   async favorite(@Param('id') id: number) {
     return await this.articleService.favorite(id);
   }
 
   @Post('/:id/comment')
+  @UseGuards(AuthGuard('jwt'))
   async createComment(
     @Req() req,
     @Param('id') id: number,
@@ -91,7 +94,6 @@ export class ArticleController {
   }
 
   @Get('/:id/comment')
-  @UseGuards(AuthGuard('jwt'))
   async paginateComment(
     @Param('id') id: number,
     @Query() paginationDto: PaginationDto,
