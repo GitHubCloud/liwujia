@@ -39,6 +39,7 @@ export class StuffController {
   }
 
   @Get()
+  @UseGuards(AuthGuard('jwt'))
   async paginate(
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Stuff>> {
@@ -46,6 +47,7 @@ export class StuffController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard('jwt'))
   async findOne(@Param('id') id: number): Promise<Stuff> {
     return await this.stuffService.findOne(id);
   }

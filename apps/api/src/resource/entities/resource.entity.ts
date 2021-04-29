@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -11,6 +12,7 @@ import * as moment from 'moment';
 import { ConfigService } from '@nestjs/config';
 import { Stuff } from '../../stuff/entities/stuff.entity';
 import { User } from '../../user/entities/user.entity';
+import { Article } from '../../article/entities/article.entity';
 
 @Entity()
 export class Resource {
@@ -41,6 +43,10 @@ export class Resource {
   @JoinColumn()
   @OneToOne(() => Stuff, (stuff) => stuff.image)
   stuff: number;
+
+  @JoinColumn()
+  @ManyToOne(() => Article, (article) => article.images)
+  article: number;
 
   @JoinColumn()
   @OneToOne(() => User, (user) => user.avatar)

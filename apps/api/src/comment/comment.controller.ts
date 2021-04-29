@@ -38,6 +38,7 @@ export class CommentController {
   }
 
   @Get('/:id/reply')
+  @UseGuards(AuthGuard('jwt'))
   async paginateComment(
     @Param('id') id: number,
     @Query() paginationDto: PaginationDto,

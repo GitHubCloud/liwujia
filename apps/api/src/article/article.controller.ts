@@ -26,7 +26,6 @@ import { PaginationDto } from 'apps/api/src/pagination.dto';
 
 @ApiTags('Article')
 @Controller('article')
-@UseGuards(AuthGuard('jwt'))
 @UseInterceptors(ClassSerializerInterceptor)
 export class ArticleController {
   constructor(
@@ -45,6 +44,7 @@ export class ArticleController {
   }
 
   @Get()
+  @UseGuards(AuthGuard('jwt'))
   async paginate(
     @Query('type') type: string,
     @Query() paginationDto: PaginationDto,
@@ -55,6 +55,7 @@ export class ArticleController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard('jwt'))
   async findOne(@Param('id') id: number): Promise<Article> {
     return await this.articleService.findOne(id);
   }
@@ -90,6 +91,7 @@ export class ArticleController {
   }
 
   @Get('/:id/comment')
+  @UseGuards(AuthGuard('jwt'))
   async paginateComment(
     @Param('id') id: number,
     @Query() paginationDto: PaginationDto,

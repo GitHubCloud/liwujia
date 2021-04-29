@@ -15,7 +15,7 @@ import { Resource } from './entities/resource.entity';
 import { OssService } from './oss.service';
 import { ResourceService } from './resource.service';
 
-@ApiTags('User')
+@ApiTags('Resource')
 @Controller('resource')
 @UseGuards(AuthGuard('jwt'))
 @UseInterceptors(ClassSerializerInterceptor)

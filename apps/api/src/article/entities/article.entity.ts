@@ -12,6 +12,7 @@ import * as moment from 'moment';
 import { User } from 'apps/api/src/user/entities/user.entity';
 import { Comment } from 'apps/api/src/comment/entities/comment.entity';
 import { ArticleTypes } from '../articleType.enum';
+import { Resource } from '../../resource/entities/resource.entity';
 
 @Entity()
 export class Article {
@@ -26,6 +27,10 @@ export class Article {
 
   @Column({ nullable: true })
   tags?: string;
+
+  @JoinColumn()
+  @OneToMany(() => Resource, (res) => res.article, { eager: true })
+  images?: number[];
 
   @Column({ nullable: true })
   content?: string;

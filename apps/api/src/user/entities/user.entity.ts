@@ -5,7 +5,6 @@ import {
   Entity,
   JoinColumn,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Exclude, Transform } from 'class-transformer';
@@ -15,16 +14,14 @@ import { Article } from 'apps/api/src/article/entities/article.entity';
 import { Comment } from 'apps/api/src/comment/entities/comment.entity';
 import { Message } from 'apps/api/src/message/entities/message.entity';
 import { Stuff } from 'apps/api/src/stuff/entities/stuff.entity';
-import { Resource } from '../../resource/entities/resource.entity';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @JoinColumn()
-  @OneToOne(() => Resource, (resource) => resource.user, { eager: true })
-  avatar?: number;
+  @Column({ nullable: true })
+  avatar?: string;
 
   @Column()
   nickname: string;
