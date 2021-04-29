@@ -25,6 +25,9 @@ export class Category {
   @OneToMany(() => Stuff, (stuff) => stuff.category)
   stuffs: number;
 
+  @Column({ nullable: true })
+  icon?: string;
+
   @CreateDateColumn()
   @Transform((d) => moment(d.value).toDate().getTime())
   createTime: Date;

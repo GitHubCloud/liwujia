@@ -6,11 +6,12 @@ import {
   ValidateIf,
 } from 'class-validator';
 import * as _ from 'lodash';
+import { IsExistsInTable } from '../../custom.decorator';
 
 export class CreateUserDto {
   @IsOptional()
-  @IsUrl({}, { message: '头像上传不正确' })
-  avatar?: string;
+  @IsExistsInTable('resource', 'id', { message: '头像不存在' })
+  avatar?: number;
 
   @ValidateIf((o) => _.isEmpty(o.wechatOpenID))
   @IsNotEmpty({ message: '昵称不能为空' })

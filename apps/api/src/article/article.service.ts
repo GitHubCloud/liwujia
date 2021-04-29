@@ -28,6 +28,7 @@ export class ArticleService {
 
     const queryBuilder = getRepository(Article)
       .createQueryBuilder('article')
+      .leftJoinAndSelect('article.author', 'author')
       .leftJoin('article.comments', 'comments')
       .addSelect('COUNT(comments.id) as comments')
       .where(query)

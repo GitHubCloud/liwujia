@@ -8,13 +8,19 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Resource } from '../../resource/entities/resource.entity';
 
 @Entity()
 export class Stuff {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @JoinColumn()
+  @OneToOne(() => Resource, (resource) => resource.stuff, { eager: true })
+  image: number;
 
   @Column()
   name: string;

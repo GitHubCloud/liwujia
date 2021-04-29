@@ -9,6 +9,7 @@ import { MessageModule } from './message/message.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CategoryModule } from './category/category.module';
 import { StuffModule } from './stuff/stuff.module';
+import { ResourceModule } from './resource/resource.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { StuffModule } from './stuff/stuff.module';
     MessageModule,
     CategoryModule,
     StuffModule,
+    ResourceModule,
   ],
 })
 export class AppModule {}
