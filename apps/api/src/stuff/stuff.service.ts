@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { CategoryService } from 'apps/api/src/category/category.service';
 import { PaginationDto } from 'apps/api/src/pagination.dto';
-import { Repository } from 'typeorm';
+import { getRepository, Repository } from 'typeorm';
 import { CreateStuffDto } from './dto/create-stuff.dto';
 import { UpdateStuffDto } from './dto/update-stuff.dto';
 import { Stuff } from './entities/stuff.entity';
@@ -73,8 +73,12 @@ export class StuffService {
   }
 
   async paginate(paginationDto: PaginationDto): Promise<Pagination<Stuff>> {
-    const { page, limit } = paginationDto;
-    return await paginate(this.stuffRepo, { page, limit });
+    const { page, limit, query } = paginationDto;
+
+    const queryBuilder = getRepository(Stuff)
+      .createQueryBuilder('stuff')
+      .where(query);
+    return await paginate(queryBuilder, { page, limit });
   }
 
   async findOne(id: number): Promise<Stuff> {

@@ -40,8 +40,11 @@ export class StuffController {
 
   @Get()
   async paginate(
+    @Query('category') category: number,
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Stuff>> {
+    paginationDto.query = { category };
+
     return this.stuffService.paginate(paginationDto);
   }
 
