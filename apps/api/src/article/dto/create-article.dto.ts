@@ -1,5 +1,7 @@
 import { ApiHideProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional, ValidateIf } from 'class-validator';
+import { IsExistsInTable } from '../../custom.decorator';
+import { Resource } from '../../resource/entities/resource.entity';
 import { ArticleTypes } from '../articleType.enum';
 
 export class CreateArticleDto {
@@ -9,6 +11,10 @@ export class CreateArticleDto {
   @IsOptional()
   @IsEnum(ArticleTypes, { message: '类型不在可选范围' })
   type?: ArticleTypes;
+
+  @IsOptional()
+  @IsExistsInTable('resource', 'id', { message: '图片不存在', each: true })
+  images?: Resource[];
 
   @IsOptional()
   tags?: string;

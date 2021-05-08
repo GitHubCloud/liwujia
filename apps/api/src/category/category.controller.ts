@@ -2,6 +2,7 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Get,
+  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -17,7 +18,8 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Get()
-  async findAll(): Promise<Category[]> {
-    return this.categoryService.findAll();
+  @UseGuards(AuthGuard('jwt'))
+  async findAll(@Req() req): Promise<Category[]> {
+    return this.categoryService.findAll(req.user);
   }
 }

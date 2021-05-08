@@ -49,7 +49,7 @@ export class ArticleController {
     @Query('type') type: string,
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Article>> {
-    paginationDto.query = { type };
+    if (type) paginationDto.query = { type };
 
     return await this.articleService.paginate(paginationDto);
   }

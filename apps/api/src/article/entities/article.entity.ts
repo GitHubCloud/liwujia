@@ -3,6 +3,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -11,8 +13,8 @@ import { Transform } from 'class-transformer';
 import * as moment from 'moment';
 import { User } from 'apps/api/src/user/entities/user.entity';
 import { Comment } from 'apps/api/src/comment/entities/comment.entity';
+import { Resource } from 'apps/api/src/resource/entities/resource.entity';
 import { ArticleTypes } from '../articleType.enum';
-import { Resource } from '../../resource/entities/resource.entity';
 
 @Entity()
 export class Article {
@@ -28,9 +30,9 @@ export class Article {
   @Column({ nullable: true })
   tags?: string;
 
-  @JoinColumn()
-  @OneToMany(() => Resource, (res) => res.article, { eager: true })
-  images?: number[];
+  @JoinTable()
+  @ManyToMany(() => Resource, { cascade: true, eager: true })
+  images?: Resource[];
 
   @Column({ nullable: true })
   content?: string;
@@ -41,6 +43,7 @@ export class Article {
 
   @JoinColumn()
   @OneToMany(() => Comment, (comment) => comment.article)
+  @Transform((d) => d.value.length)
   comments: number;
 
   @CreateDateColumn()
