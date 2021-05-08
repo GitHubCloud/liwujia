@@ -43,7 +43,6 @@ export class Article {
 
   @JoinColumn()
   @OneToMany(() => Comment, (comment) => comment.article)
-  @Transform((d) => d.value.length)
   comments: number;
 
   @CreateDateColumn()

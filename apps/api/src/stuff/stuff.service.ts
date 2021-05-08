@@ -77,7 +77,8 @@ export class StuffService {
 
     const queryBuilder = getRepository(Stuff)
       .createQueryBuilder('stuff')
-      .where(query);
+      .where(query)
+      .orderBy('stuff.id', 'DESC');
     return await paginate(queryBuilder, { page, limit });
   }
 

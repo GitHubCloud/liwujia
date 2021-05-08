@@ -1,4 +1,4 @@
-import { Injectable, Req } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getRepository, Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -13,14 +13,20 @@ export class CategoryService {
   ) {}
 
   async findAll(user: any): Promise<Category[]> {
-    return await getRepository(Category)
+    const { entities, raw } = await getRepository(Category)
       .createQueryBuilder('category')
+      .addSelect('COUNT(stuffs.id)', 'stuffs')
       .leftJoin('category.stuffs', 'stuffs', 'stuffs.owner = :userid', {
         userid: user.id,
       })
-      .addSelect('COUNT(stuffs.id) as stuffs')
       .groupBy('category.id')
-      .execute();
+      .getRawAndEntities();
+
+    entities.map((item, index) => {
+      item.stuffs = raw[index].stuffs;
+    });
+
+    return entities;
   }
 
   async findOne(id: number): Promise<Category> {

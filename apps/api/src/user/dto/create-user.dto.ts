@@ -16,6 +16,9 @@ export class CreateUserDto {
   @IsNotEmpty({ message: '昵称不能为空' })
   nickname?: string;
 
+  @IsOptional()
+  biography?: string;
+
   @ValidateIf((o) => _.isEmpty(o.loginPasswd))
   @IsNotEmpty({ message: '关键信息不能为空' })
   wechatOpenID?: string;

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getRepository, In, Repository } from 'typeorm';
-import { paginate, Pagination } from 'nestjs-typeorm-paginate';
+import { paginateRawAndEntities, Pagination } from 'nestjs-typeorm-paginate';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { Article } from './entities/article.entity';
@@ -43,11 +43,10 @@ export class ArticleService {
       .where(query)
       .groupBy('article.id')
       .orderBy('article.id', 'DESC');
-    const pagination = await paginate(queryBuilder, {
-      page,
-      limit,
-    });
-
+    const [pagination, rawResults] = await paginateRawAndEntities(
+      queryBuilder,
+      { page, limit },
+    );
     // TODO: replace with a better solution
     const ids = pagination.items.map((i) => i.id);
     const images = await this.articleRepo.find({
@@ -55,7 +54,9 @@ export class ArticleService {
         id: In(ids),
       },
     });
-    pagination.items.map((item) => {
+    pagination.items.map((item, index) => {
+      const raw = rawResults[index];
+      item.comments = Number(raw.comments);
       item.images = _.get(
         _.find(images, (i) => i.id == item.id),
         'images',
