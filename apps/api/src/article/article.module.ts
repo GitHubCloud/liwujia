@@ -6,11 +6,13 @@ import { Article } from './entities/article.entity';
 import { Comment } from 'apps/api/src/comment/entities/comment.entity';
 import { CommentModule } from 'apps/api/src/comment/comment.module';
 import { Resource } from '../resource/entities/resource.entity';
+import { CollectModule } from '../collect/collect.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Article, Comment, Resource]),
     CommentModule,
+    CollectModule,
   ],
   controllers: [ArticleController],
   providers: [ArticleService],

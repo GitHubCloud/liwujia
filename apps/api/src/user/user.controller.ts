@@ -24,11 +24,11 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  /* 仅通过小程序创建用户
-  @Post()
+  /* 仅通过小程序创建用户 */
+  // @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.userService.create(createUserDto);
-  } */
+  }
 
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<User> {

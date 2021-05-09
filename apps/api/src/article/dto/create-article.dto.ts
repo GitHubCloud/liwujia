@@ -8,9 +8,8 @@ export class CreateArticleDto {
   @IsNotEmpty({ message: '标题不能为空' })
   title: string;
 
-  @IsOptional()
   @IsEnum(ArticleTypes, { message: '类型不在可选范围' })
-  type?: ArticleTypes;
+  type: ArticleTypes = ArticleTypes.交流;
 
   @IsOptional()
   @IsExistsInTable('resource', 'id', { message: '图片不存在', each: true })

@@ -10,6 +10,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CategoryModule } from './category/category.module';
 import { StuffModule } from './stuff/stuff.module';
 import { ResourceModule } from './resource/resource.module';
+import { CollectModule } from './collect/collect.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ResourceModule } from './resource/resource.module';
     CategoryModule,
     StuffModule,
     ResourceModule,
+    CollectModule,
   ],
 })
 export class AppModule {}

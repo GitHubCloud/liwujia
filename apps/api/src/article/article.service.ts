@@ -6,9 +6,9 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { Article } from './entities/article.entity';
 import { PaginationDto } from 'apps/api/src/pagination.dto';
-import { ArticleTypes } from './articleType.enum';
 import { Resource } from '../resource/entities/resource.entity';
 import * as _ from 'lodash';
+import { CollectService } from '../collect/collect.service';
 
 @Injectable()
 export class ArticleService {
@@ -17,11 +17,10 @@ export class ArticleService {
     private readonly articleRepo: Repository<Article>,
     @InjectRepository(Resource)
     private readonly resourceRepo: Repository<Resource>,
-  ) {}
+    private readonly collectService: CollectService,
+  ) { }
 
   async create(createArticleDto: CreateArticleDto): Promise<Article> {
-    createArticleDto.type = createArticleDto.type || ArticleTypes.交流;
-
     if (createArticleDto.images) {
       const images = await this.resourceRepo.findByIds(createArticleDto.images);
       createArticleDto.images = images;
@@ -31,7 +30,7 @@ export class ArticleService {
     return await this.articleRepo.save(articleData);
   }
 
-  async paginate(paginationDto: PaginationDto): Promise<Pagination<any>> {
+  async paginate(paginationDto: PaginationDto, user?: any): Promise<Pagination<any>> {
     const { page, limit, query } = paginationDto;
 
     const queryBuilder = getRepository(Article)
@@ -47,6 +46,7 @@ export class ArticleService {
       queryBuilder,
       { page, limit },
     );
+
     // TODO: replace with a better solution
     const ids = pagination.items.map((i) => i.id);
     const images = await this.articleRepo.find({
@@ -54,7 +54,7 @@ export class ArticleService {
         id: In(ids),
       },
     });
-    pagination.items.map((item, index) => {
+    await Promise.all(pagination.items.map(async (item, index) => {
       const raw = rawResults[index];
       item.comments = Number(raw.comments);
       item.images = _.get(
@@ -62,7 +62,12 @@ export class ArticleService {
         'images',
         [],
       );
-    });
+
+      if (user) {
+        item.isCollected = !_.isEmpty(await this.collectService.findOne({ collector: user.id, article: item.id }));
+        item.isFavorite = false;
+      }
+    }));
 
     return pagination;
   }
@@ -79,9 +84,25 @@ export class ArticleService {
     return await this.articleRepo.delete(id);
   }
 
-  async favorite(id: number) {
+  async favorite(user: any, id: number) {
     const article: Article = await this.findOne(id);
     article.favorite++;
     return await this.articleRepo.save(article);
+  }
+
+  async collect(user: any, id: number) {
+    const article: Article = await this.findOne(id);
+
+    const exists = await this.collectService.findOne({ collector: user.id, article: article.id });
+    if (_.isEmpty(exists)) {
+      await this.collectService.create({
+        collector: user.id,
+        article: id
+      });
+      await this.articleRepo.increment({ id }, 'collect', 1);
+    } else {
+      await this.collectService.remove(exists.id);
+      await this.articleRepo.decrement({ id }, 'collect', 1);
+    }
   }
 }

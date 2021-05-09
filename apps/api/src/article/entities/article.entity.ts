@@ -51,4 +51,10 @@ export class Article {
 
   @Column({ default: 0 })
   favorite: number;
+
+  @Column({ default: 0 })
+  collect: number;
+
+  isCollected: boolean;
+  isFavorite: boolean;
 }

@@ -45,13 +45,15 @@ export class ArticleController {
   }
 
   @Get()
+  @UseGuards(AuthGuard('jwt'))
   async paginate(
+    @Req() req,
     @Query('type') type: string,
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Article>> {
     if (type) paginationDto.query = { type };
 
-    return await this.articleService.paginate(paginationDto);
+    return await this.articleService.paginate(paginationDto, req.user);
   }
 
   @Get(':id')
@@ -76,8 +78,14 @@ export class ArticleController {
 
   @Put('/:id/favorite')
   @UseGuards(AuthGuard('jwt'))
-  async favorite(@Param('id') id: number) {
-    return await this.articleService.favorite(id);
+  async favorite(@Req() req, @Param('id') id: number) {
+    return await this.articleService.favorite(req.user, id);
+  }
+
+  @Put('/:id/collect')
+  @UseGuards(AuthGuard('jwt'))
+  async collect(@Req() req, @Param('id') id: number) {
+    return await this.articleService.collect(req.user, id);
   }
 
   @Post('/:id/comment')
