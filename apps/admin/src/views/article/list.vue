@@ -10,7 +10,7 @@
         <!-- <el-button class="button" type="text">操作按钮</el-button> -->
       </div>
     </template>
-    <el-table :data="list" stripe v-loading="isLoading">
+    <el-table :data="list" stripe>
       <el-table-column prop="title" label="标题" />
       <el-table-column prop="type" label="类型" :formatter="typeFormatter" />
       <el-table-column prop="author.nickname" label="作者" />
@@ -21,7 +21,8 @@
         :formatter="dateFormatter"
       />
       <template #empty>
-        <el-empty description="暂无数据"></el-empty>
+        <el-empty v-if="!isLoading" description="暂无数据"></el-empty>
+        <el-skeleton v-if="isLoading" animated />
       </template>
     </el-table>
 

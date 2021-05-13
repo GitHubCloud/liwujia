@@ -14,6 +14,7 @@
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
     "vue3-quill": "^0.2.4",
+    "vuedraggable": "^4.0.1",
     "vuex": "^4.0.0-0",
     "vuex-persistedstate": "^4.0.0-beta.3"
   },

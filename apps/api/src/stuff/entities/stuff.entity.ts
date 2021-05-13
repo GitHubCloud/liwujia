@@ -19,8 +19,8 @@ export class Stuff {
   id: number;
 
   @JoinColumn()
-  @OneToOne(() => Resource, (resource) => resource.stuff, { eager: true })
-  image: number;
+  @OneToOne(() => Resource, { eager: true })
+  image: Resource;
 
   @Column()
   name: string;

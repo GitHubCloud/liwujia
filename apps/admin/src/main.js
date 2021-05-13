@@ -21,8 +21,9 @@ app.config.globalProperties.$api = async (state, path, param = {}) => {
   if (state.token) headers['Authorization'] = `Bearer ${state.token}`;
 
   const _param = {
-    method: param.method || 'post',
+    method: param.method ? String(param.method).toUpperCase() : 'POST',
     headers,
+    mode: 'cors'
   };
 
   if (_param.method == 'get' || _param.method == 'GET') {

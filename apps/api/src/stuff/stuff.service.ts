@@ -77,9 +77,12 @@ export class StuffService {
 
     const queryBuilder = getRepository(Stuff)
       .createQueryBuilder('stuff')
+      .leftJoinAndSelect('stuff.image', 'image')
       .where(query)
       .orderBy('stuff.id', 'DESC');
-    return await paginate(queryBuilder, { page, limit });
+    const pagination = await paginate(queryBuilder, { page, limit });
+
+    return pagination;
   }
 
   async findOne(id: number): Promise<Stuff> {

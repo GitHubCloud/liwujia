@@ -2,8 +2,13 @@
   <el-card>
     <template #header>
       <div class="card-header">
-        <span>Create Article</span>
-        <!-- <el-button class="button" type="text">操作按钮</el-button> -->
+        <el-breadcrumb separator="/">
+          <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ name: 'article-list' }"
+            >文章列表</el-breadcrumb-item
+          >
+          <el-breadcrumb-item>发布文章</el-breadcrumb-item>
+        </el-breadcrumb>
       </div>
     </template>
     <el-form ref="form" :model="form" label-width="80px">
@@ -14,7 +19,6 @@
         <el-radio-group v-model="form.type">
           <el-radio-button label="1">交流</el-radio-button>
           <el-radio-button label="2">种草</el-radio-button>
-          <el-radio-button label="3">种树</el-radio-button>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="内容">
@@ -24,11 +28,35 @@
           :options="editerOption"
         ></quill-editor>
       </el-form-item>
+      <el-form-item label="图片">
+        <el-upload
+          ref="uploader"
+          limit="9"
+          action="http://localhost:3000/resource/upload"
+          :headers="{ Authorization: `Bearer ${this.$store.state.token}` }"
+          :data="{ dest: 'article' }"
+          list-type="picture-card"
+          :on-preview="handleUploadPreview"
+          :on-exceed="handleUploadExceed"
+        >
+          <template #tip>
+            <div class="el-upload__tip">最多上传 9 张图片，且不超过 500kb</div>
+          </template>
+          <el-image v-if="imageUrl" :src="imageUrl"></el-image>
+          <i v-else class="el-icon-plus"></i>
+        </el-upload>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSubmit">立即创建</el-button>
         <el-button>取消</el-button>
       </el-form-item>
     </el-form>
+
+    <!-- upload preview -->
+    <el-dialog v-model="previewVisible">
+      <el-image :fit="fit" :src="previewImageUrl"></el-image>
+    </el-dialog>
+    <!-- upload preview -->
   </el-card>
 </template>
 
@@ -41,6 +69,8 @@ import { quillEditor } from 'vue3-quill';
 export default {
   data() {
     return {
+      previewVisible: false,
+      previewImageUrl: '',
       form: {
         title: '',
         type: '',
@@ -62,7 +92,7 @@ export default {
             [{ font: [] }],
             [{ align: [] }],
             ['clean'],
-            ['link', 'image', 'video'],
+            ['link'], // 'image', 'video'
           ],
         },
         placeholder: '',
@@ -72,12 +102,20 @@ export default {
   },
   methods: {
     async onSubmit() {
+      const data = {
+        title: this.form.title,
+        type: this.form.type,
+        content: this.form.content,
+      };
+      if (this.$refs['uploader'].uploadFiles.length) {
+        data.images = [];
+        this.$refs['uploader'].uploadFiles.map((image) => {
+          data.images.push(image.response.data.id);
+        });
+      }
+
       const res = await this.$api(this.$store.state, 'article', {
-        body: {
-          title: this.form.title,
-          type: this.form.type,
-          content: this.form.content,
-        },
+        body: data,
       });
 
       if (res.statusCode == 200) {
@@ -86,6 +124,14 @@ export default {
       } else {
         this.$message.error(String(res.message));
       }
+    },
+    // banner upload
+    handleUploadPreview(file) {
+      this.previewImageUrl = file.url;
+      this.previewVisible = true;
+    },
+    handleUploadExceed() {
+      this.$message.error('超过最大文件数量');
     },
   },
   components: {

@@ -11,6 +11,7 @@ import { CategoryModule } from './category/category.module';
 import { StuffModule } from './stuff/stuff.module';
 import { ResourceModule } from './resource/resource.module';
 import { CollectModule } from './collect/collect.module';
+import { BannerModule } from './banner/banner.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { CollectModule } from './collect/collect.module';
     StuffModule,
     ResourceModule,
     CollectModule,
+    BannerModule,
   ],
 })
 export class AppModule {}
