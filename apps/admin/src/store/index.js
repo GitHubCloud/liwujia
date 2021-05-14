@@ -6,6 +6,7 @@ export default createStore({
   state: {
     token: '',
     tokenExpire: null,
+    apiEndPoint: process.env.VUE_APP_ENDPOINT
   },
   mutations: {
     setToken(state, token) {

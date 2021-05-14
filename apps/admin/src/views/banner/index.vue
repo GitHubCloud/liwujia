@@ -76,7 +76,7 @@
           <el-upload
             ref="uploader"
             limit="1"
-            action="http://localhost:3000/resource/upload"
+            :action="`${$store.state.apiEndPoint}resource/upload`"
             :headers="{ Authorization: `Bearer ${this.$store.state.token}` }"
             :data="{ dest: 'banner' }"
             list-type="picture-card"

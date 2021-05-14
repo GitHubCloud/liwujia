@@ -15,7 +15,7 @@ app.config.globalProperties.$http = async (url, param) => {
 };
 
 app.config.globalProperties.$api = async (state, path, param = {}) => {
-  let url = `http://localhost:3000/${path}`;
+  let url = `${process.env.VUE_APP_ENDPOINT}${path}`;
   const headers = param.headers ? param.headers : {};
   headers['Content-Type'] = 'application/json';
   if (state.token) headers['Authorization'] = `Bearer ${state.token}`;

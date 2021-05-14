@@ -16,7 +16,7 @@ import { BannerService } from './banner.service';
 import { CreateBannerDto } from './dto/create-banner.dto';
 import { UpdateBannerDto } from './dto/update-banner.dto';
 
-@ApiTags('Article')
+@ApiTags('Banner')
 @Controller('banner')
 @UseInterceptors(ClassSerializerInterceptor)
 export class BannerController {
