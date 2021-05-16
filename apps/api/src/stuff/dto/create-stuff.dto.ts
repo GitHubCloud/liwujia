@@ -8,6 +8,7 @@ export class CreateStuffDto {
   @IsNotEmpty({ message: '名称不能为空' })
   name: string;
 
+  @IsOptional()
   @IsExistsInTable('resource', 'id', { message: '图片不存在' })
   image?: Resource;
 
