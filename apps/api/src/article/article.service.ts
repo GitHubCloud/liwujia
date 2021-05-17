@@ -82,8 +82,20 @@ export class ArticleService {
     return pagination;
   }
 
-  async findOne(id: number): Promise<Article> {
-    return await this.articleRepo.findOne(id);
+  async findOne(id: number, user: any): Promise<Article> {
+    const data = await this.articleRepo.findOne(id);
+
+    if (user) {
+      data.isCollected = !_.isEmpty(
+        await this.collectService.findOne({
+          collector: user.id,
+          article: data.id,
+        }),
+      );
+      data.isFavorite = false;
+    }
+
+    return data;
   }
 
   async update(id: number, updateArticleDto: UpdateArticleDto) {
