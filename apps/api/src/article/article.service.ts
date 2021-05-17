@@ -82,7 +82,7 @@ export class ArticleService {
     return pagination;
   }
 
-  async findOne(id: number, user: any): Promise<Article> {
+  async findOne(id: number, user?: any): Promise<Article> {
     const data = await this.articleRepo.findOne(id);
 
     if (user) {

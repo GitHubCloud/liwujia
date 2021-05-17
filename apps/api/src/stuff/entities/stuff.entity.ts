@@ -61,6 +61,7 @@ export class Stuff {
       }
 
       this.detail['remainDate'] = moment(expirationDate).subtract(remainDays, 'day').toDate().getTime();
+      this.detail['expireDays'] = Math.ceil(moment(expirationDate).diff(new Date()) / 86400000);
     } else {
       this.color = StuffColor.紫灯;
     }

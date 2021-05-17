@@ -154,6 +154,19 @@ export class StuffService {
     return calendar;
   }
 
+  async recentExpire(user: any) {
+    const stuff = await getRepository(Stuff)
+      .createQueryBuilder('stuff')
+      .leftJoinAndSelect('stuff.image', 'image')
+      .where('stuff.owner = :uid', { uid: user.id })
+      .andWhere(`detail->'$.expirationDate' IS NOT NULL`)
+      .andWhere(`detail->'$.expirationDate' > ${new Date().getTime()}`)
+      .orderBy(`detail->'$.expirationDate'`)
+      .getOne();
+
+    return stuff;
+  }
+
   async findOne(id: number): Promise<Stuff> {
     return await this.stuffRepo.findOne(id);
   }

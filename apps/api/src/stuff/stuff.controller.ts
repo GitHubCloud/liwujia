@@ -57,6 +57,11 @@ export class StuffController {
     return this.stuffService.calendar(date, req.user);
   }
 
+  @Get('recentExpire')
+  async recentExpire(@Req() req) {
+    return this.stuffService.recentExpire(req.user);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<Stuff> {
     return await this.stuffService.findOne(id);
