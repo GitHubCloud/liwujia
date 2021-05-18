@@ -134,7 +134,8 @@ export class StuffService {
 
     const calendar = [];
     for (let day = 1; day <= moment(endOfMonth).daysInMonth(); day++) {
-      calendar.push({ day, stuffs: [] });
+      const weekday = moment(endOfMonth).date(day).weekday();
+      calendar.push({ day, weekday, stuffs: [] });
     }
 
     stuffs.map(item => {
