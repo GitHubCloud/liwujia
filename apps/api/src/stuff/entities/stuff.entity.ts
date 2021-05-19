@@ -14,7 +14,7 @@ import {
 } from 'typeorm';
 import { Resource } from '../../resource/entities/resource.entity';
 import { StuffColor } from '../stuffColor.enum';
-import * as _ from "lodash";
+import * as _ from 'lodash';
 
 @Entity()
 export class Stuff {
@@ -60,8 +60,13 @@ export class Stuff {
         this.color = StuffColor.绿灯;
       }
 
-      this.detail['remainDate'] = moment(expirationDate).subtract(remainDays, 'day').toDate().getTime();
-      this.detail['expireDays'] = Math.ceil(moment(expirationDate).diff(new Date()) / 86400000);
+      this.detail['remainDate'] = moment(expirationDate)
+        .subtract(remainDays, 'day')
+        .toDate()
+        .getTime();
+      this.detail['expireDays'] = Math.ceil(
+        moment(expirationDate).diff(new Date()) / 86400000,
+      );
     } else {
       this.color = StuffColor.紫灯;
     }

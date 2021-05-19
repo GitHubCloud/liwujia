@@ -2,7 +2,6 @@ import { ApiHideProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 import { IsExistsInTable } from '../../custom.decorator';
 import { Resource } from '../../resource/entities/resource.entity';
-// import { IsExistsInTable } from 'apps/api/src/custom.decorator';
 
 export class CreateStuffDto {
   @IsNotEmpty({ message: '名称不能为空' })

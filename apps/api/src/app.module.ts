@@ -12,6 +12,7 @@ import { StuffModule } from './stuff/stuff.module';
 import { ResourceModule } from './resource/resource.module';
 import { CollectModule } from './collect/collect.module';
 import { BannerModule } from './banner/banner.module';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { BannerModule } from './banner/banner.module';
     ResourceModule,
     CollectModule,
     BannerModule,
+    ProductModule,
   ],
 })
 export class AppModule {}

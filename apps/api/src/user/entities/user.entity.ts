@@ -15,6 +15,7 @@ import { Comment } from 'apps/api/src/comment/entities/comment.entity';
 import { Message } from 'apps/api/src/message/entities/message.entity';
 import { Stuff } from 'apps/api/src/stuff/entities/stuff.entity';
 import { Collect } from '../../collect/entities/collect.entity';
+import { Product } from '../../product/entities/product.entity';
 
 @Entity()
 export class User {
@@ -44,6 +45,10 @@ export class User {
   @JoinColumn()
   @OneToMany(() => Stuff, (stuff) => stuff.owner)
   stuffs: number;
+
+  @JoinColumn()
+  @OneToMany(() => Product, (product) => product.owner)
+  products: number;
 
   @JoinColumn()
   @OneToMany(() => Article, (article) => article.author)

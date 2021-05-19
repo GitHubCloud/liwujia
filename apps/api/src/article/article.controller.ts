@@ -48,9 +48,12 @@ export class ArticleController {
   async paginate(
     @Req() req,
     @Query('type') type: string,
+    @Query('author') author: number,
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Article>> {
-    if (type) paginationDto.query = { type };
+    paginationDto.query = {};
+    if (type) paginationDto.query['type'] = type;
+    if (author) paginationDto.query['author'] = author;
 
     return await this.articleService.paginate(paginationDto, req.user);
   }
