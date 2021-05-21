@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Delete, UseInterceptors, ClassSerializerInterceptor, UseGuards, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Delete,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 import { isEnum } from 'class-validator';
@@ -14,23 +23,18 @@ import { Collect } from './entities/collect.entity';
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(AuthGuard('jwt'))
 export class CollectController {
-  constructor(private readonly collectService: CollectService) { }
+  constructor(private readonly collectService: CollectService) {}
 
   @Get()
   async paginate(
     @Query() paginationDto: PaginationDto,
-    @Query('schema') schema?: '',
-    @Query('type') type?: '',
+    @Query('schema') schema?: string,
+    @Query('type') type?: string,
   ): Promise<Pagination<Collect>> {
-    if (type && isEnum(type, ArticleTypes)) paginationDto.query = { type };
-    /* switch (schema) {
-      case 'article':
-      default:
-        paginationDto.query['article'] = Not(IsNull());
-        break;
-    } */
+    paginationDto.query = {};
+    if (type && isEnum(type, ArticleTypes)) paginationDto.query['type'] = type;
 
-    return await this.collectService.paginate(paginationDto);
+    return await this.collectService.paginate(paginationDto, schema);
   }
 
   @Delete(':id')

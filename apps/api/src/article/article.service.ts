@@ -122,7 +122,7 @@ export class ArticleService {
     if (_.isEmpty(exists)) {
       await this.collectService.create({
         collector: user.id,
-        article: id,
+        article: article.id,
       });
       await this.articleRepo.increment({ id }, 'collect', 1);
     } else {

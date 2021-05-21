@@ -13,6 +13,7 @@ import { ResourceModule } from './resource/resource.module';
 import { CollectModule } from './collect/collect.module';
 import { BannerModule } from './banner/banner.module';
 import { ProductModule } from './product/product.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ProductModule } from './product/product.module';
     CollectModule,
     BannerModule,
     ProductModule,
+    OrderModule,
   ],
 })
 export class AppModule {}

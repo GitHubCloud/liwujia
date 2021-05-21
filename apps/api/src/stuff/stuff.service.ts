@@ -45,7 +45,7 @@ export class StuffService {
       }
 
       // type check
-      if (!_.isUndefined(val) && i.type) {
+      if (!_.isUndefined(val) && val != '' && i.type) {
         if ((typeof val).toLowerCase() !== String(i.type).toLowerCase()) {
           switch (i.type) {
             case 'boolean':

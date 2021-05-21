@@ -1,12 +1,17 @@
 import { ApiHideProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateCommentDto {
   @IsNotEmpty({ message: '内容不能为空' })
   content: string;
 
+  @IsOptional()
   @ApiHideProperty()
-  article: number;
+  article?: number;
+
+  @IsOptional()
+  @ApiHideProperty()
+  product?: number;
 
   @ApiHideProperty()
   replyTo: number;

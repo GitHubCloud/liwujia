@@ -20,6 +20,7 @@ export class CommentService {
         { loadRelationIds: true },
       );
       createCommentDto.article = parentComment.article;
+      createCommentDto.product = parentComment.product;
     }
 
     return await this.commentRepo.save(
@@ -33,7 +34,11 @@ export class CommentService {
     const queryBuilder = getRepository(Comment)
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.replys', 'replys')
-      .leftJoinAndSelect('replys.author', 'replys.author')
+      .leftJoinAndSelect(
+        'replys.author',
+        'replys.author',
+        '`replys.author`.id = replys.author',
+      )
       .leftJoinAndSelect('comment.author', 'author')
       .where(query);
     return await paginate(queryBuilder, { page, limit });

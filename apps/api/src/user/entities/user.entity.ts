@@ -16,6 +16,7 @@ import { Message } from 'apps/api/src/message/entities/message.entity';
 import { Stuff } from 'apps/api/src/stuff/entities/stuff.entity';
 import { Collect } from '../../collect/entities/collect.entity';
 import { Product } from '../../product/entities/product.entity';
+import { Order } from '../../order/entities/order.entity';
 
 @Entity()
 export class User {
@@ -61,6 +62,14 @@ export class User {
   @JoinColumn()
   @OneToMany(() => Collect, (collect) => collect.collector)
   collects: number;
+
+  @JoinColumn()
+  @OneToMany(() => Order, (order) => order.seller)
+  sells: number;
+
+  @JoinColumn()
+  @OneToMany(() => Order, (order) => order.buyer)
+  buys: number;
 
   @JoinColumn()
   @OneToMany(() => Message, (message) => message.from)

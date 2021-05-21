@@ -1,5 +1,5 @@
 import { ApiHideProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
 import { IsExistsInTable } from '../../custom.decorator';
 import { Resource } from '../../resource/entities/resource.entity';
 
@@ -11,7 +11,6 @@ export class CreateStuffDto {
   @IsExistsInTable('resource', 'id', { message: '图片不存在' })
   image?: Resource;
 
-  // @IsExistsInTable('category')
   @IsNotEmpty({ message: '类型不能为空' })
   category: number;
 
@@ -20,4 +19,12 @@ export class CreateStuffDto {
 
   @ApiHideProperty()
   owner: number;
+
+  @IsOptional()
+  @IsBoolean({ message: '不是布尔类型' })
+  isConsumed: boolean;
+
+  @IsOptional()
+  @IsBoolean({ message: '不是布尔类型' })
+  isWasted: boolean;
 }

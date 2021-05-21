@@ -1,5 +1,5 @@
 import { ApiHideProperty } from '@nestjs/swagger';
-import { IsNotEmpty, Max, Min } from 'class-validator';
+import { IsNotEmpty, IsOptional, Max, Min } from 'class-validator';
 import { IsExistsInTable } from '../../custom.decorator';
 import { Resource } from '../../resource/entities/resource.entity';
 
@@ -19,7 +19,7 @@ export class CreateProductDto {
   @IsNotEmpty({ message: '地理位置不能为空' })
   position: string;
 
-  @IsNotEmpty({ message: '价格不能为空' })
+  @IsOptional()
   @Min(0, { message: '价格区间在 0 - 999999' })
   @Max(999999, { message: '价格区间在 0 - 999999' })
   price: number;

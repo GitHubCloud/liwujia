@@ -11,6 +11,7 @@ import { Transform } from 'class-transformer';
 import * as moment from 'moment';
 import { User } from 'apps/api/src/user/entities/user.entity';
 import { Article } from 'apps/api/src/article/entities/article.entity';
+import { Product } from '../../product/entities/product.entity';
 
 @Entity()
 export class Comment {
@@ -27,6 +28,10 @@ export class Comment {
   @JoinColumn()
   @ManyToOne(() => Article, (article) => article.comments)
   article: number;
+
+  @JoinColumn()
+  @ManyToOne(() => Product, (product) => product.comments)
+  product: number;
 
   @JoinColumn()
   @ManyToOne(() => Comment, (comment) => comment.replys)

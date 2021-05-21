@@ -32,6 +32,12 @@ export class Stuff {
   @ManyToOne(() => Category, (category) => category.stuffs, { eager: true })
   category: number;
 
+  @Column({ default: false })
+  isConsumed: boolean;
+
+  @Column({ default: false })
+  isWasted: boolean;
+
   @Column({ type: 'json', nullable: true })
   detail?: any;
 

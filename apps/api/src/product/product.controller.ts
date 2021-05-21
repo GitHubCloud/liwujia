@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Req,
@@ -11,6 +10,7 @@ import {
   ClassSerializerInterceptor,
   UseGuards,
   Query,
+  Put,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -20,13 +20,19 @@ import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { PaginationDto } from '../pagination.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
+import { CreateCommentDto } from '../comment/dto/create-comment.dto';
+import { CommentService } from '../comment/comment.service';
+import { Comment } from '../comment/entities/comment.entity';
 
 @ApiTags('Stuff')
 @Controller('product')
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(AuthGuard('jwt'))
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly commentService: CommentService,
+  ) {}
 
   @Post()
   async create(
@@ -47,21 +53,59 @@ export class ProductController {
     paginationDto.query = {};
     if (owner) paginationDto.query['owner'] = owner;
 
-    return this.productService.paginate(paginationDto);
+    return this.productService.paginate(paginationDto, req.user);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productService.findOne(+id);
+  async findOne(@Param('id') id: number): Promise<Product> {
+    return this.productService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(+id, updateProductDto);
+  @Put('/:id/favorite')
+  async favorite(@Req() req, @Param('id') id: number) {
+    return await this.productService.favorite(req.user, id);
+  }
+
+  @Put('/:id/collect')
+  async collect(@Req() req, @Param('id') id: number) {
+    return await this.productService.collect(req.user, id);
+  }
+
+  @Put(':id')
+  async update(
+    @Param('id') id: number,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
+    return await this.productService.update(id, updateProductDto);
+  }
+
+  @Post('/:id/comment')
+  async createComment(
+    @Req() req,
+    @Param('id') id: number,
+    @Body() createCommentDto: CreateCommentDto,
+  ): Promise<Comment> {
+    createCommentDto.product = id;
+    createCommentDto.author = req.user.id;
+
+    return await this.commentService.create(createCommentDto);
+  }
+
+  @Get('/:id/comment')
+  async paginateComment(
+    @Param('id') id: number,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<Pagination<Comment>> {
+    paginationDto.query = {
+      product: id,
+      replyTo: null,
+    };
+
+    return await this.commentService.paginate(paginationDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productService.remove(+id);
+  remove(@Param('id') id: number) {
+    return this.productService.remove(id);
   }
 }
