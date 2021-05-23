@@ -24,7 +24,7 @@ import { CreateCommentDto } from '../comment/dto/create-comment.dto';
 import { CommentService } from '../comment/comment.service';
 import { Comment } from '../comment/entities/comment.entity';
 
-@ApiTags('Stuff')
+@ApiTags('Product')
 @Controller('product')
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(AuthGuard('jwt'))
@@ -47,8 +47,8 @@ export class ProductController {
   @Get()
   async paginate(
     @Req() req,
-    @Query('owner') owner: number,
     @Query() paginationDto: PaginationDto,
+    @Query('owner') owner?: number,
   ): Promise<Pagination<Product>> {
     paginationDto.query = {};
     if (owner) paginationDto.query['owner'] = owner;

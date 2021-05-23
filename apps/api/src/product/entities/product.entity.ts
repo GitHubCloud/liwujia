@@ -51,7 +51,7 @@ export class Product {
 
   @JoinColumn()
   @ManyToOne(() => User, (user) => user.products, { eager: true })
-  owner: number;
+  owner: User;
 
   @JoinColumn()
   @OneToMany(() => Comment, (comment) => comment.product)

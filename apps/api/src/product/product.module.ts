@@ -13,6 +13,7 @@ import { CommentModule } from '../comment/comment.module';
     CollectModule,
     CommentModule,
   ],
+  exports: [ProductService],
   controllers: [ProductController],
   providers: [ProductService],
 })

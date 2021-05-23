@@ -2,6 +2,7 @@ import { ApiHideProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, Max, Min } from 'class-validator';
 import { IsExistsInTable } from '../../custom.decorator';
 import { Resource } from '../../resource/entities/resource.entity';
+import { User } from '../../user/entities/user.entity';
 
 export class CreateProductDto {
   @IsNotEmpty({ message: '内容不能为空' })
@@ -34,5 +35,5 @@ export class CreateProductDto {
   quality: string;
 
   @ApiHideProperty()
-  owner: number;
+  owner: User;
 }

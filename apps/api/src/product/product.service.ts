@@ -63,12 +63,12 @@ export class ProductService {
     return pagination;
   }
 
-  async findOne(id: number): Promise<Product> {
-    return await this.productRepo.findOne(id);
+  async findOne(condition: any): Promise<Product> {
+    return await this.productRepo.findOne(condition);
   }
 
-  async update(id: number, updateProductDto: UpdateProductDto) {
-    return await this.productRepo.update(id, updateProductDto);
+  async update(condition: any, updateProductDto: UpdateProductDto) {
+    return await this.productRepo.update(condition, updateProductDto);
   }
 
   async favorite(user: any, id: number) {

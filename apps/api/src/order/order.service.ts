@@ -1,26 +1,90 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { paginate, Pagination } from 'nestjs-typeorm-paginate';
+import { getRepository, In, Repository } from 'typeorm';
+import { PaginationDto } from '../pagination.dto';
+import { ProductService } from '../product/product.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { Order } from './entities/order.entity';
+import * as _ from 'lodash';
+import { OrderRoles } from './orderRoles.enum';
+import { OrderStatus } from './orderStatus.enum';
 
 @Injectable()
 export class OrderService {
-  create(createOrderDto: CreateOrderDto) {
-    return 'This action adds a new order';
+  constructor(
+    @InjectRepository(Order)
+    private readonly orderRepo: Repository<Order>,
+    private readonly productService: ProductService,
+  ) {}
+
+  async create(createOrderDto: CreateOrderDto) {
+    const product = await this.productService.findOne(createOrderDto.product);
+    createOrderDto.seller = product.owner;
+
+    if (createOrderDto.seller.id === createOrderDto.buyer.id) {
+      throw new HttpException('不能购买自己的闲置', HttpStatus.BAD_REQUEST);
+    }
+
+    return await this.orderRepo.save(this.orderRepo.create(createOrderDto));
   }
 
-  findAll() {
-    return `This action returns all order`;
+  async paginate(
+    paginationDto: PaginationDto,
+    role?: OrderRoles,
+    user?: any,
+  ): Promise<Pagination<Order>> {
+    const { page, limit, query = {} } = paginationDto;
+
+    const queryBuilder = getRepository(Order)
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.product', 'product')
+      .leftJoinAndSelect('order.seller', 'seller')
+      .leftJoinAndSelect('order.buyer', 'buyer');
+
+    switch (role) {
+      case OrderRoles.BUYER:
+        query['buyer'] = user.id;
+        break;
+      case OrderRoles.SELLER:
+        query['seller'] = user.id;
+        queryBuilder.groupBy('order.product');
+        break;
+    }
+
+    queryBuilder.where(query).orderBy('order.id', 'DESC');
+
+    const pagination = await paginate(queryBuilder, { page, limit });
+
+    if (role === OrderRoles.SELLER) {
+      const ids = pagination.items.map((i) => i.product.id);
+      const buyers = await this.orderRepo.find({
+        where: {
+          product: In(ids),
+        },
+      });
+      pagination.items.map(async (item) => {
+        if (item.status === OrderStatus.INIT) {
+          item.buyers = _.filter(
+            _.map(buyers, (i) => {
+              if (i.product.id == item.product.id) return i.buyer;
+            }),
+            (i) => i,
+          );
+          delete item.buyer;
+        }
+      });
+    }
+
+    return pagination;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
+  async findOne(condition: any): Promise<Order> {
+    return await this.orderRepo.findOne(condition);
   }
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} order`;
+  async update(condition: any, updateOrderDto: UpdateOrderDto) {
+    return await this.orderRepo.update(condition, updateOrderDto);
   }
 }
