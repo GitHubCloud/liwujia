@@ -73,10 +73,11 @@ export class ProductController {
 
   @Put(':id')
   async update(
+    @Req() req,
     @Param('id') id: number,
     @Body() updateProductDto: UpdateProductDto,
   ) {
-    return await this.productService.update(id, updateProductDto);
+    return await this.productService.update(id, updateProductDto, req.user);
   }
 
   @Post('/:id/comment')

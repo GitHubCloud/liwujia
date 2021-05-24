@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { getRepository, Repository } from 'typeorm';
@@ -9,6 +9,8 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import * as _ from 'lodash';
+import { OrderService } from '../order/order.service';
+import { Order } from '../order/entities/order.entity';
 
 @Injectable()
 export class ProductService {
@@ -17,6 +19,8 @@ export class ProductService {
     private readonly productRepo: Repository<Product>,
     @InjectRepository(Resource)
     private readonly resourceRepo: Repository<Resource>,
+    @InjectRepository(Order)
+    private readonly orderRepo: Repository<Order>,
     private readonly collectService: CollectService,
   ) {}
 
@@ -67,7 +71,19 @@ export class ProductService {
     return await this.productRepo.findOne(condition);
   }
 
-  async update(condition: any, updateProductDto: UpdateProductDto) {
+  async update(condition: any, updateProductDto: UpdateProductDto, user?: any) {
+    const product = await this.findOne(condition);
+    if (product.owner.id !== user?.id) {
+      throw new HttpException('无权进行操作', 400);
+    }
+
+    const exists = await this.orderRepo.findOne({
+      product: product,
+    });
+    if (exists) {
+      throw new HttpException('物品已锁定，无法编辑', HttpStatus.BAD_REQUEST);
+    }
+
     return await this.productRepo.update(condition, updateProductDto);
   }
 
