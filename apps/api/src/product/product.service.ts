@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
-import { getRepository, Repository } from 'typeorm';
+import { getRepository, In, Repository } from 'typeorm';
 import { CollectService } from '../collect/collect.service';
 import { PaginationDto } from '../pagination.dto';
 import { Resource } from '../resource/entities/resource.entity';
@@ -9,7 +9,6 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import * as _ from 'lodash';
-import { OrderService } from '../order/order.service';
 import { Order } from '../order/entities/order.entity';
 
 @Injectable()
@@ -84,7 +83,22 @@ export class ProductService {
       throw new HttpException('物品已锁定，无法编辑', HttpStatus.BAD_REQUEST);
     }
 
-    return await this.productRepo.update(condition, updateProductDto);
+    if (updateProductDto.images) {
+      const images = await this.resourceRepo.find({
+        where: {
+          id: In(updateProductDto.images),
+        },
+      });
+      updateProductDto.images = images;
+    }
+
+    const dto = {
+      ...product,
+      ...updateProductDto,
+    };
+    return await this.productRepo.save(dto);
+
+    // return await this.productRepo.update(condition, updateProductDto);
   }
 
   async favorite(user: any, id: number) {

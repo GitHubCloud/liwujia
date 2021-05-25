@@ -99,7 +99,22 @@ export class ArticleService {
   }
 
   async update(id: number, updateArticleDto: UpdateArticleDto) {
-    return await this.articleRepo.update(id, updateArticleDto);
+    const article = await this.articleRepo.findOne(id);
+
+    if (updateArticleDto.images) {
+      const images = await this.resourceRepo.find({
+        where: {
+          id: In(updateArticleDto.images),
+        },
+      });
+      updateArticleDto.images = images;
+    }
+
+    const dto = {
+      ...article,
+      ...updateArticleDto,
+    };
+    return await this.articleRepo.save(dto);
   }
 
   async remove(id: number) {
