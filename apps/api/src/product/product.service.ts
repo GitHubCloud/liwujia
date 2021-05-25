@@ -66,13 +66,24 @@ export class ProductService {
     return pagination;
   }
 
-  async findOne(condition: any): Promise<Product> {
-    return await this.productRepo.findOne(condition);
+  async findOne(condition: any, user?: any): Promise<Product> {
+    const product = await this.productRepo.findOne(condition);
+    if (user) {
+      product.isCollected = !_.isEmpty(
+        await this.collectService.findOne({
+          collector: user.id,
+          product: product.id,
+        }),
+      );
+      product.isFavorite = false;
+    }
+
+    return product;
   }
 
   async update(condition: any, updateProductDto: UpdateProductDto, user?: any) {
     const product = await this.findOne(condition);
-    if (product.owner.id !== user?.id) {
+    if (!product || product.owner.id !== user?.id) {
       throw new HttpException('无权进行操作', 400);
     }
 
@@ -126,7 +137,7 @@ export class ProductService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: number) {
+    return await this.productRepo.delete(id);
   }
 }

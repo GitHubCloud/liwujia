@@ -57,8 +57,8 @@ export class ProductController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number): Promise<Product> {
-    return this.productService.findOne(id);
+  async findOne(@Req() req, @Param('id') id: number): Promise<Product> {
+    return this.productService.findOne(id, req.user);
   }
 
   @Put('/:id/favorite')
@@ -106,7 +106,7 @@ export class ProductController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.productService.remove(id);
+  async remove(@Param('id') id: number) {
+    return await this.productService.remove(id);
   }
 }

@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
-import { getRepository, In, Repository } from 'typeorm';
+import { getRepository, In, Not, Repository } from 'typeorm';
 import { PaginationDto } from '../pagination.dto';
 import { ProductService } from '../product/product.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -53,6 +53,7 @@ export class OrderService {
     const queryBuilder = getRepository(Order)
       .createQueryBuilder('order')
       .leftJoinAndSelect('order.product', 'product')
+      .leftJoinAndSelect('product.images', 'images')
       .leftJoinAndSelect('order.seller', 'seller')
       .leftJoinAndSelect('order.buyer', 'buyer');
 
@@ -75,6 +76,7 @@ export class OrderService {
       const buyers = await this.orderRepo.find({
         where: {
           product: In(ids),
+          status: Not(OrderStatus.CANCELED),
         },
       });
       pagination.items.map(async (item) => {
