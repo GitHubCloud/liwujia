@@ -49,9 +49,11 @@ export class ProductController {
     @Req() req,
     @Query() paginationDto: PaginationDto,
     @Query('owner') owner?: number,
+    @Query('isSold') isSold?: boolean,
   ): Promise<Pagination<Product>> {
     paginationDto.query = {};
     if (owner) paginationDto.query['owner'] = owner;
+    paginationDto.query['isSold'] = !!isSold;
 
     return this.productService.paginate(paginationDto, req.user);
   }
@@ -106,7 +108,7 @@ export class ProductController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: number) {
-    return await this.productService.remove(id);
+  async remove(@Req() req, @Param('id') id: number) {
+    return await this.productService.remove(id, req.user);
   }
 }

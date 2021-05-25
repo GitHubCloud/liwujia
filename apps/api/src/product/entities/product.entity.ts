@@ -49,6 +49,9 @@ export class Product {
   @Column()
   quality: string;
 
+  @Column({ default: false })
+  isSold: boolean;
+
   @JoinColumn()
   @ManyToOne(() => User, (user) => user.products, { eager: true })
   owner: User;
@@ -71,6 +74,9 @@ export class Product {
   @Column({ default: 0 })
   collect: number;
 
+  buyers: User[];
   isCollected: boolean;
   isFavorite: boolean;
+  isOrdered: boolean;
+  isLocked: boolean;
 }

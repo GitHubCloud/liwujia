@@ -36,4 +36,7 @@ export class CreateProductDto {
 
   @ApiHideProperty()
   owner: User;
+
+  @ApiHideProperty()
+  isSold: boolean;
 }

@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
-import { getRepository, In, Repository } from 'typeorm';
+import { getRepository, In, Not, Repository } from 'typeorm';
 import { CollectService } from '../collect/collect.service';
 import { PaginationDto } from '../pagination.dto';
 import { Resource } from '../resource/entities/resource.entity';
@@ -10,6 +10,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import * as _ from 'lodash';
 import { Order } from '../order/entities/order.entity';
+import { OrderStatus } from '../order/orderStatus.enum';
 
 @Injectable()
 export class ProductService {
@@ -68,6 +69,15 @@ export class ProductService {
 
   async findOne(condition: any, user?: any): Promise<Product> {
     const product = await this.productRepo.findOne(condition);
+
+    const buyers = await this.orderRepo.find({
+      where: {
+        product: product,
+        status: Not(OrderStatus.CANCELED),
+      },
+    });
+    product.buyers = _.map(buyers, (i) => i.buyer);
+
     if (user) {
       product.isCollected = !_.isEmpty(
         await this.collectService.findOne({
@@ -76,7 +86,18 @@ export class ProductService {
         }),
       );
       product.isFavorite = false;
+      product.isOrdered = !_.isEmpty(
+        await this.orderRepo.findOne({
+          product: product,
+          buyer: user.id,
+        }),
+      );
     }
+    product.isLocked = !_.isEmpty(
+      await this.orderRepo.findOne({
+        product: product,
+      }),
+    );
 
     return product;
   }
@@ -108,8 +129,12 @@ export class ProductService {
       ...updateProductDto,
     };
     return await this.productRepo.save(dto);
+  }
 
-    // return await this.productRepo.update(condition, updateProductDto);
+  async setToSold(condition: any) {
+    const product = await this.findOne(condition);
+    product.isSold = true;
+    return await this.productRepo.save(product);
   }
 
   async favorite(user: any, id: number) {
@@ -137,7 +162,19 @@ export class ProductService {
     }
   }
 
-  async remove(id: number) {
-    return await this.productRepo.delete(id);
+  async remove(condition: any, user?: any) {
+    const product = await this.findOne(condition);
+    if (!product || product.owner.id !== user?.id) {
+      throw new HttpException('无权进行操作', 400);
+    }
+
+    const exists = await this.orderRepo.findOne({
+      product: product,
+    });
+    if (exists) {
+      throw new HttpException('物品已锁定，无法删除', HttpStatus.BAD_REQUEST);
+    }
+
+    return await this.productRepo.delete(condition);
   }
 }

@@ -22,13 +22,17 @@ import { PaginationDto } from '../pagination.dto';
 import { OrderStatus } from './orderStatus.enum';
 import { OrderRoles } from './orderRoles.enum';
 import { In } from 'typeorm';
+import { ProductService } from '../product/product.service';
 
 @ApiTags('Order')
 @Controller('order')
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(AuthGuard('jwt'))
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    private readonly productService: ProductService,
+  ) {}
 
   @Post()
   async create(
@@ -136,6 +140,8 @@ export class OrderController {
     if (!order || req.user.id !== order.seller.id) {
       throw new HttpException('无权进行操作', HttpStatus.BAD_REQUEST);
     }
+
+    await this.productService.setToSold(order.product.id);
 
     return await this.orderService.update(id, {
       status: OrderStatus.COMPLETE,
