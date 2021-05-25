@@ -27,7 +27,7 @@ export class OrderService {
       throw new HttpException('不能购买自己的闲置', HttpStatus.BAD_REQUEST);
     }
 
-    const exists = await this.findOne({
+    let exists = await this.findOne({
       product,
       status: In([
         OrderStatus.ONGOING,
@@ -40,7 +40,16 @@ export class OrderService {
       throw new HttpException('该闲置有交易正在进行', 400);
     }
 
-    return await this.orderRepo.save(this.orderRepo.create(createOrderDto));
+    exists = await this.findOne({
+      product,
+      buyer: createOrderDto.buyer,
+    });
+    if (exists && exists.status === OrderStatus.CANCELED) {
+      exists.status = OrderStatus.INIT;
+      return await this.orderRepo.save(exists);
+    } else {
+      return await this.orderRepo.save(this.orderRepo.create(createOrderDto));
+    }
   }
 
   async paginate(

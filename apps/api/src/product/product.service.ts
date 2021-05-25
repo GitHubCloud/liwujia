@@ -60,7 +60,19 @@ export class ProductService {
             }),
           );
           item.isFavorite = false;
+          item.isOrdered = !_.isEmpty(
+            await this.orderRepo.findOne({
+              product: item,
+              status: Not(OrderStatus.CANCELED),
+              buyer: user.id,
+            }),
+          );
         }
+        item.isLocked = !_.isEmpty(
+          await this.orderRepo.findOne({
+            product: item,
+          }),
+        );
       }),
     );
 
@@ -89,6 +101,7 @@ export class ProductService {
       product.isOrdered = !_.isEmpty(
         await this.orderRepo.findOne({
           product: product,
+          status: Not(OrderStatus.CANCELED),
           buyer: user.id,
         }),
       );

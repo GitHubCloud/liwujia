@@ -75,7 +75,10 @@ export class OrderController {
   @Put(':id/cancel')
   async cancel(@Req() req, @Param('id') id: number) {
     const order = await this.orderService.findOne(id);
-    if (!order) throw new HttpException('订单不存在', 400);
+    if (!order || order.status === OrderStatus.COMPLETE) {
+      throw new HttpException('订单不存在', 400);
+    }
+
     // 卖家取消，则取消所有订单
     // 买家取消，则取消单笔订单
     let param: any = id;

@@ -1,5 +1,7 @@
+import { Transform } from 'class-transformer';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -8,8 +10,8 @@ import {
 } from 'typeorm';
 import { Product } from '../../product/entities/product.entity';
 import { User } from '../../user/entities/user.entity';
-
 import { OrderStatus } from '../orderStatus.enum';
+import * as moment from 'moment';
 
 @Entity()
 @Unique(['product', 'buyer'])
@@ -31,6 +33,10 @@ export class Order {
 
   @Column({ default: OrderStatus.INIT })
   status: OrderStatus;
+
+  @CreateDateColumn()
+  @Transform((d) => moment(d.value).toDate().getTime())
+  createTime: Date;
 
   buyers: any;
 }
