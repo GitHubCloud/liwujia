@@ -37,7 +37,7 @@ export class CollectService {
       case 'article':
       default:
         queryBuilder.leftJoinAndSelect('collect.article', 'article');
-        queryBuilder.leftJoinAndSelect('product.images', 'images');
+        queryBuilder.leftJoinAndSelect('article.images', 'images');
         queryBuilder.where('collect.article IS NOT NULL');
         if (query.type) {
           queryBuilder.andWhere('article.type = :type', { type: query.type });
