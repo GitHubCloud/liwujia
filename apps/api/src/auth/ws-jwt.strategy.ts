@@ -2,6 +2,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as _ from 'lodash';
 
 @Injectable()
 export class WsJwtStrategy extends PassportStrategy(Strategy, 'wsJwt') {
@@ -9,8 +10,9 @@ export class WsJwtStrategy extends PassportStrategy(Strategy, 'wsJwt') {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request) => {
-          const req: any = request;
-          return req.handshake.headers['authorization'].split(' ')[1];
+          return _.last(
+            _.get(request, 'handshake.headers.authorization', '').split(' '),
+          );
         },
       ]),
       ignoreExpiration: false,

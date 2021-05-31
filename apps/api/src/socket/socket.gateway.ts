@@ -12,6 +12,7 @@ import {
   WsResponse,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
+import * as _ from 'lodash';
 
 @WebSocketGateway()
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -21,7 +22,9 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private logger: Logger = new Logger('WebSocketGateway');
 
   handleConnection(client: Socket, ...args: any) {
-    const token = client.handshake.headers.authorization.split(' ')[1];
+    const token: string = _.last(
+      _.get(client, 'handshake.headers.authorization', '').split(' '),
+    );
     const user = this.jwtService.verify(token);
 
     client.emit('welcome', `Welcome ${user.nickname}.`);
@@ -52,7 +55,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: any,
   ) {
-    console.log({ data });
     if (!data) return false;
 
     await socket.leave(data);
