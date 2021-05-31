@@ -82,6 +82,7 @@ export class OrderService {
 
     if (role === OrderRoles.SELLER) {
       const ids = pagination.items.map((i) => i.product.id);
+      // TODO: 买家加上购买成功次数和卖出成功次数
       const buyers = await this.orderRepo.find({
         where: {
           product: In(ids),

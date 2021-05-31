@@ -14,7 +14,7 @@ import { CollectModule } from './collect/collect.module';
 import { BannerModule } from './banner/banner.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
-import { SocketGateway } from './socket.gateway';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
   imports: [
@@ -47,7 +47,7 @@ import { SocketGateway } from './socket.gateway';
     BannerModule,
     ProductModule,
     OrderModule,
+    SocketModule,
   ],
-  providers: [SocketGateway],
 })
 export class AppModule {}

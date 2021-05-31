@@ -20,22 +20,32 @@ import { AuthGuard } from '@nestjs/passport';
 @ApiTags('Message')
 @Controller('message')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(AuthGuard('jwt'))
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
   @Post()
-  @UseGuards(AuthGuard('jwt'))
   async create(
     @Req() req,
     @Body() createMessageDto: CreateMessageDto,
   ): Promise<Message> {
-    return await this.messageService.create(createMessageDto);
+    return await this.messageService.create(createMessageDto, req.user);
   }
 
   @Get()
   async paginate(
+    @Req() req,
+    @Query('order') order: number,
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Message>> {
+    paginationDto.query = {};
+    if (order) {
+      paginationDto.query['order'] = order;
+    } else {
+      paginationDto.query['to'] = req.user.id;
+      paginationDto.query['order'] = null;
+    }
+
     return await this.messageService.paginate(paginationDto);
   }
 }

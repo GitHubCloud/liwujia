@@ -22,6 +22,7 @@ export class CollectService {
   async paginate(
     paginationDto: PaginationDto,
     schema: string,
+    user?: any,
   ): Promise<Pagination<any>> {
     const { page, limit, query } = paginationDto;
 
@@ -43,6 +44,9 @@ export class CollectService {
           queryBuilder.andWhere('article.type = :type', { type: query.type });
         }
         break;
+    }
+    if (user) {
+      queryBuilder.andWhere('collect.collector = :userid', { userid: user.id });
     }
     queryBuilder.orderBy('collect.id', 'DESC');
 

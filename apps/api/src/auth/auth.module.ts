@@ -9,6 +9,7 @@ import { AuthController } from './auth.controller';
 import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
 import { MiniProgramStrategy } from './mini-program.strategy';
+import { WsJwtStrategy } from './ws-jwt.strategy';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { MiniProgramStrategy } from './mini-program.strategy';
     AuthService,
     AuthListener,
     LocalStrategy,
+    WsJwtStrategy,
     JwtStrategy,
     MiniProgramStrategy,
   ],
