@@ -22,13 +22,18 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private logger: Logger = new Logger('WebSocketGateway');
 
   handleConnection(client: Socket, ...args: any) {
-    const token: string = _.last(
-      _.get(client, 'handshake.headers.authorization', '').split(' '),
-    );
-    const user = this.jwtService.verify(token);
+    try {
+      const token: string = _.last(
+        _.get(client, 'handshake.headers.authorization', '').split(' '),
+      );
+      const user = this.jwtService.verify(token);
 
-    client.emit('welcome', `Welcome ${user.nickname}.`);
-    this.logger.log(`Client connected: ${client.id}`);
+      client.emit('welcome', `Welcome ${user.nickname}.`);
+      this.logger.log(`Client connected: ${client.id}`);
+    } catch (e) {
+      this.logger.error(e);
+      client.disconnect(true);
+    }
   }
 
   handleDisconnect(client: Socket) {
