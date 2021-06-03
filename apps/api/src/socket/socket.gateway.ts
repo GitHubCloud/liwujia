@@ -49,6 +49,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     if (!data) return false;
 
+    // TODO: 判断是否有权加入该房间
+
     await socket.join(data);
     return data;
   }

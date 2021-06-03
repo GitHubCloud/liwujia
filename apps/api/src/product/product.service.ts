@@ -11,6 +11,7 @@ import { Product } from './entities/product.entity';
 import * as _ from 'lodash';
 import { Order } from '../order/entities/order.entity';
 import { OrderStatus } from '../order/orderStatus.enum';
+import { FavoriteService } from '../favorite/favorite.service';
 
 @Injectable()
 export class ProductService {
@@ -22,6 +23,7 @@ export class ProductService {
     @InjectRepository(Order)
     private readonly orderRepo: Repository<Order>,
     private readonly collectService: CollectService,
+    private readonly favoriteService: FavoriteService,
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
@@ -59,7 +61,12 @@ export class ProductService {
               product: item.id,
             }),
           );
-          item.isFavorite = false;
+          item.isFavorite = !_.isEmpty(
+            await this.favoriteService.findOne({
+              user: user.id,
+              product: item.id,
+            }),
+          );
           item.isOrdered = !_.isEmpty(
             await this.orderRepo.findOne({
               product: item,
@@ -97,7 +104,12 @@ export class ProductService {
           product: product.id,
         }),
       );
-      product.isFavorite = false;
+      product.isFavorite = !_.isEmpty(
+        await this.favoriteService.findOne({
+          user: user.id,
+          product: product.id,
+        }),
+      );
       product.isOrdered = !_.isEmpty(
         await this.orderRepo.findOne({
           product: product,
@@ -152,8 +164,21 @@ export class ProductService {
 
   async favorite(user: any, id: number) {
     const product: Product = await this.findOne(id);
-    product.favorite++;
-    return await this.productRepo.save(product);
+
+    const exists = await this.favoriteService.findOne({
+      user: user.id,
+      product: product.id,
+    });
+    if (_.isEmpty(exists)) {
+      await this.favoriteService.create({
+        user: user.id,
+        product: product.id,
+      });
+      await this.productRepo.increment({ id }, 'favorite', 1);
+    } else {
+      await this.favoriteService.remove(exists.id);
+      await this.productRepo.decrement({ id }, 'favorite', 1);
+    }
   }
 
   async collect(user: any, id: number) {

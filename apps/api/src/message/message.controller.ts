@@ -38,14 +38,10 @@ export class MessageController {
     @Query('order') order: number,
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Message>> {
-    paginationDto.query = {};
     if (order) {
-      paginationDto.query['order'] = order;
-    } else {
-      paginationDto.query['to'] = req.user.id;
-      paginationDto.query['order'] = null;
+      paginationDto.query = { order };
     }
 
-    return await this.messageService.paginate(paginationDto);
+    return await this.messageService.paginate(paginationDto, req.user);
   }
 }

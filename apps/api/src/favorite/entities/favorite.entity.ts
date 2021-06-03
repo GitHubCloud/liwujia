@@ -13,14 +13,14 @@ import { Article } from 'apps/api/src/article/entities/article.entity';
 import { Product } from '../../product/entities/product.entity';
 
 @Entity()
-@Unique(['collector', 'article', 'product'])
-export class Collect {
+@Unique(['user', 'article', 'product'])
+export class Favorite {
   @PrimaryGeneratedColumn()
   id: number;
 
   @JoinColumn()
   @ManyToOne(() => User, (user) => user.collects, { eager: true })
-  collector: number;
+  user: number;
 
   @JoinColumn()
   @ManyToOne(() => Article, { eager: true })

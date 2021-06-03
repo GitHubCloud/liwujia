@@ -11,6 +11,9 @@ export class CreateMessageDto {
   @IsOptional()
   order: number;
 
+  @IsOptional()
+  title: string;
+
   @IsNotEmpty({ message: '消息内容不能为空' })
   content: string;
 }

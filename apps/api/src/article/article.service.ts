@@ -9,6 +9,7 @@ import { PaginationDto } from 'apps/api/src/pagination.dto';
 import { Resource } from '../resource/entities/resource.entity';
 import * as _ from 'lodash';
 import { CollectService } from '../collect/collect.service';
+import { FavoriteService } from '../favorite/favorite.service';
 
 @Injectable()
 export class ArticleService {
@@ -18,6 +19,7 @@ export class ArticleService {
     @InjectRepository(Resource)
     private readonly resourceRepo: Repository<Resource>,
     private readonly collectService: CollectService,
+    private readonly favoriteService: FavoriteService,
   ) {}
 
   async create(createArticleDto: CreateArticleDto): Promise<Article> {
@@ -74,7 +76,12 @@ export class ArticleService {
               article: item.id,
             }),
           );
-          item.isFavorite = false;
+          item.isFavorite = !_.isEmpty(
+            await this.favoriteService.findOne({
+              user: user.id,
+              article: item.id,
+            }),
+          );
         }
       }),
     );
@@ -92,7 +99,12 @@ export class ArticleService {
           article: data.id,
         }),
       );
-      data.isFavorite = false;
+      data.isFavorite = !_.isEmpty(
+        await this.favoriteService.findOne({
+          user: user.id,
+          article: data.id,
+        }),
+      );
     }
 
     return data;
@@ -123,8 +135,21 @@ export class ArticleService {
 
   async favorite(user: any, id: number) {
     const article: Article = await this.findOne(id);
-    article.favorite++;
-    return await this.articleRepo.save(article);
+
+    const exists = await this.favoriteService.findOne({
+      user: user.id,
+      article: article.id,
+    });
+    if (_.isEmpty(exists)) {
+      await this.favoriteService.create({
+        user: user.id,
+        article: article.id,
+      });
+      await this.articleRepo.increment({ id }, 'favorite', 1);
+    } else {
+      await this.favoriteService.remove(exists.id);
+      await this.articleRepo.decrement({ id }, 'favorite', 1);
+    }
   }
 
   async collect(user: any, id: number) {

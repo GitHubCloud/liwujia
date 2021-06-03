@@ -76,5 +76,10 @@ export class Stuff {
     } else {
       this.color = StuffColor.紫灯;
     }
+
+    // 被消耗的
+    if (this.isConsumed || this.isWasted) {
+      this.color = StuffColor.蓝灯;
+    }
   }
 }

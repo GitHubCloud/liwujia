@@ -1,6 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getRepository, Repository } from 'typeorm';
+import { getRepository, IsNull, Repository } from 'typeorm';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { PaginationDto } from 'apps/api/src/pagination.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -19,9 +19,10 @@ export class MessageService {
 
   async create(
     createMessageDto: CreateMessageDto,
-    user: any,
+    user?: any,
   ): Promise<Message> {
-    createMessageDto.from = user.id;
+    createMessageDto.from = user ? user.id : null;
+
     // 订单下的沟通
     if (createMessageDto.order) {
       const order = await this.orderService.findOne(createMessageDto.order);
@@ -53,15 +54,26 @@ export class MessageService {
     return messageData;
   }
 
-  async paginate(paginationDto: PaginationDto): Promise<Pagination<Message>> {
+  async paginate(
+    paginationDto: PaginationDto,
+    user: any,
+  ): Promise<Pagination<Message>> {
     const { page, limit, query } = paginationDto;
 
     const queryBuilder = getRepository(Message)
       .createQueryBuilder('order')
       .leftJoinAndSelect('order.from', 'from')
-      .leftJoinAndSelect('order.to', 'to')
-      .where(query)
-      .orderBy('order.id', 'DESC');
+      .leftJoinAndSelect('order.to', 'to');
+
+    if (query) {
+      queryBuilder.where(query);
+    } else {
+      queryBuilder.where([
+        { order: IsNull(), to: IsNull() },
+        { order: IsNull(), to: user.id },
+      ]);
+    }
+    queryBuilder.orderBy('order.id', 'DESC');
 
     return await paginate(queryBuilder, { page, limit });
   }

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EventEmitter2 } from 'eventemitter2';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -10,10 +11,16 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    return await this.userRepo.save(this.userRepo.create(createUserDto));
+    const userData = await this.userRepo.save(
+      this.userRepo.create(createUserDto),
+    );
+    this.eventEmitter.emit('user.create', userData);
+
+    return userData;
   }
 
   async findOne(id: number): Promise<User> {

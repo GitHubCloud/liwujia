@@ -36,7 +36,6 @@ export class CollectService {
         queryBuilder.where('collect.product IS NOT NULL');
         break;
       case 'article':
-      default:
         queryBuilder.leftJoinAndSelect('collect.article', 'article');
         queryBuilder.leftJoinAndSelect('article.images', 'images');
         queryBuilder.where('collect.article IS NOT NULL');
@@ -44,8 +43,14 @@ export class CollectService {
           queryBuilder.andWhere('article.type = :type', { type: query.type });
         }
         break;
+      default:
+        queryBuilder.leftJoinAndSelect('collect.article', 'article');
+        queryBuilder.leftJoinAndSelect('article.images', 'articleImages');
+        queryBuilder.leftJoinAndSelect('collect.product', 'product');
+        queryBuilder.leftJoinAndSelect('product.images', 'productImages');
+        break;
     }
-    if (user) {
+    if (schema && user) {
       queryBuilder.andWhere('collect.collector = :userid', { userid: user.id });
     }
     queryBuilder.orderBy('collect.id', 'DESC');

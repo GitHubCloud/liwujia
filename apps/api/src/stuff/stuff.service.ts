@@ -95,6 +95,7 @@ export class StuffService {
         queryBuilder.andWhere(`detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) < ${new Date().getTime()}`);
         break;
       case StuffColor.蓝灯: // 蓝灯使用
+        queryBuilder.andWhere(`isConsumed = 1 OR isWasted = 1`);
         break;
       case StuffColor.紫灯: // 紫灯无限
         queryBuilder.andWhere(`detail->'$.expirationDate' IS NULL`);

@@ -15,6 +15,7 @@ import { BannerModule } from './banner/banner.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
 import { SocketModule } from './socket/socket.module';
+import { FavoriteModule } from './favorite/favorite.module';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { SocketModule } from './socket/socket.module';
         database: configService.get('MYSQL_DATABASE'),
         autoLoadEntities: true,
         synchronize: true,
-        // logging: 'all',
+        logging: 'all',
       }),
       inject: [ConfigService],
     }),
@@ -48,6 +49,7 @@ import { SocketModule } from './socket/socket.module';
     ProductModule,
     OrderModule,
     SocketModule,
+    FavoriteModule,
   ],
 })
 export class AppModule {}

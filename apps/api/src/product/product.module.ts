@@ -7,12 +7,14 @@ import { Resource } from '../resource/entities/resource.entity';
 import { CollectModule } from '../collect/collect.module';
 import { CommentModule } from '../comment/comment.module';
 import { Order } from '../order/entities/order.entity';
+import { FavoriteModule } from '../favorite/favorite.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Product, Resource, Order]),
-    CollectModule,
     CommentModule,
+    CollectModule,
+    FavoriteModule,
   ],
   exports: [ProductService],
   controllers: [ProductController],
