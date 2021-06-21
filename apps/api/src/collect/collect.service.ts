@@ -72,10 +72,10 @@ export class CollectService {
         }
         break;
       default:
-        queryBuilder.leftJoinAndSelect('favorite.article', 'article');
+        queryBuilder.leftJoinAndSelect('collect.article', 'article');
         queryBuilder.leftJoinAndSelect('article.author', 'articleAuthor');
         queryBuilder.leftJoinAndSelect('article.images', 'articleImages');
-        queryBuilder.leftJoinAndSelect('favorite.product', 'product');
+        queryBuilder.leftJoinAndSelect('collect.product', 'product');
         queryBuilder.leftJoinAndSelect('product.owner', 'productOwner');
         queryBuilder.leftJoinAndSelect('product.images', 'productImages');
         queryBuilder.where('article.author = :userid', { userid: user.id });
