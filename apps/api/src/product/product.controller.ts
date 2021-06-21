@@ -23,6 +23,7 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { CreateCommentDto } from '../comment/dto/create-comment.dto';
 import { CommentService } from '../comment/comment.service';
 import { Comment } from '../comment/entities/comment.entity';
+import { Like } from 'typeorm';
 
 @ApiTags('Product')
 @Controller('product')
@@ -50,9 +51,11 @@ export class ProductController {
     @Query() paginationDto: PaginationDto,
     @Query('owner') owner?: number,
     @Query('isSold') isSold?: boolean,
+    @Query('search') search?: string,
   ): Promise<Pagination<Product>> {
     paginationDto.query = {};
     if (owner) paginationDto.query['owner'] = owner;
+    if (search) paginationDto.query['content'] = Like(`%${search}%`);
     paginationDto.query['isSold'] = !!isSold;
 
     return this.productService.paginate(paginationDto, req.user);

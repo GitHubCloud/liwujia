@@ -23,6 +23,7 @@ import { CreateCommentDto } from 'apps/api/src/comment/dto/create-comment.dto';
 import { Article } from './entities/article.entity';
 import { Comment } from 'apps/api/src/comment/entities/comment.entity';
 import { PaginationDto } from 'apps/api/src/pagination.dto';
+import { Like } from 'typeorm';
 
 @ApiTags('Article')
 @Controller('article')
@@ -49,11 +50,15 @@ export class ArticleController {
     @Req() req,
     @Query('type') type: string,
     @Query('author') author: number,
+    @Query('search') search: string,
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Article>> {
     paginationDto.query = {};
     if (type) paginationDto.query['type'] = type;
     if (author) paginationDto.query['author'] = author;
+    if (search) paginationDto.query['title'] = Like(`%${search}%`);
+
+    console.log(paginationDto);
 
     return await this.articleService.paginate(paginationDto, req.user);
   }

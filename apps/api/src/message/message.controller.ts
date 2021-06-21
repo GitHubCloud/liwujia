@@ -16,13 +16,17 @@ import { PaginationDto } from 'apps/api/src/pagination.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { RedisService } from 'nestjs-redis';
 
 @ApiTags('Message')
 @Controller('message')
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(AuthGuard('jwt'))
 export class MessageController {
-  constructor(private readonly messageService: MessageService) {}
+  constructor(
+    private readonly messageService: MessageService,
+    private readonly redisService: RedisService,
+  ) {}
 
   @Post()
   async create(
@@ -35,13 +39,38 @@ export class MessageController {
   @Get()
   async paginate(
     @Req() req,
+    @Query('type') type: string,
     @Query('order') order: number,
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Message>> {
-    if (order) {
-      paginationDto.query = { order };
-    }
+    if (order) paginationDto.query = { order };
 
-    return await this.messageService.paginate(paginationDto, req.user);
+    return await this.messageService.paginate(paginationDto, req.user, type);
+  }
+
+  @Get('count')
+  async count(@Req() req) {
+    const redisClient = this.redisService.getClient();
+    const data = {
+      total: 0,
+      favorites:
+        Number(await redisClient.get(`message:favorite:${req.user.id}`)) || 0,
+      collects:
+        Number(await redisClient.get(`message:collect:${req.user.id}`)) || 0,
+      comments:
+        Number(await redisClient.get(`message:comment:${req.user.id}`)) || 0,
+      orders:
+        Number(await redisClient.get(`message:order:${req.user.id}`)) || 0,
+      system:
+        Number(await redisClient.get(`message:system:${req.user.id}`)) || 0,
+    };
+    data.total =
+      data.favorites +
+      data.collects +
+      data.comments +
+      data.orders +
+      data.system;
+
+    return data;
   }
 }

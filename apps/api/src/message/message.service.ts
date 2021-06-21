@@ -1,12 +1,13 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getRepository, IsNull, Repository } from 'typeorm';
+import { getRepository, IsNull, Not, Repository } from 'typeorm';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { PaginationDto } from 'apps/api/src/pagination.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Message } from './entities/message.entity';
 import { OrderService } from '../order/order.service';
 import { SocketGateway } from '../socket/socket.gateway';
+import { RedisService } from 'nestjs-redis';
 
 @Injectable()
 export class MessageService {
@@ -15,7 +16,10 @@ export class MessageService {
     private readonly messageRepo: Repository<Message>,
     private readonly orderService: OrderService,
     private readonly socketGateway: SocketGateway,
+    private readonly redisService: RedisService,
   ) {}
+
+  private redisClient = this.redisService.getClient();
 
   async create(
     createMessageDto: CreateMessageDto,
@@ -38,6 +42,9 @@ export class MessageService {
       } else {
         createMessageDto.to = order.seller.id;
       }
+      this.redisClient.incr(`message:order:${createMessageDto.to}`);
+    } else {
+      this.redisClient.incr(`message:system:${createMessageDto.to}`);
     }
 
     let messageData = await this.messageRepo.save(
@@ -57,23 +64,33 @@ export class MessageService {
   async paginate(
     paginationDto: PaginationDto,
     user: any,
+    type = 'system',
   ): Promise<Pagination<Message>> {
     const { page, limit, query } = paginationDto;
 
     const queryBuilder = getRepository(Message)
-      .createQueryBuilder('order')
-      .leftJoinAndSelect('order.from', 'from')
-      .leftJoinAndSelect('order.to', 'to');
+      .createQueryBuilder('message')
+      .leftJoinAndSelect('message.order', 'order')
+      .leftJoinAndSelect('order.product', 'product')
+      .leftJoinAndSelect('message.from', 'from')
+      .leftJoinAndSelect('message.to', 'to');
 
     if (query) {
       queryBuilder.where(query);
     } else {
-      queryBuilder.where([
-        { order: IsNull(), to: IsNull() },
-        { order: IsNull(), to: user.id },
-      ]);
+      if (type == 'system') {
+        queryBuilder.where([
+          { order: IsNull(), to: IsNull() },
+          { order: IsNull(), to: user.id },
+        ]);
+        this.redisClient.set(`message:system:${user.id}`, 0);
+      } else {
+        queryBuilder.where({ order: Not(IsNull()), to: user.id });
+        queryBuilder.groupBy('order_id');
+        this.redisClient.set(`message:order:${user.id}`, 0);
+      }
     }
-    queryBuilder.orderBy('order.id', 'DESC');
+    queryBuilder.orderBy('message.id', 'DESC');
 
     return await paginate(queryBuilder, { page, limit });
   }

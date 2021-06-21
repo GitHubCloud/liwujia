@@ -6,13 +6,23 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { Comment } from './entities/comment.entity';
 import { PaginationDto } from 'apps/api/src/pagination.dto';
 import { EventEmitter2 } from 'eventemitter2';
+import { RedisService } from 'nestjs-redis';
+import { Article } from '../article/entities/article.entity';
+import { Product } from '../product/entities/product.entity';
 
 @Injectable()
 export class CommentService {
   constructor(
     @InjectRepository(Comment)
     private readonly commentRepo: Repository<Comment>,
+    @InjectRepository(Article)
+    private readonly articleRepo: Repository<Article>,
+    @InjectRepository(Product)
+    private readonly productRepo: Repository<Product>,
+    private readonly redisService: RedisService,
   ) {}
+
+  private redisClient = this.redisService.getClient();
 
   async create(createCommentDto: CreateCommentDto): Promise<Comment> {
     let parentComment = null;
@@ -24,9 +34,35 @@ export class CommentService {
       createCommentDto.product = parentComment.product;
     }
 
-    return await this.commentRepo.save(
+    const comment = await this.commentRepo.save(
       this.commentRepo.create(createCommentDto),
     );
+
+    // 消息数量缓存
+    let targetUser = null;
+    if (parentComment) {
+      targetUser = parentComment.author;
+    } else {
+      if (createCommentDto.article) {
+        const article = await this.articleRepo.findOne(
+          createCommentDto.article,
+          { loadRelationIds: true },
+        );
+        targetUser = article.author;
+      }
+      if (createCommentDto.product) {
+        const product = await this.productRepo.findOne(
+          createCommentDto.product,
+          { loadRelationIds: true },
+        );
+        targetUser = product.owner;
+      }
+    }
+    if (!parentComment || parentComment.author != createCommentDto.author) {
+      await this.redisClient.incr(`message:comment:${targetUser}`);
+    }
+
+    return comment;
   }
 
   async paginate(
@@ -61,6 +97,7 @@ export class CommentService {
         { userid: user.id },
       );
       queryBuilder.orderBy('comment.id', 'DESC');
+      this.redisClient.set(`message:comment:${user.id}`, 0);
     }
 
     return await paginate(queryBuilder, { page, limit });

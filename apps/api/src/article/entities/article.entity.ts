@@ -34,7 +34,7 @@ export class Article {
   @ManyToMany(() => Resource, { cascade: true, eager: true })
   images?: Resource[];
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   content?: string;
 
   @JoinColumn()

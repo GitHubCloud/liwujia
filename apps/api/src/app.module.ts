@@ -16,10 +16,22 @@ import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
 import { SocketModule } from './socket/socket.module';
 import { FavoriteModule } from './favorite/favorite.module';
+import { RedisModule } from 'nestjs-redis';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    RedisModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        host: configService.get('REDIS_HOST'),
+        port: configService.get('REDIS_PORT'),
+        db: configService.get('REDIS_DB'),
+        password: configService.get('REDIS_PASSWORD'),
+        keyPrefix: configService.get('REDIS_PREFIX'),
+      }),
+      inject: [ConfigService],
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
