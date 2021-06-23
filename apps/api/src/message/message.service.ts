@@ -85,8 +85,13 @@ export class MessageService {
         ]);
         this.redisClient.set(`message:system:${user.id}`, 0);
       } else {
-        queryBuilder.where({ order: Not(IsNull()), to: user.id });
-        queryBuilder.groupBy('order_id');
+        const lastMessage = await getRepository(Message)
+          .createQueryBuilder('message')
+          .select('MAX(message.id)', 'mid')
+          .where({ order: Not(IsNull()), to: user.id })
+          .groupBy('message.order')
+          .getRawAndEntities();
+        queryBuilder.andWhereInIds(lastMessage.raw.map((i) => i.mid));
         this.redisClient.set(`message:order:${user.id}`, 0);
       }
     }
