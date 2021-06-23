@@ -76,7 +76,10 @@ export class StuffService {
     return await this.stuffRepo.save(createStuffDto);
   }
 
-  async paginate(paginationDto: PaginationDto, color: StuffColor): Promise<Pagination<Stuff>> {
+  async paginate(
+    paginationDto: PaginationDto,
+    color: StuffColor,
+  ): Promise<Pagination<Stuff>> {
     const { page, limit, query } = paginationDto;
 
     const queryBuilder = getRepository(Stuff)
@@ -95,7 +98,7 @@ export class StuffService {
         queryBuilder.andWhere(`detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) < ${new Date().getTime()}`);
         break;
       case StuffColor.蓝灯: // 蓝灯使用
-        queryBuilder.andWhere(`isConsumed = 1 OR isWasted = 1`);
+        queryBuilder.andWhere(`(isConsumed = 1 OR isWasted = 1)`);
         break;
       case StuffColor.紫灯: // 紫灯无限
         queryBuilder.andWhere(`detail->'$.expirationDate' IS NULL`);
@@ -147,8 +150,14 @@ export class StuffService {
         const expirationDay = moment(expirationDate).date();
         calendar[expirationDay - 1].stuffs.push(item);
       }
-      if(moment(expirationDate).subtract(remainDays, 'day').isBetween(startOfMonth, endOfMonth)){
-        const expirationDay = moment(expirationDate).subtract(remainDays, 'day').date();
+      if (
+        moment(expirationDate)
+          .subtract(remainDays, 'day')
+          .isBetween(startOfMonth, endOfMonth)
+      ) {
+        const expirationDay = moment(expirationDate)
+          .subtract(remainDays, 'day')
+          .date();
         calendar[expirationDay - 1].stuffs.push(item);
       }
     });
