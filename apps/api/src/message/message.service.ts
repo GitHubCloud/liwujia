@@ -73,6 +73,8 @@ export class MessageService {
       .createQueryBuilder('message')
       .leftJoinAndSelect('message.order', 'order')
       .leftJoinAndSelect('order.product', 'product')
+      .leftJoinAndSelect('order.buyer', 'buyer')
+      .leftJoinAndSelect('order.seller', 'seller')
       .leftJoinAndSelect('message.from', 'from')
       .leftJoinAndSelect('message.to', 'to');
 
