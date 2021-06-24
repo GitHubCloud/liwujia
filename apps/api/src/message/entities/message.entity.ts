@@ -34,9 +34,6 @@ export class Message {
   @ManyToOne(() => Order)
   order: number;
 
-  @Column({ type: 'json', nullable: true })
-  remark: any;
-
   @CreateDateColumn()
   @Transform((d) => moment(d.value).toDate().getTime())
   createTime: Date;

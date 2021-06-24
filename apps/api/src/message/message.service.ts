@@ -28,7 +28,7 @@ export class MessageService {
     createMessageDto.from = user ? user.id : null;
 
     // 订单下的沟通
-    if (createMessageDto.order) {
+    if (createMessageDto.order && user) {
       const order = await this.orderService.findOne(createMessageDto.order);
       if (!order) {
         throw new HttpException('订单不存在', 400);
@@ -52,7 +52,7 @@ export class MessageService {
     );
     messageData = await this.messageRepo.findOne(messageData.id);
 
-    if (createMessageDto.order) {
+    if (createMessageDto.order && user) {
       this.socketGateway.server
         .to(`order:${createMessageDto.order}`)
         .emit('message', messageData);
@@ -80,8 +80,8 @@ export class MessageService {
     } else {
       if (type == 'system') {
         queryBuilder.where([
-          { order: IsNull(), to: IsNull() },
-          { order: IsNull(), to: user.id },
+          { from: IsNull(), to: IsNull() },
+          { from: IsNull(), to: user.id },
         ]);
         this.redisClient.set(`message:system:${user.id}`, 0);
       } else {

@@ -17,6 +17,7 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { RedisService } from 'nestjs-redis';
+import { IsNull, Not } from 'typeorm';
 
 @ApiTags('Message')
 @Controller('message')
@@ -43,7 +44,12 @@ export class MessageController {
     @Query('order') order: number,
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Message>> {
-    if (order) paginationDto.query = { order };
+    if (order) {
+      paginationDto.query = {
+        order,
+        from: Not(IsNull()),
+      };
+    }
 
     return await this.messageService.paginate(paginationDto, req.user, type);
   }

@@ -91,14 +91,14 @@ export class OrderController {
         this.messageService.create({
           to: i.buyer.id,
           content: '您的订单被卖家取消',
-          remark: JSON.stringify(order),
+          order: i.id,
         });
       });
     } else {
       this.messageService.create({
         to: order.buyer.id,
         content: '您的订单被买家取消',
-        remark: JSON.stringify(order),
+        order: order.id,
       });
     }
 
@@ -147,7 +147,7 @@ export class OrderController {
     this.messageService.create({
       to: order.seller.id,
       content: '您的订单买家已确认收货。',
-      remark: JSON.stringify(order),
+      order: order.id,
     });
 
     return await this.orderService.update(id, {
@@ -171,7 +171,7 @@ export class OrderController {
     this.messageService.create({
       to: order.buyer.id,
       content: '卖家标记订单已完成',
-      remark: JSON.stringify(order),
+      order: order.id,
     });
 
     return await this.orderService.update(id, {
