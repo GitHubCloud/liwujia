@@ -3,17 +3,20 @@ import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateMessageDto {
   @ApiHideProperty()
-  from: number;
+  from?: number;
 
   @ApiHideProperty()
-  to: number;
+  to?: number;
 
   @IsOptional()
-  order: number;
+  order?: number;
 
   @IsOptional()
-  title: string;
+  title?: string;
 
   @IsNotEmpty({ message: '消息内容不能为空' })
   content: string;
+
+  @IsOptional()
+  remark?: any;
 }

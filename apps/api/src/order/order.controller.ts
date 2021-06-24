@@ -23,6 +23,7 @@ import { OrderStatus } from './orderStatus.enum';
 import { OrderRoles } from './orderRoles.enum';
 import { In } from 'typeorm';
 import { ProductService } from '../product/product.service';
+import { MessageService } from '../message/message.service';
 
 @ApiTags('Order')
 @Controller('order')
@@ -32,6 +33,7 @@ export class OrderController {
   constructor(
     private readonly orderService: OrderService,
     private readonly productService: ProductService,
+    private readonly messageService: MessageService,
   ) {}
 
   @Post()
@@ -84,6 +86,20 @@ export class OrderController {
     let param: any = id;
     if (req.user.id === order.seller.id) {
       param = { product: order.product };
+      const orders = await this.orderService.find(param);
+      orders.map((i) => {
+        this.messageService.create({
+          to: i.buyer.id,
+          content: '您的订单被卖家取消',
+          remark: JSON.stringify(order),
+        });
+      });
+    } else {
+      this.messageService.create({
+        to: order.buyer.id,
+        content: '您的订单被买家取消',
+        remark: JSON.stringify(order),
+      });
     }
 
     return await this.orderService.update(param, {
@@ -128,6 +144,12 @@ export class OrderController {
       throw new HttpException('无权进行操作', HttpStatus.BAD_REQUEST);
     }
 
+    this.messageService.create({
+      to: order.seller.id,
+      content: '您的订单买家已确认收货。',
+      remark: JSON.stringify(order),
+    });
+
     return await this.orderService.update(id, {
       status: OrderStatus.DELIVERED,
     });
@@ -145,6 +167,12 @@ export class OrderController {
     }
 
     await this.productService.setToSold(order.product.id);
+
+    this.messageService.create({
+      to: order.buyer.id,
+      content: '卖家标记订单已完成',
+      remark: JSON.stringify(order),
+    });
 
     return await this.orderService.update(id, {
       status: OrderStatus.COMPLETE,

@@ -105,6 +105,10 @@ export class OrderService {
     return pagination;
   }
 
+  async find(condition: any): Promise<Order[]> {
+    return await this.orderRepo.find(condition);
+  }
+
   async findOne(condition: any): Promise<Order> {
     return await this.orderRepo.findOne(condition);
   }
