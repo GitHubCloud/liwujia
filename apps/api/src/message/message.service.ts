@@ -5,16 +5,17 @@ import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { PaginationDto } from 'apps/api/src/pagination.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Message } from './entities/message.entity';
-import { OrderService } from '../order/order.service';
 import { SocketGateway } from '../socket/socket.gateway';
 import { RedisService } from 'nestjs-redis';
+import { Order } from '../order/entities/order.entity';
 
 @Injectable()
 export class MessageService {
   constructor(
     @InjectRepository(Message)
     private readonly messageRepo: Repository<Message>,
-    private readonly orderService: OrderService,
+    @InjectRepository(Order)
+    private readonly orderRepo: Repository<Order>,
     private readonly socketGateway: SocketGateway,
     private readonly redisService: RedisService,
   ) {}
@@ -29,7 +30,7 @@ export class MessageService {
 
     // 订单下的沟通
     if (createMessageDto.order && user) {
-      const order = await this.orderService.findOne(createMessageDto.order);
+      const order = await this.orderRepo.findOne(createMessageDto.order);
       if (!order) {
         throw new HttpException('订单不存在', 400);
       }

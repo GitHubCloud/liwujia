@@ -7,11 +7,7 @@ import { ProductModule } from '../product/product.module';
 import { MessageModule } from '../message/message.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Order]),
-    ProductModule,
-    forwardRef(() => MessageModule),
-  ],
+  imports: [TypeOrmModule.forFeature([Order]), ProductModule, MessageModule],
   exports: [OrderService],
   controllers: [OrderController],
   providers: [OrderService],

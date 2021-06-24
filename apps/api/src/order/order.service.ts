@@ -10,6 +10,7 @@ import { Order } from './entities/order.entity';
 import * as _ from 'lodash';
 import { OrderRoles } from './orderRoles.enum';
 import { OrderStatus } from './orderStatus.enum';
+import { MessageService } from '../message/message.service';
 
 @Injectable()
 export class OrderService {
@@ -17,6 +18,7 @@ export class OrderService {
     @InjectRepository(Order)
     private readonly orderRepo: Repository<Order>,
     private readonly productService: ProductService,
+    private readonly messageService: MessageService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto) {
@@ -44,12 +46,22 @@ export class OrderService {
       product,
       buyer: createOrderDto.buyer,
     });
+
+    let result = null;
     if (exists && exists.status === OrderStatus.CANCELED) {
       exists.status = OrderStatus.INIT;
-      return await this.orderRepo.save(exists);
+      result = await this.orderRepo.save(exists);
     } else {
-      return await this.orderRepo.save(this.orderRepo.create(createOrderDto));
+      result = await this.orderRepo.save(this.orderRepo.create(createOrderDto));
     }
+
+    this.messageService.create({
+      to: result.seller.id,
+      content: '您的订单有新的买家',
+      order: result.id,
+    });
+
+    return result;
   }
 
   async paginate(

@@ -128,6 +128,12 @@ export class OrderController {
       { status: OrderStatus.CANCELED },
     );
 
+    this.messageService.create({
+      to: order.buyer.id,
+      content: '已被卖家选中交易',
+      order: order.id,
+    });
+
     return await this.orderService.update(order.id, {
       status: OrderStatus.ONGOING,
     });
