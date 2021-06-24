@@ -81,8 +81,8 @@ export class MessageService {
     } else {
       if (type == 'system') {
         queryBuilder.where([
-          { from: IsNull(), to: IsNull() },
-          { from: IsNull(), to: user.id },
+          { order: IsNull(), to: IsNull() },
+          { order: IsNull(), to: user.id },
         ]);
         this.redisClient.set(`message:system:${user.id}`, 0);
       } else {
