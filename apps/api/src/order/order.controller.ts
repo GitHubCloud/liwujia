@@ -96,7 +96,7 @@ export class OrderController {
       });
     } else {
       this.messageService.create({
-        to: order.buyer.id,
+        to: order.seller.id,
         content: '您的订单被买家取消',
         order: order.id,
       });
