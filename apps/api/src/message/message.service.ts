@@ -29,7 +29,7 @@ export class MessageService {
     createMessageDto.from = user ? user.id : null;
 
     // 订单下的沟通
-    if (createMessageDto.order && user) {
+    if (createMessageDto.order) {
       const order = await this.orderRepo.findOne(createMessageDto.order);
       if (!order) {
         throw new HttpException('订单不存在', 400);
