@@ -80,6 +80,9 @@ export class OrderController {
     if (!order || order.status === OrderStatus.COMPLETE) {
       throw new HttpException('订单不存在', 400);
     }
+    if (![order.seller.id, order.buyer.id].includes(req.user.id)) {
+      throw new HttpException('无权进行操作', 400);
+    }
 
     // 卖家取消，则取消所有订单
     // 买家取消，则取消单笔订单
@@ -123,9 +126,10 @@ export class OrderController {
       throw new HttpException('无权进行操作', HttpStatus.BAD_REQUEST);
     }
 
+    // 将之前卖家选择的订单状态更新为初始化
     await this.orderService.update(
-      { product: order.product },
-      { status: OrderStatus.CANCELED },
+      { product: order.product, status: OrderStatus.ONGOING },
+      { status: OrderStatus.INIT },
     );
 
     this.messageService.create({

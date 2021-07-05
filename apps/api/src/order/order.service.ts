@@ -32,7 +32,7 @@ export class OrderService {
     let exists = await this.findOne({
       product,
       status: In([
-        OrderStatus.ONGOING,
+        // OrderStatus.ONGOING,
         OrderStatus.DELIVERED,
         OrderStatus.RECEIVED,
         OrderStatus.COMPLETE,
@@ -102,13 +102,24 @@ export class OrderService {
         },
       });
       pagination.items.map(async (item) => {
-        if (item.status === OrderStatus.INIT) {
+        if ([OrderStatus.INIT, OrderStatus.ONGOING].includes(item.status)) {
           item.buyers = _.filter(
             _.map(buyers, (i) => {
-              if (i.product.id == item.product.id) return i.buyer;
+              if (i.product.id == item.product.id) {
+                if (i.status !== OrderStatus.INIT) {
+                  item.id = i.id;
+                  item.buyer = i.buyer;
+                  item.status = i.status;
+                  item.createTime = i.createTime;
+                }
+                return i.buyer;
+              }
             }),
             (i) => i,
           );
+        }
+
+        if (item.status === OrderStatus.INIT) {
           delete item.buyer;
         }
       });

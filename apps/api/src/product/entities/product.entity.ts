@@ -43,7 +43,7 @@ export class Product {
   @Column()
   category: string;
 
-  @Column()
+  @Column({ nullable: true })
   brand: string;
 
   @Column()

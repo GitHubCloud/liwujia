@@ -28,7 +28,7 @@ export class CreateProductDto {
   @IsNotEmpty({ message: '类型不能为空' })
   category: string;
 
-  @IsNotEmpty({ message: '品牌不能为空' })
+  @IsOptional()
   brand: string;
 
   @IsNotEmpty({ message: '成色不能为空' })
