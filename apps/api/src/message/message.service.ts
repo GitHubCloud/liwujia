@@ -34,15 +34,18 @@ export class MessageService {
       if (!order) {
         throw new HttpException('订单不存在', 400);
       }
-      if (order.seller.id !== user.id && order.buyer.id !== user.id) {
+      if (!createMessageDto.to && !user) {
         throw new HttpException('参数不正确', 400);
       }
 
-      if (order.seller.id === user.id) {
-        createMessageDto.to = order.buyer.id;
-      } else {
-        createMessageDto.to = order.seller.id;
+      if (!createMessageDto.to) {
+        if (order.seller.id === user.id) {
+          createMessageDto.to = order.buyer.id;
+        } else {
+          createMessageDto.to = order.seller.id;
+        }
       }
+
       this.redisClient.incr(`message:order:${createMessageDto.to}`);
     } else {
       this.redisClient.incr(`message:system:${createMessageDto.to}`);
