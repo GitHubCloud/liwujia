@@ -88,7 +88,7 @@ export class OrderController {
     // 买家取消，则取消单笔订单
     let param: any = id;
     if (req.user.id === order.seller.id) {
-      param = { product: order.product };
+      param = { product: order.product, status: Not(OrderStatus.CANCELED) };
       const orders = await this.orderService.find(param);
       orders.map((i) => {
         this.messageService.create({
@@ -167,6 +167,10 @@ export class OrderController {
         order: i.id,
       });
     });
+    await this.orderService.update(
+      { id: In(orders.map((i) => i.id)) },
+      { status: OrderStatus.CANCELED },
+    );
 
     this.messageService.create({
       to: order.seller.id,
