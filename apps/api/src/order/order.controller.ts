@@ -21,7 +21,7 @@ import { Order } from './entities/order.entity';
 import { PaginationDto } from '../pagination.dto';
 import { OrderStatus } from './orderStatus.enum';
 import { OrderRoles } from './orderRoles.enum';
-import { In } from 'typeorm';
+import { In, Not } from 'typeorm';
 import { ProductService } from '../product/product.service';
 import { MessageService } from '../message/message.service';
 
@@ -153,6 +153,20 @@ export class OrderController {
     if (!order || req.user.id !== order.buyer.id) {
       throw new HttpException('无权进行操作', HttpStatus.BAD_REQUEST);
     }
+
+    // 将其他未进行的订单关闭
+    const orders = await this.orderService.find({
+      id: Not(order.id),
+      product: order.product,
+      status: Not(OrderStatus.CANCELED),
+    });
+    orders.map((i) => {
+      this.messageService.create({
+        to: i.buyer.id,
+        content: '卖家已和其他买家达成交易',
+        order: i.id,
+      });
+    });
 
     this.messageService.create({
       to: order.seller.id,

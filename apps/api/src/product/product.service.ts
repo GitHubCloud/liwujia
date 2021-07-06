@@ -88,6 +88,9 @@ export class ProductService {
 
   async findOne(condition: any, user?: any): Promise<Product> {
     const product = await this.productRepo.findOne(condition);
+    if (!product) {
+      return product;
+    }
 
     const buyers = await this.orderRepo.find({
       where: {
