@@ -73,7 +73,7 @@ export default {
       previewImageUrl: '',
       form: {
         title: '',
-        type: '',
+        type: '2',
         content: '',
       },
       editerOption: {
