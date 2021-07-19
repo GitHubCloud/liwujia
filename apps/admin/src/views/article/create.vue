@@ -22,6 +22,15 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="内容">
+        <el-upload class="avatar-uploader" id="quill-img"
+                   :action="`${$store.state.apiEndPoint}resource/upload`"
+                   :headers="{ Authorization: `Bearer ${this.$store.state.token}` }"
+                   :data="{ dest: 'article' }"
+                   ref="upload" list-type="picture-card"
+                   :on-success="imgSuccess1"
+                   accept=".png, .jpg, .jpeg" style="display: none;">
+          <i class="el-icon-plus"></i>
+        </el-upload>
         <quill-editor
           v-model:value="form.content"
           ref="myQuillEditor"
@@ -65,6 +74,7 @@ import 'quill/dist/quill.core.css';
 import 'quill/dist/quill.snow.css';
 import 'quill/dist/quill.bubble.css';
 import { quillEditor } from 'vue3-quill';
+let quill;
 
 export default {
   data() {
@@ -77,24 +87,37 @@ export default {
         content: '',
       },
       editerOption: {
-        modules: {
-          toolbar: [
-            ['bold', 'italic', 'underline', 'strike'],
-            ['blockquote', 'code-block'],
-            [{ header: 1 }, { header: 2 }],
-            [{ list: 'ordered' }, { list: 'bullet' }],
-            [{ script: 'sub' }, { script: 'super' }],
-            [{ indent: '-1' }, { indent: '+1' }],
-            [{ direction: 'rtl' }],
-            [{ size: ['small', false, 'large', 'huge'] }],
-            [{ header: [1, 2, 3, 4, 5, 6, false] }],
-            [{ color: [] }, { background: [] }],
-            [{ font: [] }],
-            [{ align: [] }],
-            ['clean'],
-            ['link'], // 'image', 'video'
-          ],
-        },
+          modules: {
+              toolbar: {
+                  container:  [
+                      ['bold', 'italic', 'underline', 'strike'],
+                      ['blockquote', 'code-block'],
+                      [{ header: 1 }, { header: 2 }],
+                      [{ list: 'ordered' }, { list: 'bullet' }],
+                      [{ script: 'sub' }, { script: 'super' }],
+                      [{ indent: '-1' }, { indent: '+1' }],
+                      [{ direction: 'rtl' }],
+                      [{ size: ['small', false, 'large', 'huge'] }],
+//                      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+                      [{ color: [] }, { background: [] }],
+                      [{ font: [] }],
+                      [{ align: [] }],
+                      ['clean'],
+                      ['link','image'], // 'image', 'video'
+                      ],
+                  handlers: {
+                      'image': function (value) {
+                          if (value) {
+                              //触发我们自己写的上传图片的功能
+                              quill = this.quill;
+                              document.querySelector('.avatar-uploader input').click()
+                          } else {
+                              this.quill.format('image', false);
+                          }
+                      }
+                  },
+              },
+          },
         placeholder: '',
         theme: 'snow',
       },
@@ -133,6 +156,29 @@ export default {
     handleUploadExceed() {
       this.$message.error('超过最大文件数量');
     },
+      imgSuccess1(res) {
+        const { data } = res;
+//          let arr = [];
+//          fileList.forEach(item => {
+//              if (item.response) {
+//                  arr = `${store.getters.qiniuURL}/${item.response.key}`;
+//              } else if (item.status) {
+//                  arr = item.url;
+//              }
+//          });
+          // 获取到当前页面的富文本框
+
+              //let quill = this.$refs.myQuillEditor.quill;
+
+
+          // 获取光标现在所在的位置上
+          let length = quill.getSelection().index;
+
+//          // quill插入我们刚刚上传成功之后的图片，arr是存在我们服务器上边的地址
+          quill.insertEmbed(length, 'image', data.cdnPath);
+//          // 调整光标到图片之后的位置上
+          quill.setSelection(length + 1);
+      },
   },
   components: {
     quillEditor,

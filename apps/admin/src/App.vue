@@ -29,7 +29,7 @@ export default {
     if (this.$store.state.token && moment().isBefore(this.$store.state.tokenExpire)) return;
     const res = await this.$api(this.$store.state, 'auth/login', {
       body: {
-        loginName: 'Cloud',
+        loginName: '理物加',
         loginPasswd: 'kelaode520',
       },
     });

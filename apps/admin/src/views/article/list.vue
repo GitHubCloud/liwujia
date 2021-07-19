@@ -20,6 +20,14 @@
         sortable
         :formatter="dateFormatter"
       />
+      <el-table-column
+              fixed="right"
+              label="操作"
+              width="100">
+        <template #default="scope">
+          <el-button @click="deleteHandler(scope.row.id)" type="text" size="small">删除</el-button>
+        </template>
+      </el-table-column>
       <template #empty>
         <el-empty v-if="!isLoading" description="暂无数据"></el-empty>
         <el-skeleton v-if="isLoading" animated />
@@ -71,6 +79,36 @@ export default {
 
       this.isLoading = false;
     },
+      async delBanner(id) {
+          this.isLoading = true;
+
+          const res = await this.$api(this.$store.state, `article/${id}`, {
+              method: 'delete',
+          });
+          if (res.statusCode == 200) {
+              this.$message({
+                  type: 'success',
+                  message: '删除成功!'
+              });
+              this.loadList();
+          }
+
+          this.isLoading = false;
+      },
+      deleteHandler(id) {
+          this.$confirm('是否确认删除文章?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+          }).then(() => {
+              this.delBanner(id);
+          }).catch(() => {
+              this.$message({
+                  type: 'info',
+                  message: '已取消删除'
+              });
+          });
+      },
   },
   mounted() {
     this.loadList();
