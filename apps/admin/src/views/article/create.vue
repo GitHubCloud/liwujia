@@ -38,25 +38,38 @@
         ></quill-editor>
       </el-form-item>
       <el-form-item label="图片">
+        <div class="imgList">
+          <div v-for="(item,index) in fileList" :key="index" class="item">
+            <div @click="deleteImg(index)" class="btn">删除</div>
+            <img :src="item.cdnPath"/>
+          </div>
+        </div>
         <el-upload
+                class="avatar-uploader"
           ref="uploader"
           limit="9"
           :action="`${$store.state.apiEndPoint}resource/upload`"
           :headers="{ Authorization: `Bearer ${this.$store.state.token}` }"
           :data="{ dest: 'article' }"
-          list-type="picture-card"
-          :on-preview="handleUploadPreview"
-          :on-exceed="handleUploadExceed"
-        >
-          <template #tip>
-            <div class="el-upload__tip">最多上传 9 张图片，且不超过 500kb</div>
-          </template>
-          <el-image v-if="imageUrl" :src="imageUrl"></el-image>
-          <i v-else class="el-icon-plus"></i>
+          :on-success="uploadSuccess"
+          :show-file-list="false">
+          <i class="el-icon-plus"></i>
         </el-upload>
+
+        <!--<el-upload-->
+                <!--class="avatar-uploader"-->
+                <!--:action="`${$store.state.apiEndPoint}resource/upload`"-->
+                <!--:headers="{ Authorization: `Bearer ${this.$store.state.token}` }"-->
+                <!--:data="{ dest: 'article' }"-->
+                <!--name="upload"-->
+                <!--accept="image/*"-->
+                <!--:on-success="uploadSuccess"-->
+                <!--:show-file-list="false">-->
+        <!--</el-upload>-->
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">立即创建</el-button>
+        <el-button v-if="!id" type="primary" @click="onSubmit">立即创建</el-button>
+        <el-button v-else type="primary" @click="onEditSubmit">立即更新</el-button>
         <el-button>取消</el-button>
       </el-form-item>
     </el-form>
@@ -79,6 +92,7 @@ let quill;
 export default {
   data() {
     return {
+        id: '',
       previewVisible: false,
       previewImageUrl: '',
       form: {
@@ -121,19 +135,20 @@ export default {
         placeholder: '',
         theme: 'snow',
       },
+        fileList: [],
     };
   },
   methods: {
-    async onSubmit() {
+      async onSubmit() {
       const data = {
         title: this.form.title,
         type: this.form.type,
         content: this.form.content,
       };
-      if (this.$refs['uploader'].uploadFiles.length) {
+      if (this.fileList) {
         data.images = [];
-        this.$refs['uploader'].uploadFiles.map((image) => {
-          data.images.push(image.response.data.id);
+        this.fileList.map((image) => {
+          data.images.push(image.id);
         });
       }
 
@@ -148,6 +163,32 @@ export default {
         this.$message.error(String(res.message));
       }
     },
+      async onEditSubmit() {
+          const { id } = this;
+          const data = {
+              title: this.form.title,
+              type: this.form.type,
+              content: this.form.content,
+          };
+          if (this.fileList) {
+              data.images = [];
+              this.fileList.map((image) => {
+                  data.images.push(image.id);
+              });
+          }
+
+          const res = await this.$api(this.$store.state, `article/${id}`, {
+              method: 'put',
+              body: data,
+          });
+
+          if (res.statusCode == 200) {
+              this.$message.success(String(res.message));
+              this.$router.push('/article/list');
+          } else {
+              this.$message.error(String(res.message));
+          }
+      },
     // banner upload
     handleUploadPreview(file) {
       this.previewImageUrl = file.url;
@@ -179,9 +220,67 @@ export default {
 //          // 调整光标到图片之后的位置上
           quill.setSelection(length + 1);
       },
+      uploadSuccess(res) {
+          this.fileList.push(res.data)
+      },
+      deleteImg(index) {
+          this.fileList.splice(index,1)
+      },
+      async getData(id) {
+          const res = await this.$api(this.$store.state, `article/${id}`, {
+              method: 'get',
+          });
+          if (res.statusCode == 200) {
+              const { title,type,content,images } = res.data;
+              this.form = {
+                  title,
+                  type,
+                  content,
+              };
+              this.fileList = images;
+          }
+      },
   },
+    mounted() {
+      const { id } = this.$route.query;
+      if(id) {
+          this.id = id;
+          this.getData(id);
+      }
+    },
   components: {
     quillEditor,
   },
 };
 </script>
+<style>
+  .avatar-uploader {
+    border:1px solid #DDD;
+    width:100px;
+    height:100px;
+    text-align: center;
+    line-height:100px;
+  }
+  .imgList {}
+  .imgList .item {
+    display: inline-block;
+    vertical-align: middle;
+    width:120px;
+    height:120px;
+    position: relative;
+    margin:0 20px 0 0;
+  }
+  .imgList .item img {
+    width:120px;
+    height:120px;
+  }
+  .imgList .item .btn {
+    width:100%;
+    position: absolute;
+    left:50%;
+    top:50%;
+    transform: translate(-50%,-50%);
+    cursor: pointer;
+    text-align: center;
+  }
+</style>

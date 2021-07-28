@@ -25,6 +25,7 @@
               label="操作"
               width="100">
         <template #default="scope">
+          <el-button @click="editHandler(scope.row.id)" type="text" size="small">编辑</el-button>
           <el-button @click="deleteHandler(scope.row.id)" type="text" size="small">删除</el-button>
         </template>
       </el-table-column>
@@ -108,6 +109,9 @@ export default {
                   message: '已取消删除'
               });
           });
+      },
+      editHandler(id) {
+          this.$router.push('/article/create?id=' + id);
       },
   },
   mounted() {
