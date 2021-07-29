@@ -89,10 +89,12 @@ export class StuffService {
 
     switch (color) {
       case StuffColor.红灯: // 红灯过期
+        queryBuilder.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
         queryBuilder.andWhere(`detail->'$.expirationDate' IS NOT NULL`);
         queryBuilder.andWhere(`detail->'$.expirationDate' < ${new Date().getTime()}`);
         break;
       case StuffColor.黄灯: // 黄灯提醒
+        queryBuilder.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
         queryBuilder.andWhere(`detail->'$.expirationDate' IS NOT NULL`);
         queryBuilder.andWhere(`detail->'$.expirationDate' > ${new Date().getTime()}`);
         queryBuilder.andWhere(`detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) < ${new Date().getTime()}`);
@@ -101,9 +103,11 @@ export class StuffService {
         queryBuilder.andWhere(`(isConsumed = 1 OR isWasted = 1)`);
         break;
       case StuffColor.紫灯: // 紫灯无限
+        queryBuilder.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
         queryBuilder.andWhere(`detail->'$.expirationDate' IS NULL`);
         break;
       case StuffColor.绿灯: // 绿灯正常
+        queryBuilder.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
         queryBuilder.andWhere(`detail->'$.expirationDate' IS NOT NULL`);
         queryBuilder.andWhere(`detail->'$.expirationDate' > ${new Date().getTime()}`);
         queryBuilder.andWhere(`detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) > ${new Date().getTime()}`);
