@@ -31,7 +31,7 @@
           ref="upload"
           list-type="picture-card"
           :on-success="imgSuccess1"
-          :before-upload="beforeUpload"
+          :before-upload="handleBeforeUpload"
           accept=".png, .jpg, .jpeg"
           style="display: none"
         >
@@ -58,7 +58,7 @@
           :headers="{ Authorization: `Bearer ${this.$store.state.token}` }"
           :data="{ dest: 'article' }"
           :on-success="uploadSuccess"
-          :before-upload="beforeUpload"
+          :before-upload="handleBeforeUpload"
           :show-file-list="false"
         >
           <i class="el-icon-plus"></i>
@@ -214,7 +214,7 @@ export default {
       if(isOversize){
         this.$message.error('图片不能超过3M');
       }
-      return isOversize;
+      return !isOversize;
     },
     imgSuccess1(res) {
       const { data } = res;
