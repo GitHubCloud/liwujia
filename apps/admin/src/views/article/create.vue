@@ -283,4 +283,8 @@ export default {
     cursor: pointer;
     text-align: center;
   }
+  .ql-editor .ql-indent-1:not(.ql-direction-rtl) {
+    text-indent: 2em;
+    padding-left:0;
+  }
 </style>
