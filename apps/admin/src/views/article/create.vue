@@ -22,13 +22,19 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="内容">
-        <el-upload class="avatar-uploader" id="quill-img"
-                   :action="`${$store.state.apiEndPoint}resource/upload`"
-                   :headers="{ Authorization: `Bearer ${this.$store.state.token}` }"
-                   :data="{ dest: 'article' }"
-                   ref="upload" list-type="picture-card"
-                   :on-success="imgSuccess1"
-                   accept=".png, .jpg, .jpeg" style="display: none;">
+        <el-upload
+          class="avatar-uploader"
+          id="quill-img"
+          :action="`${$store.state.apiEndPoint}resource/upload`"
+          :headers="{ Authorization: `Bearer ${this.$store.state.token}` }"
+          :data="{ dest: 'article' }"
+          ref="upload"
+          list-type="picture-card"
+          :on-success="imgSuccess1"
+          :before-upload="beforeUpload"
+          accept=".png, .jpg, .jpeg"
+          style="display: none"
+        >
           <i class="el-icon-plus"></i>
         </el-upload>
         <quill-editor
@@ -39,37 +45,43 @@
       </el-form-item>
       <el-form-item label="图片">
         <div class="imgList">
-          <div v-for="(item,index) in fileList" :key="index" class="item">
+          <div v-for="(item, index) in fileList" :key="index" class="item">
             <div @click="deleteImg(index)" class="btn">删除</div>
-            <img :src="item.cdnPath"/>
+            <img :src="item.cdnPath" />
           </div>
         </div>
         <el-upload
-                class="avatar-uploader"
+          class="avatar-uploader"
           ref="uploader"
           limit="9"
           :action="`${$store.state.apiEndPoint}resource/upload`"
           :headers="{ Authorization: `Bearer ${this.$store.state.token}` }"
           :data="{ dest: 'article' }"
           :on-success="uploadSuccess"
-          :show-file-list="false">
+          :before-upload="beforeUpload"
+          :show-file-list="false"
+        >
           <i class="el-icon-plus"></i>
         </el-upload>
 
         <!--<el-upload-->
-                <!--class="avatar-uploader"-->
-                <!--:action="`${$store.state.apiEndPoint}resource/upload`"-->
-                <!--:headers="{ Authorization: `Bearer ${this.$store.state.token}` }"-->
-                <!--:data="{ dest: 'article' }"-->
-                <!--name="upload"-->
-                <!--accept="image/*"-->
-                <!--:on-success="uploadSuccess"-->
-                <!--:show-file-list="false">-->
+        <!--class="avatar-uploader"-->
+        <!--:action="`${$store.state.apiEndPoint}resource/upload`"-->
+        <!--:headers="{ Authorization: `Bearer ${this.$store.state.token}` }"-->
+        <!--:data="{ dest: 'article' }"-->
+        <!--name="upload"-->
+        <!--accept="image/*"-->
+        <!--:on-success="uploadSuccess"-->
+        <!--:show-file-list="false">-->
         <!--</el-upload>-->
       </el-form-item>
       <el-form-item>
-        <el-button v-if="!id" type="primary" @click="onSubmit">立即创建</el-button>
-        <el-button v-else type="primary" @click="onEditSubmit">立即更新</el-button>
+        <el-button v-if="!id" type="primary" @click="onSubmit"
+          >立即创建</el-button
+        >
+        <el-button v-else type="primary" @click="onEditSubmit"
+          >立即更新</el-button
+        >
         <el-button>取消</el-button>
       </el-form-item>
     </el-form>
@@ -92,7 +104,7 @@ let quill;
 export default {
   data() {
     return {
-        id: '',
+      id: '',
       previewVisible: false,
       previewImageUrl: '',
       form: {
@@ -101,45 +113,45 @@ export default {
         content: '',
       },
       editerOption: {
-          modules: {
-              toolbar: {
-                  container:  [
-                      ['bold', 'italic', 'underline', 'strike'],
-                      ['blockquote', 'code-block'],
-                      [{ header: 1 }, { header: 2 }],
-                      [{ list: 'ordered' }, { list: 'bullet' }],
-                      [{ script: 'sub' }, { script: 'super' }],
-                      [{ indent: '-1' }, { indent: '+1' }],
-                      [{ direction: 'rtl' }],
-                      [{ size: ['small', false, 'large', 'huge'] }],
-//                      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-                      [{ color: [] }, { background: [] }],
-                      [{ font: [] }],
-                      [{ align: [] }],
-                      ['clean'],
-                      ['link','image'], // 'image', 'video'
-                      ],
-                  handlers: {
-                      'image': function (value) {
-                          if (value) {
-                              //触发我们自己写的上传图片的功能
-                              quill = this.quill;
-                              document.querySelector('.avatar-uploader input').click()
-                          } else {
-                              this.quill.format('image', false);
-                          }
-                      }
-                  },
+        modules: {
+          toolbar: {
+            container: [
+              ['bold', 'italic', 'underline', 'strike'],
+              ['blockquote', 'code-block'],
+              [{ header: 1 }, { header: 2 }],
+              [{ list: 'ordered' }, { list: 'bullet' }],
+              [{ script: 'sub' }, { script: 'super' }],
+              [{ indent: '-1' }, { indent: '+1' }],
+              [{ direction: 'rtl' }],
+              [{ size: ['small', false, 'large', 'huge'] }],
+              // [{ header: [1, 2, 3, 4, 5, 6, false] }],
+              [{ color: [] }, { background: [] }],
+              [{ font: [] }],
+              [{ align: [] }],
+              ['clean'],
+              ['link', 'image'], // 'image', 'video'
+            ],
+            handlers: {
+              image: function (value) {
+                if (value) {
+                  //触发我们自己写的上传图片的功能
+                  quill = this.quill;
+                  document.querySelector('.avatar-uploader input').click();
+                } else {
+                  this.quill.format('image', false);
+                }
               },
+            },
           },
+        },
         placeholder: '',
         theme: 'snow',
       },
-        fileList: [],
+      fileList: [],
     };
   },
   methods: {
-      async onSubmit() {
+    async onSubmit() {
       const data = {
         title: this.form.title,
         type: this.form.type,
@@ -163,32 +175,32 @@ export default {
         this.$message.error(String(res.message));
       }
     },
-      async onEditSubmit() {
-          const { id } = this;
-          const data = {
-              title: this.form.title,
-              type: this.form.type,
-              content: this.form.content,
-          };
-          if (this.fileList) {
-              data.images = [];
-              this.fileList.map((image) => {
-                  data.images.push(image.id);
-              });
-          }
+    async onEditSubmit() {
+      const { id } = this;
+      const data = {
+        title: this.form.title,
+        type: this.form.type,
+        content: this.form.content,
+      };
+      if (this.fileList) {
+        data.images = [];
+        this.fileList.map((image) => {
+          data.images.push(image.id);
+        });
+      }
 
-          const res = await this.$api(this.$store.state, `article/${id}`, {
-              method: 'put',
-              body: data,
-          });
+      const res = await this.$api(this.$store.state, `article/${id}`, {
+        method: 'put',
+        body: data,
+      });
 
-          if (res.statusCode == 200) {
-              this.$message.success(String(res.message));
-              this.$router.push('/article/list');
-          } else {
-              this.$message.error(String(res.message));
-          }
-      },
+      if (res.statusCode == 200) {
+        this.$message.success(String(res.message));
+        this.$router.push('/article/list');
+      } else {
+        this.$message.error(String(res.message));
+      }
+    },
     // banner upload
     handleUploadPreview(file) {
       this.previewImageUrl = file.url;
@@ -197,94 +209,101 @@ export default {
     handleUploadExceed() {
       this.$message.error('超过最大文件数量');
     },
-      imgSuccess1(res) {
-        const { data } = res;
-//          let arr = [];
-//          fileList.forEach(item => {
-//              if (item.response) {
-//                  arr = `${store.getters.qiniuURL}/${item.response.key}`;
-//              } else if (item.status) {
-//                  arr = item.url;
-//              }
-//          });
-          // 获取到当前页面的富文本框
+    handleBeforeUpload(file){
+      const isOversize = file.size / 1024 / 1024 > 3;
+      if(isOversize){
+        this.$message.error('图片不能超过3M');
+      }
+      return isOversize;
+    },
+    imgSuccess1(res) {
+      const { data } = res;
+      // let arr = [];
+      // fileList.forEach(item => {
+      //     if (item.response) {
+      //         arr = `${store.getters.qiniuURL}/${item.response.key}`;
+      //     } else if (item.status) {
+      //         arr = item.url;
+      //     }
+      // });
+      // 获取到当前页面的富文本框
 
-              //let quill = this.$refs.myQuillEditor.quill;
+      //let quill = this.$refs.myQuillEditor.quill;
 
+      // 获取光标现在所在的位置上
+      let length = quill.getSelection().index;
 
-          // 获取光标现在所在的位置上
-          let length = quill.getSelection().index;
-
-//          // quill插入我们刚刚上传成功之后的图片，arr是存在我们服务器上边的地址
-          quill.insertEmbed(length, 'image', data.cdnPath);
-//          // 调整光标到图片之后的位置上
-          quill.setSelection(length + 1);
-      },
-      uploadSuccess(res) {
-          this.fileList.push(res.data)
-      },
-      deleteImg(index) {
-          this.fileList.splice(index,1)
-      },
-      async getData(id) {
-          const res = await this.$api(this.$store.state, `article/${id}`, {
-              method: 'get',
-          });
-          if (res.statusCode == 200) {
-              const { title,type,content,images } = res.data;
-              this.form = {
-                  title,
-                  type,
-                  content,
-              };
-              this.fileList = images;
-          }
-      },
-  },
-    mounted() {
-      const { id } = this.$route.query;
-      if(id) {
-          this.id = id;
-          this.getData(id);
+      // quill插入我们刚刚上传成功之后的图片，arr是存在我们服务器上边的地址
+      quill.insertEmbed(length, 'image', data.cdnPath);
+      // 调整光标到图片之后的位置上
+      quill.setSelection(length + 1);
+    },
+    uploadSuccess(res) {
+      this.fileList.push(res.data);
+    },
+    deleteImg(index) {
+      this.fileList.splice(index, 1);
+    },
+    async getData(id) {
+      const res = await this.$api(this.$store.state, `article/${id}`, {
+        method: 'get',
+      });
+      if (res.statusCode == 200) {
+        const { title, type, content, images } = res.data;
+        this.form = {
+          title,
+          type,
+          content,
+        };
+        this.fileList = images;
       }
     },
+  },
+  mounted() {
+    const { id } = this.$route.query;
+    if (id) {
+      this.id = id;
+      this.getData(id);
+    }
+  },
   components: {
     quillEditor,
   },
 };
 </script>
 <style>
-  .avatar-uploader {
-    border:1px solid #DDD;
-    width:100px;
-    height:100px;
-    text-align: center;
-    line-height:100px;
-  }
-  .imgList {}
-  .imgList .item {
-    display: inline-block;
-    vertical-align: middle;
-    width:120px;
-    height:120px;
-    position: relative;
-    margin:0 20px 0 0;
-  }
-  .imgList .item img {
-    width:120px;
-    height:120px;
-  }
-  .imgList .item .btn {
-    width:100%;
-    position: absolute;
-    left:50%;
-    top:50%;
-    transform: translate(-50%,-50%);
-    cursor: pointer;
-    text-align: center;
-  }
-  .ql-editor .ql-indent-1:not(.ql-direction-rtl) {
-    text-indent: 2em;
-    padding-left:0;
-  }
+.avatar-uploader {
+  border: 1px solid #ddd;
+  width: 100px;
+  height: 100px;
+  text-align: center;
+  line-height: 100px;
+}
+.imgList {
+}
+.imgList .item {
+  display: inline-block;
+  vertical-align: middle;
+  width: 120px;
+  height: 120px;
+  position: relative;
+  margin: 0 20px 0 0;
+}
+.imgList .item img {
+  width: 120px;
+  height: 120px;
+}
+.imgList .item .btn {
+  width: 100%;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  text-align: center;
+}
+.ql-editor .ql-indent-1:not(.ql-direction-rtl) {
+  text-indent: 2em;
+  padding-left: 0;
+}
 </style>
