@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { CategoryService } from 'apps/api/src/category/category.service';
 import { PaginationDto } from 'apps/api/src/pagination.dto';
-import { getRepository, Repository } from 'typeorm';
+import { Brackets, getRepository, Repository } from 'typeorm';
 import { CreateStuffDto } from './dto/create-stuff.dto';
 import { UpdateStuffDto } from './dto/update-stuff.dto';
 import { Stuff } from './entities/stuff.entity';
@@ -78,41 +78,27 @@ export class StuffService {
 
   async paginate(
     paginationDto: PaginationDto,
-    color: StuffColor,
+    color: StuffColor | StuffColor[],
   ): Promise<Pagination<Stuff>> {
     const { page, limit, query } = paginationDto;
 
+    const colorArr = Array.isArray(color) ? color : [color];
     const queryBuilder = getRepository(Stuff)
       .createQueryBuilder('stuff')
       .leftJoinAndSelect('stuff.image', 'image')
       .where(query);
 
-    switch (color) {
-      case StuffColor.红灯: // 红灯过期
-        queryBuilder.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
-        queryBuilder.andWhere(`detail->'$.expirationDate' IS NOT NULL`);
-        queryBuilder.andWhere(`detail->'$.expirationDate' < ${new Date().getTime()}`);
-        break;
-      case StuffColor.黄灯: // 黄灯提醒
-        queryBuilder.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
-        queryBuilder.andWhere(`detail->'$.expirationDate' IS NOT NULL`);
-        queryBuilder.andWhere(`detail->'$.expirationDate' > ${new Date().getTime()}`);
-        queryBuilder.andWhere(`detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) < ${new Date().getTime()}`);
-        break;
-      case StuffColor.蓝灯: // 蓝灯使用
-        queryBuilder.andWhere(`(isConsumed = 1 OR isWasted = 1)`);
-        break;
-      case StuffColor.紫灯: // 紫灯无限
-        queryBuilder.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
-        queryBuilder.andWhere(`detail->'$.expirationDate' IS NULL`);
-        break;
-      case StuffColor.绿灯: // 绿灯正常
-        queryBuilder.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
-        queryBuilder.andWhere(`detail->'$.expirationDate' IS NOT NULL`);
-        queryBuilder.andWhere(`detail->'$.expirationDate' > ${new Date().getTime()}`);
-        queryBuilder.andWhere(`detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) > ${new Date().getTime()}`);
-        break;
-    }
+    queryBuilder.andWhere(
+      new Brackets((qb) => {
+        colorArr.map((c) => {
+          qb.orWhere(
+            new Brackets((qb) => {
+              this.colorQueryBuilder(c, qb);
+            }),
+          );
+        });
+      }),
+    );
 
     queryBuilder.orderBy('stuff.id', 'DESC');
     const pagination = await paginate(queryBuilder, { page, limit });
@@ -146,7 +132,7 @@ export class StuffService {
       calendar.push({ day, weekday, stuffs: [] });
     }
 
-    stuffs.map(item => {
+    stuffs.map((item) => {
       const expirationDate = _.get(item, 'detail.expirationDate');
       const remainDays = _.get(item, 'detail.remainDays');
 
@@ -192,5 +178,34 @@ export class StuffService {
 
   async remove(id: number) {
     return await this.stuffRepo.delete(id);
+  }
+
+  private colorQueryBuilder(color: StuffColor, qb) {
+    switch (color) {
+      case StuffColor.红灯: // 红灯过期
+        qb.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
+        qb.andWhere(`detail->'$.expirationDate' IS NOT NULL`);
+        qb.andWhere(`detail->'$.expirationDate' < ${new Date().getTime()}`);
+        break;
+      case StuffColor.黄灯: // 黄灯提醒
+        qb.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
+        qb.andWhere(`detail->'$.expirationDate' IS NOT NULL`);
+        qb.andWhere(`detail->'$.expirationDate' > ${new Date().getTime()}`);
+        qb.andWhere(`detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) < ${new Date().getTime()}`);
+        break;
+      case StuffColor.蓝灯: // 蓝灯使用
+        qb.andWhere(`(isConsumed = 1 OR isWasted = 1)`);
+        break;
+      case StuffColor.紫灯: // 紫灯无限
+        qb.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
+        qb.andWhere(`detail->'$.expirationDate' IS NULL`);
+        break;
+      case StuffColor.绿灯: // 绿灯正常
+        qb.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
+        qb.andWhere(`detail->'$.expirationDate' IS NOT NULL`);
+        qb.andWhere(`detail->'$.expirationDate' > ${new Date().getTime()}`);
+        qb.andWhere(`detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) > ${new Date().getTime()}`);
+        break;
+    }
   }
 }

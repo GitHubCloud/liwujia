@@ -43,7 +43,7 @@ export class StuffController {
   async paginate(
     @Req() req,
     @Query('category') category: number,
-    @Query('color') color: StuffColor,
+    @Query('color') color: StuffColor | StuffColor[],
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Stuff>> {
     paginationDto.query = { owner: req.user.id };
