@@ -82,23 +82,25 @@ export class StuffService {
   ): Promise<Pagination<Stuff>> {
     const { page, limit, query } = paginationDto;
 
-    const colorArr = Array.isArray(color) ? color : [color];
     const queryBuilder = getRepository(Stuff)
       .createQueryBuilder('stuff')
       .leftJoinAndSelect('stuff.image', 'image')
       .where(query);
 
-    queryBuilder.andWhere(
-      new Brackets((qb) => {
-        colorArr.map((c) => {
-          qb.orWhere(
-            new Brackets((qb) => {
-              this.colorQueryBuilder(c, qb);
-            }),
-          );
-        });
-      }),
-    );
+    if (color) {
+      const colorArr = Array.isArray(color) ? color : [color];
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          colorArr.map((c) => {
+            qb.orWhere(
+              new Brackets((qb) => {
+                this.colorQueryBuilder(c, qb);
+              }),
+            );
+          });
+        }),
+      );
+    }
 
     queryBuilder.orderBy('stuff.id', 'DESC');
     const pagination = await paginate(queryBuilder, { page, limit });

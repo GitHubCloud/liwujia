@@ -62,6 +62,18 @@ export class StuffController {
     return this.stuffService.recentExpire(req.user);
   }
 
+  @Get('hasExpired')
+  async hasExpired(@Req() req) {
+    const expired = await this.stuffService.paginate(
+      {
+        query: { owner: req.user.id },
+      },
+      StuffColor.红灯,
+    );
+
+    return !!expired.meta.itemCount;
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<Stuff> {
     return await this.stuffService.findOne(id);
