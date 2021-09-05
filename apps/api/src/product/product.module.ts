@@ -8,10 +8,12 @@ import { CollectModule } from '../collect/collect.module';
 import { CommentModule } from '../comment/comment.module';
 import { Order } from '../order/entities/order.entity';
 import { FavoriteModule } from '../favorite/favorite.module';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Product, Resource, Order]),
+    CommonModule,
     CommentModule,
     CollectModule,
     FavoriteModule,

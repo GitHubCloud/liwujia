@@ -24,6 +24,7 @@ import { CreateCommentDto } from '../comment/dto/create-comment.dto';
 import { CommentService } from '../comment/comment.service';
 import { Comment } from '../comment/entities/comment.entity';
 import { Like } from 'typeorm';
+import { CommonService, sceneEnum } from '../common/common.service';
 
 @ApiTags('Product')
 @Controller('product')
@@ -33,6 +34,7 @@ export class ProductController {
   constructor(
     private readonly productService: ProductService,
     private readonly commentService: CommentService,
+    private readonly commonService: CommonService,
   ) {}
 
   @Post()
@@ -93,6 +95,10 @@ export class ProductController {
   ): Promise<Comment> {
     createCommentDto.product = id;
     createCommentDto.author = req.user.id;
+
+    await this.commonService.WechatMessageSecurityCheck(sceneEnum.评论, {
+      content: createCommentDto.content,
+    });
 
     return await this.commentService.create(createCommentDto);
   }
