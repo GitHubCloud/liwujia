@@ -15,10 +15,10 @@ export class CommonService {
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     private readonly redisService: RedisService,
-    private readonly logger: Logger,
   ) {}
 
-  private redisClient = this.redisService.getClient();
+  private readonly logger = new Logger('Common');
+  private readonly redisClient = this.redisService.getClient();
 
   async WechatMessageSecurityCheck(scene: sceneEnum, contents: any) {
     const APPID = this.configService.get('WECHAT_APPID');
