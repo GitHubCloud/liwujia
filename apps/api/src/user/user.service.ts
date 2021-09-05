@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from 'eventemitter2';
 import { Repository } from 'typeorm';
+import { CommonService, sceneEnum } from '../common/common.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -12,6 +13,7 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     private readonly eventEmitter: EventEmitter2,
+    private readonly commonService: CommonService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -40,6 +42,13 @@ export class UserService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
+    if (updateUserDto.biography) {
+      await this.commonService.WechatMessageSecurityCheck(sceneEnum.资料, {
+        content: updateUserDto.biography,
+        signature: updateUserDto.biography,
+      });
+    }
+
     return await this.userRepo.update(id, updateUserDto);
   }
 }

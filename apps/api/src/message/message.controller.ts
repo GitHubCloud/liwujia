@@ -18,6 +18,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { RedisService } from 'nestjs-redis';
 import { IsNull, Not } from 'typeorm';
+import { CommonService, sceneEnum } from '../common/common.service';
 
 @ApiTags('Message')
 @Controller('message')
@@ -27,6 +28,7 @@ export class MessageController {
   constructor(
     private readonly messageService: MessageService,
     private readonly redisService: RedisService,
+    private readonly commonService: CommonService,
   ) {}
 
   @Post()
@@ -34,6 +36,10 @@ export class MessageController {
     @Req() req,
     @Body() createMessageDto: CreateMessageDto,
   ): Promise<Message> {
+    await this.commonService.WechatMessageSecurityCheck(sceneEnum.社交日志, {
+      content: createMessageDto.content,
+    });
+
     return await this.messageService.create(createMessageDto, req.user);
   }
 

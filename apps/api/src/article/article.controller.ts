@@ -80,6 +80,13 @@ export class ArticleController {
     @Param('id') id: number,
     @Body() updateArticleDto: UpdateArticleDto,
   ) {
+    if (updateArticleDto.title || updateArticleDto.content) {
+      await this.commonService.WechatMessageSecurityCheck(sceneEnum.论坛, {
+        title: updateArticleDto.title,
+        content: updateArticleDto.content,
+      });
+    }
+
     return await this.articleService.update(id, updateArticleDto);
   }
 
@@ -106,6 +113,10 @@ export class ArticleController {
   ): Promise<Comment> {
     createCommentDto.article = id;
     createCommentDto.author = req.user.id;
+
+    await this.commonService.WechatMessageSecurityCheck(sceneEnum.评论, {
+      content: createCommentDto.content,
+    });
 
     return await this.commentService.create(createCommentDto);
   }

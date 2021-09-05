@@ -1,4 +1,9 @@
-import { BadRequestException, HttpService, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpService,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from 'nestjs-redis';
 

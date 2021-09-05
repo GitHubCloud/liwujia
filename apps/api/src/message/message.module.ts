@@ -6,10 +6,15 @@ import { Message } from './entities/message.entity';
 import { SocketModule } from '../socket/socket.module';
 import { EventListener } from './event.listener';
 import { Order } from '../order/entities/order.entity';
+import { CommonModule } from '../common/common.module';
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([Message, Order]), SocketModule],
+  imports: [
+    TypeOrmModule.forFeature([Message, Order]),
+    SocketModule,
+    CommonModule,
+  ],
   controllers: [MessageController],
   providers: [MessageService, EventListener],
   exports: [MessageService, EventListener],
