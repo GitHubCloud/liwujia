@@ -17,6 +17,7 @@ import { OrderModule } from './order/order.module';
 import { SocketModule } from './socket/socket.module';
 import { FavoriteModule } from './favorite/favorite.module';
 import { RedisModule } from 'nestjs-redis';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { RedisModule } from 'nestjs-redis';
     OrderModule,
     SocketModule,
     FavoriteModule,
+    CommonModule,
   ],
 })
 export class AppModule {}

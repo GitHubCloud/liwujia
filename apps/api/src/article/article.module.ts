@@ -8,10 +8,12 @@ import { CommentModule } from 'apps/api/src/comment/comment.module';
 import { Resource } from '../resource/entities/resource.entity';
 import { CollectModule } from '../collect/collect.module';
 import { FavoriteModule } from '../favorite/favorite.module';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Article, Comment, Resource]),
+    CommonModule,
     CommentModule,
     CollectModule,
     FavoriteModule,

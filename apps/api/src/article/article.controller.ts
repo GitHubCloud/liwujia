@@ -24,6 +24,7 @@ import { Article } from './entities/article.entity';
 import { Comment } from 'apps/api/src/comment/entities/comment.entity';
 import { PaginationDto } from 'apps/api/src/pagination.dto';
 import { Like } from 'typeorm';
+import { CommonService, sceneEnum } from '../common/common.service';
 
 @ApiTags('Article')
 @Controller('article')
@@ -33,6 +34,7 @@ export class ArticleController {
   constructor(
     private readonly articleService: ArticleService,
     private readonly commentService: CommentService,
+    private readonly commonService: CommonService,
   ) {}
 
   @Post()
@@ -41,6 +43,11 @@ export class ArticleController {
     @Body() createArticleDto: CreateArticleDto,
   ): Promise<Article> {
     createArticleDto.author = req.user.id;
+
+    await this.commonService.WechatMessageSecurityCheck(sceneEnum.论坛, {
+      title: createArticleDto.title,
+      content: createArticleDto.content,
+    });
 
     return await this.articleService.create(createArticleDto);
   }
