@@ -10,6 +10,7 @@ import { Resource } from '../resource/entities/resource.entity';
 import * as _ from 'lodash';
 import { CollectService } from '../collect/collect.service';
 import { FavoriteService } from '../favorite/favorite.service';
+import { EventEmitter2 } from 'eventemitter2';
 
 @Injectable()
 export class ArticleService {
@@ -20,6 +21,7 @@ export class ArticleService {
     private readonly resourceRepo: Repository<Resource>,
     private readonly collectService: CollectService,
     private readonly favoriteService: FavoriteService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(createArticleDto: CreateArticleDto): Promise<Article> {
@@ -27,9 +29,11 @@ export class ArticleService {
       const images = await this.resourceRepo.findByIds(createArticleDto.images);
       createArticleDto.images = images;
     }
-    const articleData = this.articleRepo.create(createArticleDto);
+    const article = this.articleRepo.create(createArticleDto);
 
-    return await this.articleRepo.save(articleData);
+    this.eventEmitter.emit('article.create', article.author);
+
+    return await this.articleRepo.save(article);
   }
 
   async paginate(

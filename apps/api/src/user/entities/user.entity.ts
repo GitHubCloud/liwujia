@@ -14,9 +14,10 @@ import { Article } from 'apps/api/src/article/entities/article.entity';
 import { Comment } from 'apps/api/src/comment/entities/comment.entity';
 import { Message } from 'apps/api/src/message/entities/message.entity';
 import { Stuff } from 'apps/api/src/stuff/entities/stuff.entity';
-import { Collect } from '../../collect/entities/collect.entity';
-import { Product } from '../../product/entities/product.entity';
-import { Order } from '../../order/entities/order.entity';
+import { Collect } from 'apps/api/src/collect/entities/collect.entity';
+import { Product } from 'apps/api/src/product/entities/product.entity';
+import { Order } from 'apps/api/src/order/entities/order.entity';
+import { Point } from 'apps/api/src/point/entities/point.entity';
 
 @Entity()
 export class User {
@@ -78,6 +79,10 @@ export class User {
   @JoinColumn()
   @OneToMany(() => Message, (message) => message.to)
   messagesReceive: number;
+
+  @JoinColumn()
+  @OneToMany(() => Point, (point) => point.user)
+  points: number;
 
   @BeforeInsert()
   encryptPasswd() {

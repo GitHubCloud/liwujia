@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from 'eventemitter2';
-import { Repository } from 'typeorm';
+import { getRepository, Repository } from 'typeorm';
 import { CommonService, sceneEnum } from '../common/common.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import * as _ from 'lodash';
 
 @Injectable()
 export class UserService {
@@ -26,7 +27,16 @@ export class UserService {
   }
 
   async findOne(id: number): Promise<User> {
-    return await this.userRepo.findOne(id);
+    const points = await getRepository(User)
+      .createQueryBuilder('user')
+      .leftJoin('user.points', 'points')
+      .addSelect('SUM(points.amount)', 'points')
+      .where('user.id = :userid', { userid: id })
+      .getRawAndEntities();
+
+    _.first(points.entities).points = _.first(points.raw).points;
+
+    return _.first(points.entities);
   }
 
   async findByName(loginName: string): Promise<User> {

@@ -12,6 +12,7 @@ import * as _ from 'lodash';
 import { Order } from '../order/entities/order.entity';
 import { OrderStatus } from '../order/orderStatus.enum';
 import { FavoriteService } from '../favorite/favorite.service';
+import { EventEmitter2 } from 'eventemitter2';
 
 @Injectable()
 export class ProductService {
@@ -24,6 +25,7 @@ export class ProductService {
     private readonly orderRepo: Repository<Order>,
     private readonly collectService: CollectService,
     private readonly favoriteService: FavoriteService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
@@ -32,9 +34,13 @@ export class ProductService {
       createProductDto.images = images;
     }
 
-    return await this.productRepo.save(
+    const product = await this.productRepo.save(
       this.productRepo.create(createProductDto),
     );
+
+    this.eventEmitter.emit('product.create', product.owner);
+
+    return product;
   }
 
   async paginate(

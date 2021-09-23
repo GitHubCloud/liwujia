@@ -24,6 +24,7 @@ import { OrderRoles } from './orderRoles.enum';
 import { In, Not } from 'typeorm';
 import { ProductService } from '../product/product.service';
 import { MessageService } from '../message/message.service';
+import { EventEmitter2 } from 'eventemitter2';
 
 @ApiTags('Order')
 @Controller('order')
@@ -34,6 +35,7 @@ export class OrderController {
     private readonly orderService: OrderService,
     private readonly productService: ProductService,
     private readonly messageService: MessageService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   @Post()
@@ -195,6 +197,8 @@ export class OrderController {
     }
 
     await this.productService.setToSold(order.product.id);
+    this.eventEmitter.emit('product.sold', order.seller);
+    this.eventEmitter.emit('product.bought', order.buyer);
 
     this.messageService.create({
       to: order.buyer.id,

@@ -20,6 +20,7 @@ export class CommentService {
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
     private readonly redisService: RedisService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   private redisClient = this.redisService.getClient();
@@ -37,6 +38,7 @@ export class CommentService {
     const comment = await this.commentRepo.save(
       this.commentRepo.create(createCommentDto),
     );
+    this.eventEmitter.emit('comment.create', createCommentDto.author);
 
     // 消息数量缓存
     let targetUser = null;

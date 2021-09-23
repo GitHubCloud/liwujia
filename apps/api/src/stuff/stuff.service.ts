@@ -11,6 +11,7 @@ import { isDate, isDateString } from 'class-validator';
 import { StuffColor } from './stuffColor.enum';
 import * as _ from 'lodash';
 import * as moment from 'moment';
+import { EventEmitter2 } from 'eventemitter2';
 
 @Injectable()
 export class StuffService {
@@ -18,7 +19,8 @@ export class StuffService {
     @InjectRepository(Stuff)
     private readonly stuffRepo: Repository<Stuff>,
     private readonly categoryService: CategoryService,
-  ) { }
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   async create(createStuffDto: CreateStuffDto): Promise<Stuff> {
     const category = await this.categoryService.findOne(
@@ -73,7 +75,11 @@ export class StuffService {
     }
 
     createStuffDto.detail = detail;
-    return await this.stuffRepo.save(createStuffDto);
+    const stuff = await this.stuffRepo.save(createStuffDto);
+
+    this.eventEmitter.emit('stuff.create', stuff.owner);
+
+    return stuff;
   }
 
   async paginate(
@@ -175,6 +181,11 @@ export class StuffService {
   }
 
   async update(id: number, updateStuffDto: UpdateStuffDto) {
+    if (updateStuffDto.isConsumed || updateStuffDto.isWasted) {
+      const stuff = await this.findOne(id);
+      this.eventEmitter.emit('stuff.consume', stuff.owner);
+    }
+
     return await this.stuffRepo.update(id, updateStuffDto);
   }
 
