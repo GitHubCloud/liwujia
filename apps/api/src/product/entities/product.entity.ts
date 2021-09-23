@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   JoinTable,
@@ -73,6 +74,9 @@ export class Product {
 
   @Column({ default: 0 })
   collect: number;
+
+  @DeleteDateColumn()
+  deleteTime: Date;
 
   buyers: User[];
   isCollected: boolean;

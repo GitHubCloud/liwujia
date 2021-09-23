@@ -25,7 +25,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   /* 仅通过小程序创建用户 */
-  // @Post()
+  @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.userService.create(createUserDto);
   }

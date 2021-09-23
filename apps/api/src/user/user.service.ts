@@ -34,7 +34,7 @@ export class UserService {
       .where('user.id = :userid', { userid: id })
       .getRawAndEntities();
 
-    _.first(points.entities).points = _.first(points.raw).points;
+    _.first(points.entities).points = _.first(points.raw).points || 0;
 
     return _.first(points.entities);
   }

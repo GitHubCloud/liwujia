@@ -73,6 +73,11 @@ export class OrderService {
 
     const queryBuilder = getRepository(Order)
       .createQueryBuilder('order')
+      /**
+       * @see https://stackoverflow.com/questions/66117005
+       * This line NEED to be on top of the `.leftJoinAndSelect` with product.
+       */
+      .withDeleted()
       .leftJoinAndSelect('order.product', 'product')
       .leftJoinAndSelect('product.images', 'images')
       .leftJoinAndSelect('order.seller', 'seller')

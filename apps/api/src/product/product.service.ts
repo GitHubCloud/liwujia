@@ -84,6 +84,7 @@ export class ProductService {
         item.isLocked = !_.isEmpty(
           await this.orderRepo.findOne({
             product: item,
+            status: Not(OrderStatus.CANCELED),
           }),
         );
       }),
@@ -130,6 +131,7 @@ export class ProductService {
     product.isLocked = !_.isEmpty(
       await this.orderRepo.findOne({
         product: product,
+        status: Not(OrderStatus.CANCELED),
       }),
     );
 
@@ -217,11 +219,12 @@ export class ProductService {
 
     const exists = await this.orderRepo.findOne({
       product: product,
+      status: Not(OrderStatus.CANCELED),
     });
     if (exists) {
       throw new HttpException('物品已锁定，无法删除', HttpStatus.BAD_REQUEST);
     }
 
-    return await this.productRepo.delete(condition);
+    return await this.productRepo.softDelete(condition);
   }
 }
