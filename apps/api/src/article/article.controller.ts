@@ -46,7 +46,9 @@ export class ArticleController {
 
     await this.commonService.WechatMessageSecurityCheck(sceneEnum.论坛, {
       title: createArticleDto.title,
-      content: createArticleDto.content,
+      content: createArticleDto.content
+        ? createArticleDto.content
+        : createArticleDto.title,
     });
 
     return await this.articleService.create(createArticleDto);
@@ -64,8 +66,6 @@ export class ArticleController {
     if (type) paginationDto.query['type'] = type;
     if (author) paginationDto.query['author'] = author;
     if (search) paginationDto.query['title'] = Like(`%${search}%`);
-
-    console.log(paginationDto);
 
     return await this.articleService.paginate(paginationDto, req.user);
   }
