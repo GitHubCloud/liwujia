@@ -181,6 +181,14 @@ export class StuffService {
   }
 
   async update(id: number, updateStuffDto: UpdateStuffDto) {
+    const stuff = await this.findOne(id);
+    if (_.isEmpty(stuff)) {
+      throw new HttpException(
+        { statusCode: HttpStatus.BAD_REQUEST, message: ['物品不存在'] },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const category = await this.categoryService.findOne(
       updateStuffDto.category,
     );
@@ -192,9 +200,10 @@ export class StuffService {
     }
 
     const detail = _.pick(
-      _.get(updateStuffDto, 'detail', {}),
+      _.merge(stuff.detail, _.get(updateStuffDto, 'detail', {})),
       _.map(category.fields, (i) => i.name),
     );
+
     const message = [];
     _.map(category?.fields, (i) => {
       const val = detail[i.name];
@@ -212,7 +221,7 @@ export class StuffService {
               detail[i.name] = !!detail[i.name];
               break;
             case 'date':
-              if (!isDateString(val) && !isDate(val)) {
+              if (!moment(detail[i.name]).isValid()) {
                 message.push(`${i.text}类型不正确`);
               } else {
                 detail[i.name] = moment(detail[i.name]).toDate().getTime();
@@ -234,7 +243,6 @@ export class StuffService {
 
     updateStuffDto.detail = detail;
     if (updateStuffDto.isConsumed || updateStuffDto.isWasted) {
-      const stuff = await this.findOne(id);
       this.eventEmitter.emit('stuff.consume', stuff.owner);
     }
 

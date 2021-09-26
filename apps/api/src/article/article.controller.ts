@@ -83,7 +83,9 @@ export class ArticleController {
     if (updateArticleDto.title || updateArticleDto.content) {
       await this.commonService.WechatMessageSecurityCheck(sceneEnum.论坛, {
         title: updateArticleDto.title,
-        content: updateArticleDto.content,
+        content: updateArticleDto.content
+          ? updateArticleDto.content
+          : updateArticleDto.title,
       });
     }
 
