@@ -93,7 +93,7 @@ export class CommentService {
       queryBuilder.leftJoinAndSelect('article.author', 'articleAuthor');
       queryBuilder.leftJoinAndSelect('comment.replyTo', 'replyTo');
       queryBuilder.leftJoinAndSelect('replyTo.author', 'replyToAuthor');
-      queryBuilder.where('comment.author != :userid', { userid: user.id });
+      // queryBuilder.where('comment.author != :userid', { userid: user.id });
       queryBuilder.andWhere(
         '(product.owner = :userid OR article.author = :userid OR replyTo.author = :userid)',
         { userid: user.id },

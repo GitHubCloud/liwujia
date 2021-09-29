@@ -146,6 +146,7 @@ export class ProductService {
 
     const exists = await this.orderRepo.findOne({
       product: product,
+      status: Not(OrderStatus.CANCELED),
     });
     if (exists) {
       throw new HttpException('物品已锁定，无法编辑', HttpStatus.BAD_REQUEST);
