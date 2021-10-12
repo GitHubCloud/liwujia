@@ -108,4 +108,8 @@ export class CommentService {
   async findOne(id: number): Promise<Comment> {
     return await this.commentRepo.findOne(id);
   }
+
+  async delete(id: number): Promise<any> {
+    return await this.commentRepo.delete(id);
+  }
 }

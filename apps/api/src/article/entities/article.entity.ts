@@ -8,6 +8,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Transform } from 'class-transformer';
 import * as moment from 'moment';
@@ -48,6 +49,10 @@ export class Article {
   @CreateDateColumn()
   @Transform((d) => moment(d.value).toDate().getTime())
   createTime: Date;
+
+  @UpdateDateColumn()
+  @Transform((d) => moment(d.value).toDate().getTime())
+  updateTime: Date;
 
   @Column({ default: 0 })
   favorite: number;

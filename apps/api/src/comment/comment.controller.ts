@@ -2,6 +2,7 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -75,5 +76,10 @@ export class CommentController {
     };
 
     return await this.commentService.paginate(paginationDto);
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: number) {
+    return await this.commentService.delete(id);
   }
 }
