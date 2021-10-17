@@ -54,7 +54,19 @@ export class Stuff {
 
   @AfterLoad()
   afterLoad() {
-    const expirationDate = _.get(this, 'detail.expirationDate', null);
+    let expirationDate = _.get(this, 'detail.expirationDate', null);
+    const openDate = _.get(this, 'detail.openDate', null);
+    const openLimit = _.get(this, 'detail.openLimit', null);
+
+    if (openDate && openLimit) {
+      if (
+        moment(openDate).add(openLimit, 'month').isBefore(expirationDate) ||
+        !expirationDate
+      ) {
+        expirationDate = moment(openDate).add(openLimit, 'month');
+      }
+    }
+
     const remainDays = _.get(this, 'detail.remainDays', null);
     if (expirationDate && remainDays) {
       const remainDate = moment(expirationDate).subtract(remainDays, 'day');

@@ -122,7 +122,8 @@ export class StuffService {
       .createQueryBuilder('stuff')
       .leftJoinAndSelect('stuff.image', 'image')
       .where('stuff.owner = :uid', { uid: user.id })
-      .andWhere(`(
+      .andWhere(
+        `(
         detail->'$.expirationDate' IS NOT NULL AND
         (
           (detail->'$.expirationDate' > ${startOfMonth} AND detail->'$.expirationDate' < ${endOfMonth}) OR
@@ -131,7 +132,8 @@ export class StuffService {
             detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) < ${endOfMonth}
           )
         )
-      )`)
+      )`,
+      )
       .getMany();
 
     const calendar = [];
@@ -257,14 +259,30 @@ export class StuffService {
     switch (color) {
       case StuffColor.红灯: // 红灯过期
         qb.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
-        qb.andWhere(`detail->'$.expirationDate' IS NOT NULL`);
-        qb.andWhere(`detail->'$.expirationDate' < ${new Date().getTime()}`);
+        qb.andWhere(
+          `(detail->'$.expirationDate' IS NOT NULL OR (detail->'$.openDate' IS NOT NULL AND detail->'$.openLimit' IS NOT NULL))`,
+        );
+        qb.andWhere(`(
+          (detail->'$.expirationDate' < ${new Date().getTime()})
+          OR
+          (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000 < ${new Date().getTime()})
+        )`);
         break;
       case StuffColor.黄灯: // 黄灯提醒
         qb.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
-        qb.andWhere(`detail->'$.expirationDate' IS NOT NULL`);
-        qb.andWhere(`detail->'$.expirationDate' > ${new Date().getTime()}`);
-        qb.andWhere(`detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) < ${new Date().getTime()}`);
+        qb.andWhere(
+          `(detail->'$.expirationDate' IS NOT NULL OR (detail->'$.openDate' IS NOT NULL AND detail->'$.openLimit' IS NOT NULL))`,
+        );
+        qb.andWhere(`(
+          (detail->'$.expirationDate' > ${new Date().getTime()})
+          OR
+          (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000 > ${new Date().getTime()})
+        )`);
+        qb.andWhere(`(
+          (detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) < ${new Date().getTime()})
+          OR
+          (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000 - (detail->'$.remainDays' * 86400000) < ${new Date().getTime()})
+        )`);
         break;
       case StuffColor.蓝灯: // 蓝灯使用
         qb.andWhere(`(isConsumed = 1 OR isWasted = 1)`);
@@ -272,12 +290,26 @@ export class StuffService {
       case StuffColor.紫灯: // 紫灯无限
         qb.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
         qb.andWhere(`detail->'$.expirationDate' IS NULL`);
+        qb.andWhere(`(detail->'$.openDate' IS NULL AND detail->'$.openLimit')`);
         break;
       case StuffColor.绿灯: // 绿灯正常
         qb.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
-        qb.andWhere(`detail->'$.expirationDate' IS NOT NULL`);
-        qb.andWhere(`detail->'$.expirationDate' > ${new Date().getTime()}`);
-        qb.andWhere(`detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) > ${new Date().getTime()}`);
+        qb.andWhere(
+          `(
+            detail->'$.expirationDate' IS NULL OR
+            (
+              detail->'$.expirationDate' > ${new Date().getTime()} AND
+              (detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) > ${new Date().getTime()})
+            )
+          )`,
+        );
+        qb.andWhere(`(
+          (detail->'$.openDate' IS NULL OR detail->'$.openLimit' IS NULL) OR
+          (
+            (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000 > ${new Date().getTime()}) AND
+            (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000 - (detail->'$.remainDays' * 86400000) > ${new Date().getTime()})
+          )
+        )`);
         break;
     }
   }
