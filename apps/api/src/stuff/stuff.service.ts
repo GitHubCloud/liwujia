@@ -290,10 +290,16 @@ export class StuffService {
       case StuffColor.紫灯: // 紫灯无限
         qb.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
         qb.andWhere(`detail->'$.expirationDate' IS NULL`);
-        qb.andWhere(`(detail->'$.openDate' IS NULL AND detail->'$.openLimit')`);
+        qb.andWhere(
+          `(detail->'$.openDate' IS NULL AND detail->'$.openLimit' IS NULL)`,
+        );
         break;
       case StuffColor.绿灯: // 绿灯正常
         qb.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
+        qb.andWhere(`
+          detail->'$.expirationDate' IS NOT NULL AND
+          (detail->'$.openDate' IS NOT NULL OR detail->'$.openLimit' IS NOT NULL)
+        `);
         qb.andWhere(
           `(
             detail->'$.expirationDate' IS NULL OR
