@@ -26,7 +26,7 @@ export class CommonService {
   private readonly redisClient = this.redisService.getClient();
 
   async WechatMessageSecurityCheck(scene: sceneEnum, contents: any) {
-    const APPID = this.configService.get('WECHAT_APPID');
+    /* const APPID = this.configService.get('WECHAT_APPID');
     const SECRET = this.configService.get('WECHAT_SECRET');
 
     // Get Access Token
@@ -60,7 +60,7 @@ export class CommonService {
     if (secResult.errcode != 0) {
       this.logger.error({ securityCheckFail: secResult });
       throw new BadRequestException('Security check failed.');
-    }
+    } */
 
     return true;
   }

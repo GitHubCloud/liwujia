@@ -31,6 +31,15 @@ export class Article {
   @Column({ nullable: true })
   tags?: string;
 
+  @Column({ nullable: true })
+  latitude?: string;
+
+  @Column({ nullable: true })
+  longitude?: string;
+
+  @Column({ nullable: true })
+  position?: string;
+
   @JoinTable()
   @ManyToMany(() => Resource, { cascade: true, eager: true })
   images?: Resource[];

@@ -18,6 +18,15 @@ export class CreateArticleDto {
   @IsOptional()
   tags?: string;
 
+  @IsOptional()
+  latitude?: string;
+
+  @IsOptional()
+  longitude?: string;
+
+  @IsOptional()
+  position?: string;
+
   @ValidateIf((o) => o.type !== ArticleTypes.交流) // 交流无需内容
   @IsNotEmpty({ message: '内容不能为空' })
   content: string;
