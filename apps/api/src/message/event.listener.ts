@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { User } from 'apps/api/src/user/entities/user.entity';
+import { Order } from '../order/entities/order.entity';
 import { pointEnum, PointService } from '../point/point.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { MessageService } from './message.service';
@@ -44,6 +45,20 @@ export class EventListener {
     Logger.log(`Event 'product.bought' emitted, id: '${payload.id}'.`);
 
     this.pointService.create(payload, pointEnum.productBought, 'productBought');
+  }
+
+  @OnEvent('product.replaceBuyer')
+  handleProductReplaceBuyerEvent(payload: Order) {
+    if (!payload) {
+      return;
+    }
+    Logger.log(`Event 'product.replaceBuyer' emitted, id: '${payload.id}' .`);
+
+    this.messageService.create({
+      to: payload.buyer.id,
+      content: '卖家已更换买家',
+      order: payload.id,
+    });
   }
 
   @OnEvent('stuff.create')

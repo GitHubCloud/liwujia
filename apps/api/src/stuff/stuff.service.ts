@@ -156,7 +156,14 @@ export class StuffService {
     }
 
     stuffs.map((item) => {
-      const expirationDate = _.get(item, 'detail.expirationDate');
+      const openDate = _.get(item, 'detail.openDate');
+      const openLimit = _.get(item, 'detail.openLimit');
+      const openExpire = moment(openDate).add(openLimit, 'month');
+      let expirationDate = _.get(item, 'detail.expirationDate');
+      if (openExpire.isBefore(expirationDate)) {
+        expirationDate = openExpire;
+      }
+
       const remainDays = _.get(item, 'detail.remainDays');
 
       if (moment(expirationDate).isBetween(startOfMonth, endOfMonth)) {
@@ -207,7 +214,7 @@ export class StuffService {
     const category = await this.categoryService.findOne(
       updateStuffDto.category,
     );
-    if (_.isEmpty(category)) {
+    if (!updateStuffDto.category || _.isEmpty(category)) {
       throw new HttpException(
         { statusCode: HttpStatus.BAD_REQUEST, message: ['类型不存在'] },
         HttpStatus.BAD_REQUEST,
@@ -309,25 +316,24 @@ export class StuffService {
         break;
       case StuffColor.绿灯: // 绿灯正常
         qb.andWhere(`(isConsumed != 1 AND isWasted != 1)`);
-        qb.andWhere(`
+        qb.andWhere(`(
           detail->'$.expirationDate' IS NOT NULL OR
           (detail->'$.openDate' IS NOT NULL AND detail->'$.openLimit' IS NOT NULL)
-        `);
-        qb.andWhere(
-          `(
-            detail->'$.expirationDate' IS NOT NULL AND
-            (
-              detail->'$.expirationDate' > ${new Date().getTime()} AND
-              (detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) > ${new Date().getTime()})
-            )
-          ) OR (
-            (detail->'$.openDate' IS NOT NULL AND detail->'$.openLimit' IS NOT NULL) AND
-            (
-              (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000 > ${new Date().getTime()}) AND
-              (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000 - (detail->'$.remainDays' * 86400000) > ${new Date().getTime()})
-            )
-          )`,
-        );
+        )`);
+        qb.andWhere(`(
+          detail->'$.expirationDate' IS NOT NULL AND
+          (
+            detail->'$.expirationDate' > ${new Date().getTime()} AND
+            (detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) > ${new Date().getTime()})
+          )
+        )`);
+        qb.andWhere(`(
+          (detail->'$.openDate' IS NULL AND detail->'$.openLimit' IS NULL) OR
+          (
+            (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000 > ${new Date().getTime()}) AND
+            (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000 - (detail->'$.remainDays' * 86400000) > ${new Date().getTime()})
+          )
+        )`);
         break;
     }
   }

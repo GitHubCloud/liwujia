@@ -128,6 +128,13 @@ export class OrderController {
       throw new HttpException('无权进行操作', HttpStatus.BAD_REQUEST);
     }
 
+    // 通知之前选中的买家
+    const prevOrder = await this.orderService.findOne({
+      product: order.product,
+      status: OrderStatus.ONGOING,
+    });
+    this.eventEmitter.emit('product.replaceBuyer', prevOrder);
+
     // 将之前卖家选择的订单状态更新为初始化
     await this.orderService.update(
       { product: order.product, status: OrderStatus.ONGOING },
