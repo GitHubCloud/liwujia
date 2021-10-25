@@ -68,4 +68,10 @@ import { PointModule } from './point/point.module';
     PointModule,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  /**
+   * TODO:
+   * generate default category
+   * generate default resource
+   */
+}

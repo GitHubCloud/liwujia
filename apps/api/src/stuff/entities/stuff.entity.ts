@@ -6,6 +6,7 @@ import {
   AfterLoad,
   Column,
   CreateDateColumn,
+  createQueryBuilder,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -53,7 +54,7 @@ export class Stuff {
   remainDate: number;
 
   @AfterLoad()
-  afterLoad() {
+  async afterLoad() {
     let expirationDate = _.get(this, 'detail.expirationDate', null);
     const openDate = _.get(this, 'detail.openDate', null);
     const openLimit = _.get(this, 'detail.openLimit', null);
@@ -92,6 +93,14 @@ export class Stuff {
     // 被消耗的
     if (this.isConsumed || this.isWasted) {
       this.color = StuffColor.蓝灯;
+    }
+
+    if (!this.image) {
+      const defaultImage = await createQueryBuilder(Resource)
+        .where('id = 1')
+        .getOne();
+
+      this.image = defaultImage;
     }
   }
 }
