@@ -48,6 +48,9 @@ export class CommentController {
         case _.get(i, 'product.id'):
           _.set(i, 'type', 'product');
           break;
+        case _.get(i, 'groupOrder.id'):
+          _.set(i, 'type', 'groupOrder');
+          break;
       }
     });
 

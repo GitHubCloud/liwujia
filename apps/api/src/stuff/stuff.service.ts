@@ -124,25 +124,27 @@ export class StuffService {
       .where('stuff.owner = :uid', { uid: user.id })
       .andWhere(
         `(
-          detail->'$.expirationDate' IS NOT NULL AND
           (
-            (detail->'$.expirationDate' > ${startOfMonth} AND detail->'$.expirationDate' < ${endOfMonth}) OR
+            detail->'$.expirationDate' IS NOT NULL AND
             (
-              detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) > ${startOfMonth} AND
-              detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) < ${endOfMonth}
+              (detail->'$.expirationDate' > ${startOfMonth} AND detail->'$.expirationDate' < ${endOfMonth}) OR
+              (
+                detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) > ${startOfMonth} AND
+                detail->'$.expirationDate' - (detail->'$.remainDays' * 86400000) < ${endOfMonth}
+              )
             )
-          )
-        ) OR (
-          (detail->'$.openDate' IS NOT NULL AND detail->'$.openLimit' IS NOT NULL) AND
-          (
+          ) OR (
+            (detail->'$.openDate' IS NOT NULL AND detail->'$.openLimit' IS NOT NULL) AND
             (
-              (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000) > ${startOfMonth}
-              AND
-              (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000) < ${endOfMonth}
-            ) OR (
-              (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000) - (detail->'$.remainDays' * 86400000) > ${startOfMonth}
-              AND
-              (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000) - (detail->'$.remainDays' * 86400000) < ${endOfMonth}
+              (
+                (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000) > ${startOfMonth}
+                AND
+                (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000) < ${endOfMonth}
+              ) OR (
+                (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000) - (detail->'$.remainDays' * 86400000) > ${startOfMonth}
+                AND
+                (UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(detail->'$.openDate' / 1000), INTERVAL detail->'$.openLimit' MONTH)) * 1000) - (detail->'$.remainDays' * 86400000) < ${endOfMonth}
+              )
             )
           )
         )`,

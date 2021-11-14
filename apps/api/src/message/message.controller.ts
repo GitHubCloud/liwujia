@@ -48,11 +48,18 @@ export class MessageController {
     @Req() req,
     @Query('type') type: string,
     @Query('order') order: number,
+    @Query('groupOrder') groupOrder: number,
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Message>> {
     if (order) {
       paginationDto.query = {
         order,
+        from: Not(IsNull()),
+      };
+    }
+    if (groupOrder) {
+      paginationDto.query = {
+        groupOrder,
         from: Not(IsNull()),
       };
     }
@@ -73,6 +80,8 @@ export class MessageController {
         Number(await redisClient.get(`message:comment:${req.user.id}`)) || 0,
       orders:
         Number(await redisClient.get(`message:order:${req.user.id}`)) || 0,
+      groupOrders:
+        Number(await redisClient.get(`message:groupOrder:${req.user.id}`)) || 0,
       system:
         Number(await redisClient.get(`message:system:${req.user.id}`)) || 0,
     };
@@ -81,6 +90,7 @@ export class MessageController {
       data.collects +
       data.comments +
       data.orders +
+      data.groupOrders +
       data.system;
 
     return data;

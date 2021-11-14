@@ -19,6 +19,7 @@ import { FavoriteModule } from './favorite/favorite.module';
 import { RedisModule } from 'nestjs-redis';
 import { CommonModule } from './common/common.module';
 import { PointModule } from './point/point.module';
+import { GroupOrderModule } from './group-order/group-order.module';
 
 @Module({
   imports: [
@@ -45,7 +46,7 @@ import { PointModule } from './point/point.module';
         database: configService.get('MYSQL_DATABASE'),
         autoLoadEntities: true,
         synchronize: true,
-        // logging: 'all',
+        logging: 'all',
       }),
       inject: [ConfigService],
     }),
@@ -66,6 +67,7 @@ import { PointModule } from './point/point.module';
     FavoriteModule,
     CommonModule,
     PointModule,
+    GroupOrderModule,
   ],
 })
 export class AppModule {

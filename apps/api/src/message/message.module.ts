@@ -7,11 +7,12 @@ import { SocketModule } from '../socket/socket.module';
 import { EventListener } from './event.listener';
 import { Order } from '../order/entities/order.entity';
 import { CommonModule } from '../common/common.module';
+import { GroupOrder } from '../group-order/entities/group-order.entity';
 
 @Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Message, Order]),
+    TypeOrmModule.forFeature([Message, Order, GroupOrder]),
     SocketModule,
     CommonModule,
   ],

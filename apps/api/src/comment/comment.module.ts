@@ -5,9 +5,10 @@ import { Comment } from './entities/comment.entity';
 import { CommentController } from './comment.controller';
 import { Article } from '../article/entities/article.entity';
 import { Product } from '../product/entities/product.entity';
+import { GroupOrder } from '../group-order/entities/group-order.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Comment, Article, Product])],
+  imports: [TypeOrmModule.forFeature([Comment, Article, Product, GroupOrder])],
   providers: [CommentService],
   exports: [CommentService],
   controllers: [CommentController],

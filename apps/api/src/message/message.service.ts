@@ -8,6 +8,7 @@ import { Message } from './entities/message.entity';
 import { SocketGateway } from '../socket/socket.gateway';
 import { RedisService } from 'nestjs-redis';
 import { Order } from '../order/entities/order.entity';
+import { GroupOrder } from '../group-order/entities/group-order.entity';
 
 @Injectable()
 export class MessageService {
@@ -16,6 +17,8 @@ export class MessageService {
     private readonly messageRepo: Repository<Message>,
     @InjectRepository(Order)
     private readonly orderRepo: Repository<Order>,
+    @InjectRepository(GroupOrder)
+    private readonly groupOrderRepo: Repository<GroupOrder>,
     private readonly socketGateway: SocketGateway,
     private readonly redisService: RedisService,
   ) {}
@@ -28,8 +31,8 @@ export class MessageService {
   ): Promise<Message> {
     createMessageDto.from = user ? user.id : null;
 
-    // 订单下的沟通
     if (createMessageDto.order) {
+      // 订单下的沟通
       const order = await this.orderRepo.findOne(createMessageDto.order);
       if (!order) {
         throw new HttpException('订单不存在', 400);
@@ -47,6 +50,25 @@ export class MessageService {
       }
 
       this.redisClient.incr(`message:order:${createMessageDto.to}`);
+    } else if (createMessageDto.groupOrder) {
+      // 团购下的沟通
+      const groupOrder = await this.groupOrderRepo.findOne(
+        createMessageDto.groupOrder,
+      );
+      if (!groupOrder) {
+        throw new HttpException('团购不存在', 400);
+      }
+      if (!createMessageDto.to && !user) {
+        throw new HttpException('参数不正确', 400);
+      }
+
+      // send message to all user from the group and filter the sender
+      let receivers = [groupOrder.initiator.id];
+      receivers = receivers.concat(groupOrder.joiner.map((i) => i.id));
+      receivers = receivers.filter((i) => i != createMessageDto.from);
+      receivers.map((i) => {
+        this.redisClient.incr(`message:groupOrder:${i}`);
+      });
     } else {
       this.redisClient.incr(`message:system:${createMessageDto.to}`);
     }
@@ -78,6 +100,8 @@ export class MessageService {
       .leftJoinAndSelect('order.product', 'product')
       .leftJoinAndSelect('order.buyer', 'buyer')
       .leftJoinAndSelect('order.seller', 'seller')
+      .leftJoinAndSelect('message.groupOrder', 'groupOrder')
+      .leftJoinAndSelect('groupOrder.initiator', 'initiator')
       .leftJoinAndSelect('message.from', 'from')
       .leftJoinAndSelect('message.to', 'to');
 
@@ -90,7 +114,7 @@ export class MessageService {
           { order: IsNull(), to: user.id },
         ]);
         this.redisClient.set(`message:system:${user.id}`, 0);
-      } else {
+      } else if (type == 'order') {
         const lastMessage = await getRepository(Message)
           .createQueryBuilder('message')
           .select('MAX(message.id)', 'mid')
@@ -99,6 +123,20 @@ export class MessageService {
           .getRawAndEntities();
         queryBuilder.andWhereInIds(lastMessage.raw.map((i) => i.mid));
         this.redisClient.set(`message:order:${user.id}`, 0);
+      } else if (type == 'groupOrder') {
+        const lastMessage = await getRepository(Message)
+          .createQueryBuilder('message')
+          .leftJoinAndSelect('message.groupOrder', 'groupOrder')
+          .leftJoinAndSelect('groupOrder.joiner', 'joiner')
+          .select('MAX(message.id)', 'mid')
+          .where({ groupOrder: Not(IsNull()) })
+          .andWhere(`(joiner.id = :userid OR groupOrder.initiator = :userid)`, {
+            userid: user.id,
+          })
+          .groupBy('message.groupOrder')
+          .getRawAndEntities();
+        queryBuilder.andWhereInIds(lastMessage.raw.map((i) => i.mid));
+        this.redisClient.set(`message:groupOrder:${user.id}`, 0);
       }
     }
     queryBuilder.orderBy('message.id', 'DESC');

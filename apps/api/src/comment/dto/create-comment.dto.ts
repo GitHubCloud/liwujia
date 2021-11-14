@@ -13,6 +13,10 @@ export class CreateCommentDto {
   @ApiHideProperty()
   product?: number;
 
+  @IsOptional()
+  @ApiHideProperty()
+  groupOrder?: number;
+
   @ApiHideProperty()
   replyTo: number;
 

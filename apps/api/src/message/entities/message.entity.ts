@@ -3,6 +3,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -10,6 +12,7 @@ import { Transform } from 'class-transformer';
 import * as moment from 'moment';
 import { User } from 'apps/api/src/user/entities/user.entity';
 import { Order } from '../../order/entities/order.entity';
+import { GroupOrder } from '../../group-order/entities/group-order.entity';
 
 @Entity()
 export class Message {
@@ -33,6 +36,10 @@ export class Message {
   @JoinColumn()
   @ManyToOne(() => Order)
   order: number;
+
+  @JoinColumn()
+  @ManyToOne(() => GroupOrder)
+  groupOrder: number;
 
   @CreateDateColumn()
   @Transform((d) => moment(d.value).toDate().getTime())

@@ -3,7 +3,6 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { User } from 'apps/api/src/user/entities/user.entity';
 import { Order } from '../order/entities/order.entity';
 import { pointEnum, PointService } from '../point/point.service';
-import { CreateMessageDto } from './dto/create-message.dto';
 import { MessageService } from './message.service';
 
 @Injectable()
@@ -16,14 +15,13 @@ export class EventListener {
   handleRegisterEvent(payload: User) {
     Logger.log(`Event 'user.create' emitted, id: '${payload.id}'.`);
 
-    const createMessageDto = new CreateMessageDto();
-    createMessageDto.to = payload.id;
-    createMessageDto.title = '恭喜你成功注册理物+';
-    createMessageDto.content =
-      '恭喜你成功注册理物+，适度拥有记录点滴，和理物+一起打开生活密码。';
-
     this.pointService.create(payload, pointEnum.register, 'register');
-    this.messageService.create(createMessageDto);
+    this.messageService.create({
+      to: payload.id,
+      title: '恭喜你成功注册理物+',
+      content:
+        '恭喜你成功注册理物+，适度拥有记录点滴，和理物+一起打开生活密码。',
+    });
   }
 
   @OnEvent('product.create')

@@ -18,6 +18,7 @@ import { Collect } from 'apps/api/src/collect/entities/collect.entity';
 import { Product } from 'apps/api/src/product/entities/product.entity';
 import { Order } from 'apps/api/src/order/entities/order.entity';
 import { Point } from 'apps/api/src/point/entities/point.entity';
+import { GroupOrder } from '../../group-order/entities/group-order.entity';
 
 @Entity()
 export class User {
@@ -47,6 +48,10 @@ export class User {
   @JoinColumn()
   @OneToMany(() => Stuff, (stuff) => stuff.owner)
   stuffs: number;
+
+  @JoinColumn()
+  @OneToMany(() => GroupOrder, (groupOrder) => groupOrder.initiator)
+  groupOrder: number;
 
   @JoinColumn()
   @OneToMany(() => Product, (product) => product.owner)

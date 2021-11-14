@@ -59,7 +59,7 @@ export class ProductService {
     const pagination = await paginate(queryBuilder, { page, limit });
 
     await Promise.all(
-      pagination.items.map(async (item, index) => {
+      pagination.items.map(async (item) => {
         if (user) {
           item.isCollected = !_.isEmpty(
             await this.collectService.findOne({

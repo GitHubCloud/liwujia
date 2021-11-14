@@ -9,6 +9,7 @@ import { EventEmitter2 } from 'eventemitter2';
 import { RedisService } from 'nestjs-redis';
 import { Article } from '../article/entities/article.entity';
 import { Product } from '../product/entities/product.entity';
+import { GroupOrder } from '../group-order/entities/group-order.entity';
 
 @Injectable()
 export class CommentService {
@@ -19,6 +20,8 @@ export class CommentService {
     private readonly articleRepo: Repository<Article>,
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
+    @InjectRepository(GroupOrder)
+    private readonly groupOrderRepo: Repository<GroupOrder>,
     private readonly redisService: RedisService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
@@ -33,6 +36,7 @@ export class CommentService {
       });
       createCommentDto.article = parentComment.article;
       createCommentDto.product = parentComment.product;
+      createCommentDto.groupOrder = parentComment.groupOrder;
     }
 
     const comment = await this.commentRepo.save(
@@ -58,6 +62,13 @@ export class CommentService {
           { loadRelationIds: true },
         );
         targetUser = product.owner;
+      }
+      if (createCommentDto.groupOrder) {
+        const groupOrder = await this.groupOrderRepo.findOne(
+          createCommentDto.groupOrder,
+          { loadRelationIds: true },
+        );
+        targetUser = groupOrder.initiator;
       }
     }
     if (!parentComment || parentComment.author != createCommentDto.author) {
@@ -87,15 +98,25 @@ export class CommentService {
       queryBuilder.where(query);
     } else {
       // 评论消息
-      queryBuilder.leftJoinAndSelect('comment.product', 'product');
-      queryBuilder.leftJoinAndSelect('product.owner', 'productOwner');
       queryBuilder.leftJoinAndSelect('comment.article', 'article');
       queryBuilder.leftJoinAndSelect('article.author', 'articleAuthor');
+      queryBuilder.leftJoinAndSelect('comment.product', 'product');
+      queryBuilder.leftJoinAndSelect('product.owner', 'productOwner');
+      queryBuilder.leftJoinAndSelect('comment.groupOrder', 'groupOrder');
+      queryBuilder.leftJoinAndSelect(
+        'groupOrder.initiator',
+        'groupOrderInitiator',
+      );
       queryBuilder.leftJoinAndSelect('comment.replyTo', 'replyTo');
       queryBuilder.leftJoinAndSelect('replyTo.author', 'replyToAuthor');
       // queryBuilder.where('comment.author != :userid', { userid: user.id });
       queryBuilder.andWhere(
-        '(product.owner = :userid OR article.author = :userid OR replyTo.author = :userid)',
+        `(
+          article.author = :userid OR
+          product.owner = :userid OR
+          groupOrder.initiator = :userid OR
+          replyTo.author = :userid
+        )`,
         { userid: user.id },
       );
       queryBuilder.orderBy('comment.id', 'DESC');

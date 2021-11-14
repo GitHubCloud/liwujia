@@ -27,7 +27,7 @@ import { StuffColor } from './stuffColor.enum';
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(AuthGuard('jwt'))
 export class StuffController {
-  constructor(private readonly stuffService: StuffService) { }
+  constructor(private readonly stuffService: StuffService) {}
 
   @Post()
   async create(
