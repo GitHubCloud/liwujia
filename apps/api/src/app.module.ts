@@ -46,7 +46,7 @@ import { GroupOrderModule } from './group-order/group-order.module';
         database: configService.get('MYSQL_DATABASE'),
         autoLoadEntities: true,
         synchronize: true,
-        logging: 'all',
+        // logging: 'all',
       }),
       inject: [ConfigService],
     }),

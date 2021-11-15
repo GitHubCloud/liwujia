@@ -6,10 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommonModule } from '../common/common.module';
 import { CommentModule } from '../comment/comment.module';
 import { User } from '../user/entities/user.entity';
+import { Resource } from '../resource/entities/resource.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([GroupOrder, User]),
+    TypeOrmModule.forFeature([GroupOrder, User, Resource]),
     CommonModule,
     CommentModule,
   ],

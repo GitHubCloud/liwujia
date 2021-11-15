@@ -4,6 +4,7 @@ import * as moment from 'moment';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { getRepository, Repository } from 'typeorm';
 import { PaginationDto } from '../pagination.dto';
+import { Resource } from '../resource/entities/resource.entity';
 import { User } from '../user/entities/user.entity';
 import { CreateGroupOrderDto } from './dto/create-group-order.dto';
 import { UpdateGroupOrderDto } from './dto/update-group-order.dto';
@@ -16,12 +17,20 @@ export class GroupOrderService {
     private readonly groupOrderRepo: Repository<GroupOrder>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    @InjectRepository(Resource)
+    private readonly resourceRepo: Repository<Resource>,
   ) {}
 
   async create(createGroupOrderDto: CreateGroupOrderDto): Promise<GroupOrder> {
     createGroupOrderDto.initiator = await this.userRepo.findOne(
       createGroupOrderDto.initiator,
     );
+    if (createGroupOrderDto.images) {
+      const images = await this.resourceRepo.findByIds(createGroupOrderDto.images);
+      createGroupOrderDto.images = images;
+    }
+
+    console.log({ createGroupOrderDto });
 
     return await this.groupOrderRepo.save(createGroupOrderDto);
   }
@@ -111,14 +120,16 @@ export class GroupOrderService {
       if (moment(entity.deadline).isBefore()) {
         entity.status = GroupOrderStatus.CANCELED;
       } else {
-        let index;
+        let index = -1;
         entity.joiner.map((i, j) => {
+          console.log({ i, userEntity });
+
           if (i.id === userEntity.id) {
             index = j;
           }
         });
 
-        if (!index) {
+        if (index < 0) {
           throw new HttpException('您没有加入该拼团', 400);
         }
 
