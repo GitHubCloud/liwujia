@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
-import { getRepository, Repository } from 'typeorm';
+import { getRepository, LessThan, Repository } from 'typeorm';
 import { PaginationDto } from '../pagination.dto';
 import { Resource } from '../resource/entities/resource.entity';
 import { User } from '../user/entities/user.entity';
@@ -26,7 +26,9 @@ export class GroupOrderService {
       createGroupOrderDto.initiator,
     );
     if (createGroupOrderDto.images) {
-      const images = await this.resourceRepo.findByIds(createGroupOrderDto.images);
+      const images = await this.resourceRepo.findByIds(
+        createGroupOrderDto.images,
+      );
       createGroupOrderDto.images = images;
     }
 
@@ -163,5 +165,17 @@ export class GroupOrderService {
     const res = await this.groupOrderRepo.save(entity);
 
     return res;
+  }
+
+  async updateOvertimeStatus() {
+    await this.groupOrderRepo.update(
+      {
+        deadline: LessThan(new Date()),
+        status: GroupOrderStatus.INIT,
+      },
+      {
+        status: GroupOrderStatus.CANCELED,
+      },
+    );
   }
 }

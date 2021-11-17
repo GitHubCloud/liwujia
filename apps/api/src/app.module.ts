@@ -20,6 +20,9 @@ import { RedisModule } from 'nestjs-redis';
 import { CommonModule } from './common/common.module';
 import { PointModule } from './point/point.module';
 import { GroupOrderModule } from './group-order/group-order.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ScheduleService } from './schedule/schedule.service';
+import { GroupOrder } from './group-order/entities/group-order.entity';
 
 @Module({
   imports: [
@@ -50,6 +53,7 @@ import { GroupOrderModule } from './group-order/group-order.module';
       }),
       inject: [ConfigService],
     }),
+    ScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
     UserModule,
     AuthModule,
@@ -69,6 +73,7 @@ import { GroupOrderModule } from './group-order/group-order.module';
     PointModule,
     GroupOrderModule,
   ],
+  providers: [ScheduleService],
 })
 export class AppModule {
   /**

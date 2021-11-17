@@ -83,6 +83,11 @@ export class MessageService {
         .to(`order:${createMessageDto.order}`)
         .emit('message', messageData);
     }
+    if (createMessageDto.groupOrder && user) {
+      this.socketGateway.server
+        .to(`groupOrder:${createMessageDto.groupOrder}`)
+        .emit('message', messageData);
+    }
 
     return messageData;
   }
