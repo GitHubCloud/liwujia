@@ -22,7 +22,6 @@ import { PointModule } from './point/point.module';
 import { GroupOrderModule } from './group-order/group-order.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ScheduleService } from './schedule/schedule.service';
-import { GroupOrder } from './group-order/entities/group-order.entity';
 
 @Module({
   imports: [
