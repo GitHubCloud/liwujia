@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
-import { getRepository, LessThan, Repository } from 'typeorm';
+import { getRepository, In, LessThan, Repository } from 'typeorm';
 import { PaginationDto } from '../pagination.dto';
 import { Resource } from '../resource/entities/resource.entity';
 import { User } from '../user/entities/user.entity';
@@ -51,9 +51,17 @@ export class GroupOrderService {
       .leftJoinAndSelect('groupOrder.joiner', 'joiner')
       .where(query);
     if (involved) {
-      queryBuilder.andWhere(`(joiner.id = :userid OR initiator.id = :userid)`, {
-        userid: user.id,
-      });
+      const involvedIds = await getRepository(GroupOrder)
+        .createQueryBuilder('groupOrder')
+        .leftJoinAndSelect('groupOrder.joiner', 'joiner')
+        .where(`(joiner.id = :userid OR groupOrder.initiator = :userid)`, {
+          userid: user.id,
+        })
+        .groupBy('groupOrder.id')
+        .select('groupOrder.id', 'id')
+        .execute();
+
+      queryBuilder.andWhereInIds(involvedIds.map((i) => i.id));
     }
     queryBuilder.orderBy('groupOrder.id', 'DESC');
 
