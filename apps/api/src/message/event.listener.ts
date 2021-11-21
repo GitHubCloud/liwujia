@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { User } from 'apps/api/src/user/entities/user.entity';
+import { GroupOrder } from '../group-order/entities/group-order.entity';
 import { Order } from '../order/entities/order.entity';
 import { pointEnum, PointService } from '../point/point.service';
 import { MessageService } from './message.service';
@@ -85,5 +86,101 @@ export class EventListener {
     Logger.log(`Event 'comment.create' emitted, id: '${payload.id}'.`);
 
     this.pointService.create(payload, pointEnum.commentCreate, 'commentCreate');
+  }
+
+  @OnEvent('groupOrder.join')
+  handleGroupOrderJoinEvent(payload: GroupOrder) {
+    Logger.log(`Event 'groupOrder.join' emitted, id: '${payload.id}' .`);
+
+    this.messageService.create({
+      to: payload.initiator.id,
+      content: '您发起的拼团有新的团员加入啦',
+      groupOrder: payload.id,
+    });
+  }
+
+  @OnEvent('groupOrder.leave')
+  handleGroupOrderLeaveEvent(payload: GroupOrder) {
+    Logger.log(`Event 'groupOrder.leave' emitted, id: '${payload.id}' .`);
+
+    this.messageService.create({
+      to: payload.initiator.id,
+      content: '您发起的拼团有成员退出了',
+      groupOrder: payload.id,
+    });
+  }
+
+  @OnEvent('groupOrder.full')
+  handleGroupOrderFullEvent(payload: GroupOrder) {
+    Logger.log(`Event 'groupOrder.full' emitted, id: '${payload.id}' .`);
+
+    this.messageService.create({
+      to: payload.initiator.id,
+      content: '您加入的拼团已经满员啦',
+      groupOrder: payload.id,
+    });
+
+    payload.joiner.map((i) => {
+      this.messageService.create({
+        to: i.id,
+        content: '您加入的拼团已经满员啦',
+        groupOrder: payload.id,
+      });
+    });
+  }
+
+  @OnEvent('groupOrder.initiatorCancel')
+  handleGroupOrderInitatorCancelEvent(payload: GroupOrder) {
+    Logger.log(
+      `Event 'groupOrder.initiatorCancel' emitted, id: '${payload.id}' .`,
+    );
+
+    payload.joiner.map((i) => {
+      this.messageService.create({
+        to: i.id,
+        content: '您加入的拼团发起人已取消',
+        groupOrder: payload.id,
+      });
+    });
+  }
+
+  @OnEvent('groupOrder.joinerCancel')
+  handleGroupOrderJoinerCancelEvent(payload: GroupOrder) {
+    Logger.log(
+      `Event 'groupOrder.joinerCancel' emitted, id: '${payload.id}' .`,
+    );
+
+    this.messageService.create({
+      to: payload.initiator.id,
+      content: '您加入的拼团有成员退出已被自动取消',
+      groupOrder: payload.id,
+    });
+
+    payload.joiner.map((i) => {
+      this.messageService.create({
+        to: i.id,
+        content: '您加入的拼团有成员退出已被自动取消',
+        groupOrder: payload.id,
+      });
+    });
+  }
+
+  @OnEvent('groupOrder.autoCancel')
+  handleGroupOrderAutoCancelEvent(payload: GroupOrder) {
+    Logger.log(`Event 'groupOrder.autoCancel' emitted, id: '${payload.id}' .`);
+
+    this.messageService.create({
+      to: payload.initiator.id,
+      content: '您加入的拼团截止时间未成团已自动取消',
+      groupOrder: payload.id,
+    });
+
+    payload.joiner.map((i) => {
+      this.messageService.create({
+        to: i.id,
+        content: '您加入的拼团截止时间未成团已自动取消',
+        groupOrder: payload.id,
+      });
+    });
   }
 }

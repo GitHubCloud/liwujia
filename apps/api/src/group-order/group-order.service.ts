@@ -1,5 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EventEmitter2 } from 'eventemitter2';
 import * as moment from 'moment';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { getRepository, In, LessThan, Repository } from 'typeorm';
@@ -19,6 +20,7 @@ export class GroupOrderService {
     private readonly userRepo: Repository<User>,
     @InjectRepository(Resource)
     private readonly resourceRepo: Repository<Resource>,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(createGroupOrderDto: CreateGroupOrderDto): Promise<GroupOrder> {
@@ -51,6 +53,7 @@ export class GroupOrderService {
       .leftJoinAndSelect('groupOrder.joiner', 'joiner')
       .where(query);
     if (involved) {
+      // 剔除用户没有参与的拼团
       const involvedIds = await getRepository(GroupOrder)
         .createQueryBuilder('groupOrder')
         .leftJoinAndSelect('groupOrder.joiner', 'joiner')
@@ -62,6 +65,22 @@ export class GroupOrderService {
         .execute();
 
       queryBuilder.andWhereInIds(involvedIds.map((i) => i.id));
+    } else {
+      // 剔除满员拼团
+      const fullgroupIds = await getRepository(GroupOrder)
+        .createQueryBuilder('groupOrder')
+        .leftJoinAndSelect('groupOrder.joiner', 'joiner')
+        .where(`(status = :status)`, {
+          status: GroupOrderStatus.INIT,
+        })
+        .groupBy('groupOrder.id')
+        .select('groupOrder.id', 'id')
+        .addSelect('groupOrder.joinLimit')
+        .addSelect('COUNT(joiner.id)', 'joinerLength')
+        .having('joinerLength != groupOrder.joinLimit')
+        .execute();
+
+      queryBuilder.andWhereInIds(fullgroupIds.map((i) => i.id));
     }
     queryBuilder.orderBy('groupOrder.id', 'DESC');
 
@@ -105,7 +124,10 @@ export class GroupOrderService {
     entity.joiner.push(userEntity);
     const res = await this.groupOrderRepo.save(entity);
 
-    // TODO: Event
+    this.eventEmitter.emit('groupOrder.join', entity);
+    if (entity.joiner.length >= entity.joinLimit) {
+      this.eventEmitter.emit('groupOrder.full', entity);
+    }
 
     return res;
   }
@@ -125,15 +147,15 @@ export class GroupOrderService {
     if (entity.initiator.id === userEntity.id) {
       entity.status = GroupOrderStatus.CANCELED;
       res = await this.groupOrderRepo.save(entity);
+      this.eventEmitter.emit('groupOrder.initiatorCancel', entity);
     } else {
       // 到截止时间直接取消
       if (moment(entity.deadline).isBefore()) {
         entity.status = GroupOrderStatus.CANCELED;
+        this.eventEmitter.emit('groupOrder.joinerCancel', entity);
       } else {
         let index = -1;
         entity.joiner.map((i, j) => {
-          console.log({ i, userEntity });
-
           if (i.id === userEntity.id) {
             index = j;
           }
@@ -147,6 +169,7 @@ export class GroupOrderService {
           ...entity.joiner.slice(0, index),
           ...entity.joiner.slice(index + 1, entity.joiner.length),
         ];
+        this.eventEmitter.emit('groupOrder.leave', entity);
       }
       res = await this.groupOrderRepo.save(entity);
     }
@@ -176,14 +199,25 @@ export class GroupOrderService {
   }
 
   async updateOvertimeStatus() {
-    await this.groupOrderRepo.update(
-      {
+    const fullgroups = await getRepository(GroupOrder)
+      .createQueryBuilder('groupOrder')
+      .leftJoinAndSelect('groupOrder.joiner', 'joiner')
+      .leftJoinAndSelect('groupOrder.initiator', 'initiator')
+      .where({
         deadline: LessThan(new Date()),
         status: GroupOrderStatus.INIT,
-      },
-      {
-        status: GroupOrderStatus.CANCELED,
-      },
-    );
+      })
+      .groupBy('groupOrder.id')
+      .addSelect('COUNT(joiner.id)', 'joinerLength')
+      .having('joinerLength != groupOrder.joinLimit')
+      .getMany();
+
+    if (fullgroups && fullgroups.length) {
+      fullgroups.map((i) => this.eventEmitter.emit('groupOrder.autoCancel', i));
+      await this.groupOrderRepo.update(
+        fullgroups.map((i) => i.id),
+        { status: GroupOrderStatus.CANCELED },
+      );
+    }
   }
 }
