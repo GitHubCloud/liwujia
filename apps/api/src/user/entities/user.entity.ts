@@ -19,6 +19,7 @@ import { Product } from 'apps/api/src/product/entities/product.entity';
 import { Order } from 'apps/api/src/order/entities/order.entity';
 import { Point } from 'apps/api/src/point/entities/point.entity';
 import { GroupOrder } from '../../group-order/entities/group-order.entity';
+import { Feedback } from '../../feedback.entity';
 
 @Entity()
 export class User {
@@ -88,6 +89,10 @@ export class User {
   @JoinColumn()
   @OneToMany(() => Point, (point) => point.user)
   points: number;
+
+  @JoinColumn()
+  @OneToMany(() => Feedback, (feedback) => feedback.creator)
+  feedbacks: number;
 
   @BeforeInsert()
   encryptPasswd() {
