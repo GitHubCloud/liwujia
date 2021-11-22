@@ -62,13 +62,17 @@ export class MessageService {
         throw new HttpException('参数不正确', 400);
       }
 
-      // send message to all user from the group and filter the sender
-      let receivers = [groupOrder.initiator.id];
-      receivers = receivers.concat(groupOrder.joiner.map((i) => i.id));
-      receivers = receivers.filter((i) => i != createMessageDto.from);
-      receivers.map((i) => {
-        this.redisClient.incr(`message:groupOrder:${i}`);
-      });
+      if (createMessageDto.to) {
+        this.redisClient.incr(`message:groupOrder:${createMessageDto.to}`);
+      } else {
+        // send message to all user from the group and filter the sender
+        let receivers = [groupOrder.initiator.id];
+        receivers = receivers.concat(groupOrder.joiner.map((i) => i.id));
+        receivers = receivers.filter((i) => i != createMessageDto.from);
+        receivers.map((i) => {
+          this.redisClient.incr(`message:groupOrder:${i}`);
+        });
+      }
     } else {
       this.redisClient.incr(`message:system:${createMessageDto.to}`);
     }
@@ -115,8 +119,8 @@ export class MessageService {
     } else {
       if (type == 'system') {
         queryBuilder.where([
-          { order: IsNull(), to: IsNull() },
-          { order: IsNull(), to: user.id },
+          { order: IsNull(), groupOrder: IsNull(), to: IsNull() },
+          { order: IsNull(), groupOrder: IsNull(), to: user.id },
         ]);
         this.redisClient.set(`message:system:${user.id}`, 0);
       } else if (type == 'order') {
@@ -135,9 +139,13 @@ export class MessageService {
           .leftJoinAndSelect('groupOrder.joiner', 'joiner')
           .select('MAX(message.id)', 'mid')
           .where({ groupOrder: Not(IsNull()) })
-          .andWhere(`(joiner.id = :userid OR groupOrder.initiator = :userid)`, {
-            userid: user.id,
-          })
+          .andWhere(
+            `(
+              (message.to IS NOT NULL AND message.to = :userid) OR 
+              (message.to IS NULL AND (joiner.id = :userid OR groupOrder.initiator = :userid))
+            )`,
+            { userid: user.id },
+          )
           .groupBy('message.groupOrder')
           .getRawAndEntities();
         queryBuilder.andWhereInIds(lastMessage.raw.map((i) => i.mid));
