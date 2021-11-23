@@ -22,6 +22,11 @@ const routes = [
     component: () => import('../views/article/list.vue')
   },
   {
+    path: '/feedback',
+    name: 'feedback',
+    component: () => import('../views/feedback/index.vue')
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('../views/Error.vue')

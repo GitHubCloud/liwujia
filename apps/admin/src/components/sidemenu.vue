@@ -5,6 +5,10 @@
         <i class="el-icon-menu"></i>
         <template #title>Home</template>
       </el-menu-item>
+      <el-menu-item index="feedback" :route="{ name: 'feedback' }">
+        <i class="el-icon-chat-dot-round"></i>
+        <template #title>Feedback</template>
+      </el-menu-item>
       <el-menu-item index="banner" :route="{ name: 'banner' }">
         <i class="el-icon-document"></i>
         <template #title>Banner</template>
