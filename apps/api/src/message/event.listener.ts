@@ -88,6 +88,28 @@ export class EventListener {
     this.pointService.create(payload, pointEnum.commentCreate, 'commentCreate');
   }
 
+  @OnEvent('group.create')
+  handleGroupCreateEvent(payload: User) {
+    Logger.log(`Event 'group.create' emitted, id: '${payload.id}'.`);
+
+    this.pointService.create(payload, pointEnum.groupCreate, 'groupCreate');
+  }
+
+  @OnEvent('group.complete')
+  handleGroupCompleteEvent(payload: GroupOrder) {
+    Logger.log(`Event 'group.complete' emitted, id: '${payload.id}'.`);
+
+    this.pointService.create(
+      payload.initiator,
+      pointEnum.groupComplete,
+      'groupComplete',
+    );
+
+    payload.joiner.map((i) => {
+      this.pointService.create(i, pointEnum.groupComplete, 'groupComplete');
+    });
+  }
+
   @OnEvent('groupOrder.join')
   handleGroupOrderJoinEvent(payload: GroupOrder) {
     Logger.log(`Event 'groupOrder.join' emitted, id: '${payload.id}' .`);

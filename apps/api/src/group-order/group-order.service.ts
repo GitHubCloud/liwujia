@@ -34,9 +34,10 @@ export class GroupOrderService {
       createGroupOrderDto.images = images;
     }
 
-    console.log({ createGroupOrderDto });
+    const entity = await this.groupOrderRepo.save(createGroupOrderDto);
+    this.eventEmitter.emit('group.create', entity.initiator);
 
-    return await this.groupOrderRepo.save(createGroupOrderDto);
+    return entity;
   }
 
   async paginate(
@@ -193,9 +194,10 @@ export class GroupOrderService {
     }
 
     entity.status = GroupOrderStatus.COMPLETE;
-    const res = await this.groupOrderRepo.save(entity);
+    const savedEntity = await this.groupOrderRepo.save(entity);
+    this.eventEmitter.emit('group.complete', savedEntity);
 
-    return res;
+    return savedEntity;
   }
 
   async updateOvertimeStatus() {

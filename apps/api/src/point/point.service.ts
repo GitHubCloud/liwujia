@@ -12,6 +12,8 @@ export enum pointEnum {
   'stuffConsume' = 5,
   'articleCreate' = 5,
   'commentCreate' = 5,
+  'groupCreate' = 5,
+  'groupComplete' = 5,
 }
 
 @Injectable()
