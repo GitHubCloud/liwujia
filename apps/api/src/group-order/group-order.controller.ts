@@ -25,6 +25,7 @@ import { CreateCommentDto } from '../comment/dto/create-comment.dto';
 import { CommonService, sceneEnum } from '../common/common.service';
 import { CommentService } from '../comment/comment.service';
 import { Comment } from '../comment/entities/comment.entity';
+import { Like } from 'typeorm';
 
 @ApiTags('GroupOrder')
 @Controller('group-order')
@@ -53,8 +54,10 @@ export class GroupOrderController {
     @Query() paginationDto: PaginationDto,
     @Query('status') status: GroupOrderStatus,
     @Query('involved') involved: boolean,
+    @Query('search') search: string,
   ): Promise<Pagination<GroupOrder>> {
     paginationDto.query = { status: status || GroupOrderStatus.INIT };
+    if (search) paginationDto.query['title'] = Like(`%${search}%`);
 
     return this.groupOrderService.paginate(paginationDto, involved, req.user);
   }
