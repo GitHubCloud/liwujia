@@ -78,6 +78,7 @@ export class GroupOrder {
 
   @AfterLoad()
   async afterLoad() {
+    this.price = Number(this.price) ? this.price : 0;
     if (!this.images || !this.images.length) {
       const defaultImage = await createQueryBuilder(Resource)
         .where('id = 1')

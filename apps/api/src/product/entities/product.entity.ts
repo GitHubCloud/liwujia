@@ -1,4 +1,5 @@
 import {
+  AfterLoad,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
@@ -83,4 +84,9 @@ export class Product {
   isFavorite: boolean;
   isOrdered: boolean;
   isLocked: boolean;
+
+  @AfterLoad()
+  async afterLoad() {
+    this.price = Number(this.price) ? this.price : 0;
+  }
 }
