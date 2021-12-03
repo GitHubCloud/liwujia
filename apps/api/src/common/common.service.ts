@@ -86,7 +86,7 @@ export class CommonService {
       )
       .toPromise();
 
-    if (secResult.errcode != 0) {
+    if (secResult.errcode != 0 && secResult.errcode != 40001) {
       this.logger.error({ securityCheckFail: secResult });
       throw new BadRequestException('Security check failed.');
     }
