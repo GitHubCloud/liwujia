@@ -25,11 +25,10 @@ export class CommonService {
   private readonly logger = new Logger('Common');
   private readonly redisClient = this.redisService.getClient();
 
-  async WechatMessageSecurityCheck(scene: sceneEnum, contents: any) {
-    /* const APPID = this.configService.get('WECHAT_APPID');
+  async getWechatAccessToken() {
+    const APPID = this.configService.get('WECHAT_APPID');
     const SECRET = this.configService.get('WECHAT_SECRET');
 
-    // Get Access Token
     let accessToken = await this.redisClient.get('wechat:accessToken');
     if (!accessToken) {
       const { data: tokenResult } = await this.httpService
@@ -46,6 +45,36 @@ export class CommonService {
       await this.redisClient.expire('wechat:accessToken', 3600);
     }
 
+    return accessToken;
+  }
+
+  async initWechatSubscribeMessageTemplate() {
+    const accessToken = await this.getWechatAccessToken();
+    console.log({ accessToken });
+
+    /* const { data } = await this.httpService
+      .get(
+        `https://api.weixin.qq.com/wxaapi/newtmpl/gettemplate?access_token=${accessToken}`,
+      )
+      .toPromise();
+    if (!data.data || !data.data.length) {
+      const { data } = await this.httpService
+        .post(
+          `https://api.weixin.qq.com/wxaapi/newtmpl/addtemplate?access_token=${accessToken}`,
+          {
+            tid: 'groupNearEnd',
+            kidList: [0, 0, 0],
+            sceneDesc: '拼团即将截团通知',
+          },
+        )
+        .toPromise();
+      console.log({ data });
+    } */
+  }
+
+  async WechatMessageSecurityCheck(scene: sceneEnum, contents: any) {
+    const accessToken = this.getWechatAccessToken();
+
     // Security Check
     const { data: secResult } = await this.httpService
       .post(
@@ -60,7 +89,7 @@ export class CommonService {
     if (secResult.errcode != 0) {
       this.logger.error({ securityCheckFail: secResult });
       throw new BadRequestException('Security check failed.');
-    } */
+    }
 
     return true;
   }

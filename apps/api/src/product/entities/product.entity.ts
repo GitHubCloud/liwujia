@@ -38,7 +38,7 @@ export class Product {
   @Column()
   position: string;
 
-  @Column({ default: 0 })
+  @Column({ default: 0, type: 'decimal' })
   price: number;
 
   @Column()

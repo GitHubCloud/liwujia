@@ -43,7 +43,7 @@ export class GroupOrder {
   @Column()
   position: string;
 
-  @Column({ default: 0 })
+  @Column({ default: 0, type: 'decimal', precision: 10, scale: 2 })
   price: number;
 
   @Column()
