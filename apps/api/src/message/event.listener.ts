@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { User } from 'apps/api/src/user/entities/user.entity';
+import * as moment from 'moment';
+import { CommonService } from '../common/common.service';
 import { GroupOrder } from '../group-order/entities/group-order.entity';
 import { Order } from '../order/entities/order.entity';
 import { pointEnum, PointService } from '../point/point.service';
@@ -11,6 +13,7 @@ export class EventListener {
   constructor(
     private readonly messageService: MessageService,
     private readonly pointService: PointService,
+    private readonly commonService: CommonService,
   ) {}
   @OnEvent('user.create')
   handleRegisterEvent(payload: User) {
@@ -141,6 +144,24 @@ export class EventListener {
       content: '您加入的拼团已经满员啦',
       groupOrder: payload.id,
     });
+    if (payload.initiator.wechatOpenID) {
+      this.commonService.sendSubscribeMessage({
+        touser: payload.initiator.wechatOpenID,
+        template_id: 'WLP27zK4ISz2bpUfP_01UF3t1AP8oUYxGLMuYpYJ7ts',
+        page: 'pages/group/my/index',
+        data: {
+          thing1: {
+            value: payload.title,
+          },
+          time3: {
+            value: moment().format('YYYY年MM月DD日 HH:mm'),
+          },
+          phrase4: {
+            value: '已满员',
+          },
+        },
+      });
+    }
 
     payload.joiner.map((i) => {
       this.messageService.create({
@@ -148,6 +169,25 @@ export class EventListener {
         content: '您加入的拼团已经满员啦',
         groupOrder: payload.id,
       });
+
+      if (i.wechatOpenID) {
+        this.commonService.sendSubscribeMessage({
+          touser: i.wechatOpenID,
+          template_id: 'WLP27zK4ISz2bpUfP_01UF3t1AP8oUYxGLMuYpYJ7ts',
+          page: 'pages/group/my/index',
+          data: {
+            thing1: {
+              value: payload.title,
+            },
+            time3: {
+              value: moment().format('YYYY年MM月DD日 HH:mm'),
+            },
+            phrase4: {
+              value: '已满员',
+            },
+          },
+        });
+      }
     });
   }
 

@@ -48,28 +48,17 @@ export class CommonService {
     return accessToken;
   }
 
-  async initWechatSubscribeMessageTemplate() {
+  async sendSubscribeMessage(body) {
     const accessToken = await this.getWechatAccessToken();
     console.log({ accessToken });
 
-    /* const { data } = await this.httpService
-      .get(
-        `https://api.weixin.qq.com/wxaapi/newtmpl/gettemplate?access_token=${accessToken}`,
+    const { data } = await this.httpService
+      .post(
+        `https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=${accessToken}`,
+        body,
       )
       .toPromise();
-    if (!data.data || !data.data.length) {
-      const { data } = await this.httpService
-        .post(
-          `https://api.weixin.qq.com/wxaapi/newtmpl/addtemplate?access_token=${accessToken}`,
-          {
-            tid: 'groupNearEnd',
-            kidList: [0, 0, 0],
-            sceneDesc: '拼团即将截团通知',
-          },
-        )
-        .toPromise();
-      console.log({ data });
-    } */
+    console.log({ data });
   }
 
   async WechatMessageSecurityCheck(scene: sceneEnum, contents: any) {
