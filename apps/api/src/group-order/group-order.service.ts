@@ -189,9 +189,9 @@ export class GroupOrderService {
       throw new HttpException('非团长不能完成拼团', 400);
     }
 
-    if (entity.joiner.length !== entity.joinLimit) {
+    /* if (entity.joiner.length !== entity.joinLimit) {
       throw new HttpException('参与人数不足', 400);
-    }
+    } */
 
     entity.status = GroupOrderStatus.COMPLETE;
     const savedEntity = await this.groupOrderRepo.save(entity);

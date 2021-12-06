@@ -60,6 +60,14 @@ export class ProductService {
 
     await Promise.all(
       pagination.items.map(async (item) => {
+        const buyers = await this.orderRepo.find({
+          where: {
+            product: item,
+            status: Not(OrderStatus.CANCELED),
+          },
+        });
+        item.buyers = _.map(buyers, (i) => i.buyer);
+
         if (user) {
           item.isCollected = !_.isEmpty(
             await this.collectService.findOne({

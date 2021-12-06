@@ -31,8 +31,8 @@ export class CreateProductDto {
   @IsOptional()
   brand: string;
 
-  @IsNotEmpty({ message: '成色不能为空' })
-  quality: string;
+  @IsOptional()
+  quality?: string;
 
   @ApiHideProperty()
   owner: User;

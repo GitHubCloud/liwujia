@@ -94,6 +94,8 @@ export class User {
   @OneToMany(() => Feedback, (feedback) => feedback.creator)
   feedbacks: number;
 
+  isNewbie: boolean;
+
   @BeforeInsert()
   encryptPasswd() {
     if (this.loginPasswd) {

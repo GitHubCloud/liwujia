@@ -87,6 +87,7 @@ export class MiniProgramStrategy extends PassportStrategy(Strategy) {
     let exists = await this.userService.findByOpenID(data.openid);
     if (!exists) {
       exists = await this.userService.create({ wechatOpenID: data.openid });
+      exists.isNewbie = true;
     }
 
     return {

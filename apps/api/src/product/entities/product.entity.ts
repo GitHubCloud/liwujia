@@ -48,8 +48,8 @@ export class Product {
   @Column({ nullable: true })
   brand: string;
 
-  @Column()
-  quality: string;
+  @Column({ nullable: true })
+  quality?: string;
 
   @Column({ default: false })
   isSold: boolean;
