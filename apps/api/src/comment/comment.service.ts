@@ -100,9 +100,12 @@ export class CommentService {
       // 评论消息
       queryBuilder.leftJoinAndSelect('comment.article', 'article');
       queryBuilder.leftJoinAndSelect('article.author', 'articleAuthor');
+      queryBuilder.leftJoinAndSelect('article.images', 'articleImages');
       queryBuilder.leftJoinAndSelect('comment.product', 'product');
       queryBuilder.leftJoinAndSelect('product.owner', 'productOwner');
+      queryBuilder.leftJoinAndSelect('product.images', 'productImages');
       queryBuilder.leftJoinAndSelect('comment.groupOrder', 'groupOrder');
+      queryBuilder.leftJoinAndSelect('groupOrder.images', 'groupOrderImages');
       queryBuilder.leftJoinAndSelect(
         'groupOrder.initiator',
         'groupOrderInitiator',

@@ -2076,6 +2076,14 @@ chalk@^4.0.0, chalk@^4.1.0:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
+chalk@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.npmmirror.com/chalk/download/chalk-4.1.2.tgz#aac4e2b7734a740867aeb16bf02aad556a1e7a01"
+  integrity sha1-qsTit3NKdAhnrrFr8CqtVWoeegE=
+  dependencies:
+    ansi-styles "^4.1.0"
+    supports-color "^7.1.0"
+
 char-regex@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/char-regex/-/char-regex-1.0.2.tgz#d744358226217f981ed58f479b1d6bcc29545dcf"
@@ -5137,10 +5145,12 @@ nestjs-redis@^1.3.3:
     rxjs "^6"
     uuid "^8"
 
-nestjs-typeorm-paginate@^2.3.2:
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/nestjs-typeorm-paginate/-/nestjs-typeorm-paginate-2.3.2.tgz#34acb0ef02894b0399b9adb1f9b11e901da9f9a4"
-  integrity sha512-TjQO1x39Q/QZfez0/sD7vSGzFP/xSeOOjiL8e8A5YyyRwd7qp6TiF8/SMxz6qZb/gH/Q8M5ZpmCcPLpxd2Hc/w==
+nestjs-typeorm-paginate@^2.6.3:
+  version "2.6.3"
+  resolved "https://registry.npmmirror.com/nestjs-typeorm-paginate/download/nestjs-typeorm-paginate-2.6.3.tgz#f399ce52eea9fa1a62467ebc14c86ee0856c65ec"
+  integrity sha1-85nOUu6p+hpiRn68FMhu4IVsZew=
+  dependencies:
+    chalk "^4.1.2"
 
 nice-try@^1.0.4:
   version "1.0.5"
