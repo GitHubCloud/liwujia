@@ -79,7 +79,7 @@ export class EventListener {
 
   @OnEvent('article.create')
   handleArticleCreateEvent(payload: User) {
-    Logger.log(`Event 'article.create' emitted, id: '${payload.id}'.`);
+    Logger.log(`Event 'article.create' emitted, id: '${payload}'.`);
 
     this.pointService.create(payload, pointEnum.articleCreate, 'articleCreate');
   }

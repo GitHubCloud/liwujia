@@ -62,7 +62,7 @@ export class CommonService {
   }
 
   async WechatMessageSecurityCheck(scene: sceneEnum, contents: any) {
-    const accessToken = this.getWechatAccessToken();
+    const accessToken = await this.getWechatAccessToken();
 
     // Security Check
     const { data: secResult } = await this.httpService

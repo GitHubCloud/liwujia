@@ -20,13 +20,17 @@
         sortable
         :formatter="dateFormatter"
       />
-      <el-table-column
-              fixed="right"
-              label="操作"
-              width="100">
+      <el-table-column fixed="right" label="操作" width="100">
         <template #default="scope">
-          <el-button @click="editHandler(scope.row.id)" type="text" size="small">编辑</el-button>
-          <el-button @click="deleteHandler(scope.row.id)" type="text" size="small">删除</el-button>
+          <el-button @click="editHandler(scope.row.id)" type="text" size="small"
+            >编辑</el-button
+          >
+          <el-button
+            @click="deleteHandler(scope.row.id)"
+            type="text"
+            size="small"
+            >删除</el-button
+          >
         </template>
       </el-table-column>
       <template #empty>
@@ -80,39 +84,41 @@ export default {
 
       this.isLoading = false;
     },
-      async delBanner(id) {
-          this.isLoading = true;
+    async delArticle(id) {
+      this.isLoading = true;
 
-          const res = await this.$api(this.$store.state, `article/${id}`, {
-              method: 'delete',
-          });
-          if (res.statusCode == 200) {
-              this.$message({
-                  type: 'success',
-                  message: '删除成功!'
-              });
-              this.loadList();
-          }
+      const res = await this.$api(this.$store.state, `article/${id}`, {
+        method: 'delete',
+      });
+      if (res.statusCode == 200) {
+        this.$message({
+          type: 'success',
+          message: '删除成功!',
+        });
+        this.loadList();
+      }
 
-          this.isLoading = false;
-      },
-      deleteHandler(id) {
-          this.$confirm('是否确认删除文章?', '提示', {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'warning'
-          }).then(() => {
-              this.delBanner(id);
-          }).catch(() => {
-              this.$message({
-                  type: 'info',
-                  message: '已取消删除'
-              });
+      this.isLoading = false;
+    },
+    deleteHandler(id) {
+      this.$confirm('是否确认删除文章?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(() => {
+          this.delArticle(id);
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除',
           });
-      },
-      editHandler(id) {
-          this.$router.push('/article/create?id=' + id);
-      },
+        });
+    },
+    editHandler(id) {
+      this.$router.push('/article/create?id=' + id);
+    },
   },
   mounted() {
     this.loadList();

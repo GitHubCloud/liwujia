@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   JoinTable,
@@ -62,6 +63,10 @@ export class Article {
   @UpdateDateColumn()
   @Transform((d) => moment(d.value).toDate().getTime())
   updateTime: Date;
+
+  @DeleteDateColumn()
+  @Transform((d) => moment(d.value).toDate().getTime())
+  deleteTime: Date;
 
   @Column({ default: 0 })
   favorite: number;

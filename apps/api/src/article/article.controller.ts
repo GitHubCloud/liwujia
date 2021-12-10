@@ -60,6 +60,7 @@ export class ArticleController {
     @Query('type') type: string,
     @Query('author') author: number,
     @Query('search') search: string,
+    @Query('withDeleted') withDeleted: boolean,
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Article>> {
     paginationDto.query = {};
@@ -67,7 +68,11 @@ export class ArticleController {
     if (author) paginationDto.query['author'] = author;
     if (search) paginationDto.query['title'] = Like(`%${search}%`);
 
-    return await this.articleService.paginate(paginationDto, req.user);
+    return await this.articleService.paginate(
+      paginationDto,
+      withDeleted,
+      req.user,
+    );
   }
 
   @Get(':id')

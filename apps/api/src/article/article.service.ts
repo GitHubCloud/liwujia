@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getRepository, In, Repository } from 'typeorm';
 import { paginateRawAndEntities, Pagination } from 'nestjs-typeorm-paginate';
@@ -38,6 +38,7 @@ export class ArticleService {
 
   async paginate(
     paginationDto: PaginationDto,
+    withDeleted = false,
     user?: any,
   ): Promise<Pagination<any>> {
     const { page, limit, query } = paginationDto;
@@ -51,6 +52,10 @@ export class ArticleService {
       .where(query)
       .groupBy('article.id')
       .orderBy('article.id', 'DESC');
+    if (withDeleted) {
+      queryBuilder.withDeleted();
+    }
+
     const [pagination, rawResults] = await paginateRawAndEntities(
       queryBuilder,
       { page, limit },
@@ -134,7 +139,7 @@ export class ArticleService {
   }
 
   async remove(id: number) {
-    return await this.articleRepo.delete(id);
+    return await this.articleRepo.softDelete(id);
   }
 
   async favorite(user: any, id: number) {
