@@ -26,13 +26,6 @@ export class StuffService {
     const category = await this.categoryService.findOne(
       createStuffDto.category,
     );
-    if (_.isEmpty(category)) {
-      throw new HttpException(
-        { statusCode: HttpStatus.BAD_REQUEST, message: ['类型不存在'] },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     const detail = _.pick(
       _.get(createStuffDto, 'detail', {}),
       _.map(category.fields, (i) => i.name),
@@ -214,9 +207,9 @@ export class StuffService {
     }
 
     const category = await this.categoryService.findOne(
-      updateStuffDto.category,
+      updateStuffDto.category || stuff.category?.id,
     );
-    if (!updateStuffDto.category || _.isEmpty(category)) {
+    if (_.isEmpty(category)) {
       throw new HttpException(
         { statusCode: HttpStatus.BAD_REQUEST, message: ['类型不存在'] },
         HttpStatus.BAD_REQUEST,

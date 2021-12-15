@@ -31,7 +31,7 @@ export class Stuff {
 
   @JoinColumn()
   @ManyToOne(() => Category, (category) => category.stuffs, { eager: true })
-  category: number;
+  category: Category;
 
   @Column({ default: false })
   isConsumed: boolean;

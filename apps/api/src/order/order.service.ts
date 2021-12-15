@@ -105,6 +105,7 @@ export class OrderService {
           product: In(ids),
           status: Not(OrderStatus.CANCELED),
         },
+        order: { id: 1 },
       });
       pagination.items.map(async (item) => {
         if ([OrderStatus.INIT, OrderStatus.ONGOING].includes(item.status)) {

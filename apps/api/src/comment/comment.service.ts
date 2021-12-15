@@ -115,9 +115,9 @@ export class CommentService {
       // queryBuilder.where('comment.author != :userid', { userid: user.id });
       queryBuilder.andWhere(
         `(
-          article.author = :userid OR
-          product.owner = :userid OR
-          groupOrder.initiator = :userid OR
+          (replyTo.id IS NULL AND article.author = :userid) OR
+          (replyTo.id IS NULL AND product.owner = :userid) OR
+          (replyTo.id IS NULL AND groupOrder.initiator = :userid) OR
           replyTo.author = :userid
         )`,
         { userid: user.id },

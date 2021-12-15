@@ -29,7 +29,7 @@ export class CategoryService {
     return entities;
   }
 
-  async findOne(id: number): Promise<Category> {
-    return this.categoryRepo.findOne(id);
+  async findOne(condition: any): Promise<Category> {
+    return this.categoryRepo.findOne(condition);
   }
 }
