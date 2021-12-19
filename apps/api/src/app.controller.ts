@@ -3,7 +3,9 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Get,
+  Param,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -45,8 +47,20 @@ export class AppController {
     const queryBuilder = getRepository(Feedback)
       .createQueryBuilder('feedback')
       .leftJoinAndSelect('feedback.creator', 'creator')
-      .where(query);
+      .where(query)
+      .orderBy('feedback.id', 'DESC');
 
     return paginate(queryBuilder, { page, limit });
+  }
+
+  @Put('feedback/:id')
+  async response(
+    @Req() req,
+    @Param('id') id: number,
+    @Body('response') response,
+  ) {
+    return await this.feedbackRepo.update(id, {
+      response,
+    });
   }
 }

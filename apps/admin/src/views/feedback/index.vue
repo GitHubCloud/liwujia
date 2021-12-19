@@ -17,6 +17,23 @@
         sortable
         :formatter="dateFormatter"
       />
+      <el-table-column prop="response" label="回复" />
+      <el-table-column
+        prop="updateTime"
+        label="回复时间"
+        sortable
+        :formatter="dateFormatter"
+      />
+      <el-table-column fixed="right" label="操作" width="100">
+        <template #default="scope">
+          <el-button
+            @click="handleResponse(scope.row.id)"
+            type="text"
+            size="small"
+            >回复</el-button
+          >
+        </template>
+      </el-table-column>
       <template #empty>
         <el-empty v-if="!isLoading" description="暂无数据"></el-empty>
         <el-skeleton v-if="isLoading" animated />
@@ -64,6 +81,21 @@ export default {
       this.list = data.items;
 
       this.isLoading = false;
+    },
+    async handleResponse(id) {
+      this.$prompt('请输入回复', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      }).then(({ value }) => {
+        this.$api(this.$store.state, `feedback/${id}`, {
+          method: 'put',
+          body: {
+            response: value,
+          },
+        }).then(() => {
+          this.loadList();
+        });
+      });
     },
   },
   mounted() {

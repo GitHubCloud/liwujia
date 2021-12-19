@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Transform } from 'class-transformer';
 import * as moment from 'moment';
@@ -21,6 +22,13 @@ export class Feedback {
 
   @Column()
   content: string;
+
+  @Column({ nullable: true })
+  response?: string;
+
+  @UpdateDateColumn()
+  @Transform((d) => moment(d.value).toDate().getTime())
+  updateTime: Date;
 
   @CreateDateColumn()
   @Transform((d) => moment(d.value).toDate().getTime())
