@@ -16,7 +16,7 @@ export class PaginationDto {
   exclude?: Array<string> = [];
 
   @ApiHideProperty()
-  query?: any = {};
+  query?: any;
 }
 
 export class CustomPaginationMeta implements IPaginationMeta {

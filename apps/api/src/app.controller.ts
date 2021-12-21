@@ -42,8 +42,8 @@ export class AppController {
     @Req() req,
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Feedback>> {
-    const { page, limit, query } = paginationDto;
-    query['creator'] = req.user.id;
+    let { page, limit, query } = paginationDto;
+    query = query ? (query['creator'] = req.user.id) : { creator: req.user.id };
 
     const queryBuilder = getRepository(Feedback)
       .createQueryBuilder('feedback')
