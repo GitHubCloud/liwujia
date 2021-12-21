@@ -38,23 +38,6 @@ export class AppController {
   }
 
   @Get('feedback')
-  async getMyFeedbacks(
-    @Req() req,
-    @Query() paginationDto: PaginationDto,
-  ): Promise<Pagination<Feedback>> {
-    const { page, limit, query } = paginationDto;
-    query['creator'] = req.user.id;
-
-    const queryBuilder = getRepository(Feedback)
-      .createQueryBuilder('feedback')
-      .leftJoinAndSelect('feedback.creator', 'creator')
-      .where(query)
-      .orderBy('feedback.id', 'DESC');
-
-    return paginate(queryBuilder, { page, limit });
-  }
-
-  @Get('feedback/all')
   async getFeedbacks(
     @Req() req,
     @Query() paginationDto: PaginationDto,

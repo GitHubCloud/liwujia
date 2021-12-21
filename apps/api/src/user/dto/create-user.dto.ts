@@ -23,9 +23,6 @@ export class CreateUserDto {
   @IsNotEmpty({ message: '关键信息不能为空' })
   wechatOpenID?: string;
 
-  @IsOptional()
-  channel?: string;
-
   @ValidateIf((o) => _.isEmpty(o.wechatOpenID))
   @Matches(
     /^(?=.*([a-zA-Z].*))(?=.*[0-9].*)[a-zA-Z0-9-*/+.~!@#$%^&*()]{8,100}$/,

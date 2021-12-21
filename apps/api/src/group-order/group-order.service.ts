@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from 'eventemitter2';
 import * as moment from 'moment';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
-import { getRepository, LessThan, Repository } from 'typeorm';
+import { getRepository, In, LessThan, Repository } from 'typeorm';
 import { PaginationDto } from '../pagination.dto';
 import { Resource } from '../resource/entities/resource.entity';
 import { User } from '../user/entities/user.entity';
@@ -45,7 +45,7 @@ export class GroupOrderService {
     involved: boolean,
     user: any,
   ): Promise<Pagination<GroupOrder>> {
-    const { page, limit, isRandom, exclude, query } = paginationDto;
+    const { page, limit, query } = paginationDto;
 
     const queryBuilder = getRepository(GroupOrder)
       .createQueryBuilder('groupOrder')
@@ -53,7 +53,6 @@ export class GroupOrderService {
       .leftJoinAndSelect('groupOrder.initiator', 'initiator')
       .leftJoinAndSelect('groupOrder.joiner', 'joiner')
       .where(query);
-
     if (involved) {
       // 剔除用户没有参与的拼团
       const involvedIds = await getRepository(GroupOrder)
@@ -66,27 +65,10 @@ export class GroupOrderService {
         .select('groupOrder.id', 'id')
         .execute();
 
-      // 满员拼团优先展示
-      const fullgroupIds = await getRepository(GroupOrder)
-        .createQueryBuilder('groupOrder')
-        .leftJoinAndSelect('groupOrder.joiner', 'joiner')
-        .where(`(status = :status)`, {
-          status: GroupOrderStatus.INIT,
-        })
-        .groupBy('groupOrder.id')
-        .select('groupOrder.id', 'id')
-        .addSelect('groupOrder.joinLimit')
-        .addSelect('COUNT(joiner.id)', 'joinerLength')
-        .having('joinerLength = groupOrder.joinLimit')
-        .execute();
-
-      queryBuilder
-        .andWhereInIds(involvedIds.map((i) => i.id))
-        .orderBy(`groupOrder.id IN (${fullgroupIds.map((i) => i.id)})`, 'DESC')
-        .addOrderBy('groupOrder.id', 'DESC');
+      queryBuilder.andWhereInIds(involvedIds.map((i) => i.id));
     } else {
       // 剔除满员拼团
-      const unfullgroupIds = await getRepository(GroupOrder)
+      const fullgroupIds = await getRepository(GroupOrder)
         .createQueryBuilder('groupOrder')
         .leftJoinAndSelect('groupOrder.joiner', 'joiner')
         .where(`(status = :status)`, {
@@ -99,14 +81,9 @@ export class GroupOrderService {
         .having('joinerLength != groupOrder.joinLimit')
         .execute();
 
-      queryBuilder.andWhereInIds(unfullgroupIds.map((i) => i.id));
-      if (isRandom) {
-        queryBuilder.orderBy(`groupOrder.id IN (${exclude})`, 'DESC');
-        queryBuilder.addOrderBy('RAND()');
-      } else {
-        queryBuilder.orderBy('groupOrder.id', 'DESC');
-      }
+      queryBuilder.andWhereInIds(fullgroupIds.map((i) => i.id));
     }
+    queryBuilder.orderBy('groupOrder.id', 'DESC');
 
     return paginate(queryBuilder, { page, limit });
   }
