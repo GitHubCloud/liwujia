@@ -47,14 +47,22 @@ export class ProductService {
     paginationDto: PaginationDto,
     user?: any,
   ): Promise<Pagination<Product>> {
-    const { page, limit, query } = paginationDto;
+    const { page, limit, isRandom, exclude, query } = paginationDto;
 
     const queryBuilder = getRepository(Product)
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.owner', 'owner')
       .leftJoinAndSelect('product.images', 'images')
-      .where(query)
-      .orderBy('product.id', 'DESC');
+      .where(query);
+
+    if (exclude && exclude.length) {
+      queryBuilder.orderBy(`product.id IN (${exclude})`, 'DESC');
+    }
+    if (isRandom) {
+      queryBuilder.addOrderBy('RAND()');
+    } else {
+      queryBuilder.addOrderBy('product.id', 'DESC');
+    }
 
     const pagination = await paginate(queryBuilder, { page, limit });
 

@@ -42,6 +42,9 @@ export class User {
   @Column({ nullable: true, unique: true })
   wechatOpenID?: string;
 
+  @Column({ nullable: true })
+  channel?: string;
+
   @CreateDateColumn()
   @Transform((d) => moment(d.value).toDate().getTime())
   createTime: Date;

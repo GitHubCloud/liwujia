@@ -21,7 +21,7 @@ export class AuthController {
   }
 
   @ApiBody({
-    schema: { example: { code: 'string' } },
+    schema: { example: { code: 'string', channel: 'string' } },
     description:
       '微信小程序登录流程：https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/login.html',
   })

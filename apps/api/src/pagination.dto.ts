@@ -9,8 +9,14 @@ export class PaginationDto {
   @IsOptional()
   limit?: number = 10;
 
+  @IsOptional()
+  isRandom?: boolean = false;
+
+  @IsOptional()
+  exclude?: Array<string> = [];
+
   @ApiHideProperty()
-  query?: any;
+  query?: any = {};
 }
 
 export class CustomPaginationMeta implements IPaginationMeta {
