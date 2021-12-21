@@ -41,7 +41,7 @@ export class ArticleService {
     withDeleted = false,
     user?: any,
   ): Promise<Pagination<any>> {
-    const { page, limit, query } = paginationDto;
+    const { page, limit, isRandom, exclude, query } = paginationDto;
 
     const queryBuilder = getRepository(Article)
       .createQueryBuilder('article')
@@ -50,8 +50,17 @@ export class ArticleService {
       .leftJoin('article.comments', 'comments')
       .addSelect('COUNT(comments.id) as comments')
       .where(query)
-      .groupBy('article.id')
-      .orderBy('article.id', 'DESC');
+      .groupBy('article.id');
+
+    if (exclude && exclude.length) {
+      queryBuilder.orderBy(`article.id IN (${exclude})`, 'DESC');
+    }
+    if (isRandom) {
+      queryBuilder.addOrderBy('RAND()');
+    } else {
+      queryBuilder.addOrderBy('article.id', 'DESC');
+    }
+
     if (withDeleted) {
       queryBuilder.withDeleted();
     }

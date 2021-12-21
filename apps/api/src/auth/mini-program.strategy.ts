@@ -36,6 +36,7 @@ class Strategy implements passport.Strategy {
     options?: any,
   ) {
     const code = (req.body || req.query)[this.codeField];
+    const channel = (req.body || req.query)['channel'];
     if (!code) {
       return this.fail(options.badRequestMessage || 'Missing credentials', 400);
     }
@@ -53,7 +54,7 @@ class Strategy implements passport.Strategy {
     };
 
     try {
-      this.verify(code, verifyed);
+      this.verify(code, channel, verifyed);
     } catch (ex) {
       return self.error(ex);
     }
@@ -70,7 +71,7 @@ export class MiniProgramStrategy extends PassportStrategy(Strategy) {
     super();
   }
 
-  async validate(code: string): Promise<any> {
+  async validate(code: string, channel: string): Promise<any> {
     const APPID = this.configService.get('WECHAT_APPID');
     const SECRET = this.configService.get('WECHAT_SECRET');
 
@@ -86,7 +87,10 @@ export class MiniProgramStrategy extends PassportStrategy(Strategy) {
     }
     let exists = await this.userService.findByOpenID(data.openid);
     if (!exists) {
-      exists = await this.userService.create({ wechatOpenID: data.openid });
+      exists = await this.userService.create({
+        wechatOpenID: data.openid,
+        channel,
+      });
       exists.isNewbie = true;
     }
 

@@ -71,7 +71,7 @@ export default {
     async loadList() {
       this.isLoading = true;
 
-      const { data } = await this.$api(this.$store.state, 'feedback', {
+      const { data } = await this.$api(this.$store.state, 'feedback/all', {
         method: 'get',
         data: {
           page: this.page,
