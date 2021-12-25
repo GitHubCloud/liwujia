@@ -4,6 +4,7 @@ import { RedisService } from 'nestjs-redis';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { getRepository, Repository } from 'typeorm';
 import { Article } from '../article/entities/article.entity';
+import { Comment } from '../comment/entities/comment.entity';
 import { PaginationDto } from '../pagination.dto';
 import { Product } from '../product/entities/product.entity';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
@@ -18,6 +19,8 @@ export class FavoriteService {
     private readonly articleRepo: Repository<Article>,
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
+    @InjectRepository(Comment)
+    private readonly commentRepo: Repository<Comment>,
     private readonly redisService: RedisService,
   ) {}
 
@@ -41,6 +44,12 @@ export class FavoriteService {
         loadRelationIds: true,
       });
       targetUser = product.owner;
+    }
+    if (createCollectDto.comment) {
+      const comment = await this.commentRepo.findOne(createCollectDto.comment, {
+        loadRelationIds: true,
+      });
+      targetUser = comment.author;
     }
     await this.redisClient.incr(`message:favorite:${targetUser}`);
 
@@ -70,6 +79,10 @@ export class FavoriteService {
         if (query.type) {
           queryBuilder.andWhere('article.type = :type', { type: query.type });
         }
+        break;
+      case 'comment':
+        queryBuilder.leftJoinAndSelect('favorite.comment', 'comment');
+        queryBuilder.where('favorite.comment IS NOT NULL');
         break;
       default:
         queryBuilder.leftJoinAndSelect('favorite.article', 'article');
@@ -113,6 +126,12 @@ export class FavoriteService {
         loadRelationIds: true,
       });
       targetUser = product.owner;
+    }
+    if (favorite.comment) {
+      const comment = await this.commentRepo.findOne(favorite.comment, {
+        loadRelationIds: true,
+      });
+      targetUser = comment.author;
     }
     await this.redisClient.decr(`message:favorite:${targetUser}`);
 

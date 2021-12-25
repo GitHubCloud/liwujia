@@ -6,6 +6,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -84,5 +85,10 @@ export class CommentController {
   @Delete(':id')
   async delete(@Param('id') id: number) {
     return await this.commentService.delete(id);
+  }
+
+  @Put('/:id/favorite')
+  async favorite(@Req() req, @Param('id') id: number) {
+    return await this.commentService.favorite(req.user, id);
   }
 }

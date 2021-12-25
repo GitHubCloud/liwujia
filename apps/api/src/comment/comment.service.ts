@@ -10,6 +10,8 @@ import { RedisService } from 'nestjs-redis';
 import { Article } from '../article/entities/article.entity';
 import { Product } from '../product/entities/product.entity';
 import { GroupOrder } from '../group-order/entities/group-order.entity';
+import { FavoriteService } from '../favorite/favorite.service';
+import * as _ from 'lodash';
 
 @Injectable()
 export class CommentService {
@@ -23,6 +25,7 @@ export class CommentService {
     @InjectRepository(GroupOrder)
     private readonly groupOrderRepo: Repository<GroupOrder>,
     private readonly redisService: RedisService,
+    private readonly favoriteService: FavoriteService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -126,7 +129,21 @@ export class CommentService {
       this.redisClient.set(`message:comment:${user.id}`, 0);
     }
 
-    return await paginate(queryBuilder, { page, limit });
+    const pagination = await paginate(queryBuilder, { page, limit });
+    await Promise.all(
+      pagination.items.map(async (item, index) => {
+        if (user) {
+          item.isFavorite = !_.isEmpty(
+            await this.favoriteService.findOne({
+              user: user.id,
+              comment: item.id,
+            }),
+          );
+        }
+      }),
+    );
+
+    return pagination;
   }
 
   async findOne(id: number): Promise<Comment> {
@@ -134,6 +151,25 @@ export class CommentService {
   }
 
   async delete(id: number): Promise<any> {
-    return await this.commentRepo.delete(id);
+    return await this.commentRepo.softDelete(id);
+  }
+
+  async favorite(user: any, id: number) {
+    const comment: Comment = await this.findOne(id);
+
+    const exists = await this.favoriteService.findOne({
+      user: user.id,
+      comment: comment.id,
+    });
+    if (_.isEmpty(exists)) {
+      await this.favoriteService.create({
+        user: user.id,
+        comment: comment.id,
+      });
+      await this.commentRepo.increment({ id }, 'favorite', 1);
+    } else {
+      await this.favoriteService.remove(exists.id);
+      await this.commentRepo.decrement({ id }, 'favorite', 1);
+    }
   }
 }

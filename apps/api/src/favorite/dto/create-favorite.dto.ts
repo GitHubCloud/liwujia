@@ -12,4 +12,8 @@ export class CreateFavoriteDto {
   @IsOptional()
   @ApiHideProperty()
   product?: number;
+
+  @IsOptional()
+  @ApiHideProperty()
+  comment?: number;
 }

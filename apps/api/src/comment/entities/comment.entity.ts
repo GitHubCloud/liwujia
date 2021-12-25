@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -49,4 +50,13 @@ export class Comment {
   @CreateDateColumn()
   @Transform((d) => moment(d.value).toDate().getTime())
   createTime: Date;
+
+  @DeleteDateColumn()
+  @Transform((d) => moment(d.value).toDate().getTime())
+  deleteTime: Date;
+
+  @Column({ default: 0 })
+  favorite: number;
+
+  isFavorite: boolean;
 }

@@ -60,7 +60,7 @@ export class Article {
   @Transform((d) => moment(d.value).toDate().getTime())
   createTime: Date;
 
-  @UpdateDateColumn()
+  @Column({ type: 'datetime' })
   @Transform((d) => moment(d.value).toDate().getTime())
   updateTime: Date;
 

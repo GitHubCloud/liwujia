@@ -33,4 +33,7 @@ export class CreateArticleDto {
 
   @ApiHideProperty()
   author: number;
+
+  @ApiHideProperty()
+  updateTime: Date;
 }

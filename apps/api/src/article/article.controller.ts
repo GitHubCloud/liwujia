@@ -130,6 +130,7 @@ export class ArticleController {
 
   @Get('/:id/comment')
   async paginateComment(
+    @Req() req,
     @Param('id') id: number,
     @Query() paginationDto: PaginationDto,
   ): Promise<Pagination<Comment>> {
@@ -138,6 +139,6 @@ export class ArticleController {
       replyTo: null,
     };
 
-    return await this.commentService.paginate(paginationDto);
+    return await this.commentService.paginate(paginationDto, req.user);
   }
 }

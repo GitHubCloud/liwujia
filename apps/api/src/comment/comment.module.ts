@@ -6,9 +6,13 @@ import { CommentController } from './comment.controller';
 import { Article } from '../article/entities/article.entity';
 import { Product } from '../product/entities/product.entity';
 import { GroupOrder } from '../group-order/entities/group-order.entity';
+import { FavoriteModule } from '../favorite/favorite.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Comment, Article, Product, GroupOrder])],
+  imports: [
+    TypeOrmModule.forFeature([Comment, Article, Product, GroupOrder]),
+    FavoriteModule,
+  ],
   providers: [CommentService],
   exports: [CommentService],
   controllers: [CommentController],

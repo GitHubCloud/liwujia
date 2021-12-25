@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getRepository, In, Repository } from 'typeorm';
 import { paginateRawAndEntities, Pagination } from 'nestjs-typeorm-paginate';
@@ -139,6 +139,7 @@ export class ArticleService {
       });
       updateArticleDto.images = images;
     }
+    updateArticleDto.updateTime = new Date();
 
     const dto = {
       ...article,
