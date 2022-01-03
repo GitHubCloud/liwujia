@@ -41,6 +41,9 @@ export class Article {
   @Column({ nullable: true })
   position?: string;
 
+  @Column({ nullable: true })
+  orderIndex?: number;
+
   @JoinTable()
   @ManyToMany(() => Resource, { cascade: true, eager: true })
   images?: Resource[];

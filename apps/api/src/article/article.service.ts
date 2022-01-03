@@ -50,16 +50,9 @@ export class ArticleService {
       .leftJoin('article.comments', 'comments')
       .addSelect('COUNT(comments.id) as comments')
       .where(query)
-      .groupBy('article.id');
-
-    if (exclude && exclude.length) {
-      queryBuilder.orderBy(`article.id IN (${exclude})`, 'DESC');
-    }
-    if (isRandom) {
-      queryBuilder.addOrderBy('RAND()');
-    } else {
-      queryBuilder.addOrderBy('article.id', 'DESC');
-    }
+      .groupBy('article.id')
+      .orderBy('article.orderIndex', 'DESC')
+      .addOrderBy('article.id', 'DESC');
 
     if (withDeleted) {
       queryBuilder.withDeleted();
