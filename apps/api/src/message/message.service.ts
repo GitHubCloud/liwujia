@@ -9,6 +9,7 @@ import { SocketGateway } from '../socket/socket.gateway';
 import { RedisService } from 'nestjs-redis';
 import { Order } from '../order/entities/order.entity';
 import { GroupOrder } from '../group-order/entities/group-order.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class MessageService {
@@ -21,6 +22,7 @@ export class MessageService {
     private readonly groupOrderRepo: Repository<GroupOrder>,
     private readonly socketGateway: SocketGateway,
     private readonly redisService: RedisService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   private redisClient = this.redisService.getClient();
@@ -72,6 +74,12 @@ export class MessageService {
         receivers.map((i) => {
           this.redisClient.incr(`message:groupOrder:${i}`);
         });
+
+        this.eventEmitter.emit(
+          'groupOrder.message',
+          groupOrder,
+          createMessageDto.content,
+        );
       }
     } else {
       this.redisClient.incr(`message:system:${createMessageDto.to}`);

@@ -113,6 +113,57 @@ export class EventListener {
     });
   }
 
+  @OnEvent('groupOrder.message')
+  handleGroupOrderMessageEvent(payload: GroupOrder, content: string) {
+    Logger.log(`Event 'groupOrder.message' emitted, id: '${payload.id}' .`);
+
+    if (payload.initiator.wechatOpenID) {
+      this.commonService.sendSubscribeMessage({
+        touser: payload.initiator.wechatOpenID,
+        template_id: 'rKad24nzu47td4XAQLJQcpNduHHG1G0E6vT7gPOCltE',
+        page: `pages/group/contact/index?id=${payload.id}`,
+        data: {
+          name1: {
+            value: payload.initiator.nickname,
+          },
+          date3: {
+            value: moment().format('YYYY年MM月DD日 HH:mm'),
+          },
+          thing5: {
+            value: content,
+          },
+          thing8: {
+            value: payload.title,
+          },
+        },
+      });
+    }
+
+    payload.joiner.map((i) => {
+      if (i.wechatOpenID) {
+        this.commonService.sendSubscribeMessage({
+          touser: i.wechatOpenID,
+          template_id: 'rKad24nzu47td4XAQLJQcpNduHHG1G0E6vT7gPOCltE',
+          page: `pages/group/contact/index?id=${payload.id}`,
+          data: {
+            name1: {
+              value: payload.initiator.nickname,
+            },
+            date3: {
+              value: moment().format('YYYY年MM月DD日 HH:mm'),
+            },
+            thing5: {
+              value: content,
+            },
+            thing8: {
+              value: payload.title,
+            },
+          },
+        });
+      }
+    });
+  }
+
   @OnEvent('groupOrder.join')
   handleGroupOrderJoinEvent(payload: GroupOrder) {
     Logger.log(`Event 'groupOrder.join' emitted, id: '${payload.id}' .`);
@@ -122,6 +173,47 @@ export class EventListener {
       content: '您发起的拼团有新的团员加入啦',
       groupOrder: payload.id,
     });
+
+    if (payload.joinLimit != payload.joiner.length) {
+      if (payload.initiator.wechatOpenID) {
+        this.commonService.sendSubscribeMessage({
+          touser: payload.initiator.wechatOpenID,
+          template_id: 'ZfvL1Iwwn9lk0RT1vYwIa7IJmblcbiyvAyiS4WoApok',
+          page: `pages/group/contact/index?id=${payload.id}`,
+          data: {
+            thing1: {
+              value: payload.initiator.nickname,
+            },
+            thing2: {
+              value: payload.title,
+            },
+            time5: {
+              value: moment().format('YYYY年MM月DD日 HH:mm'),
+            },
+          },
+        });
+      }
+      payload.joiner.map((i) => {
+        if (i.wechatOpenID) {
+          this.commonService.sendSubscribeMessage({
+            touser: i.wechatOpenID,
+            template_id: 'ZfvL1Iwwn9lk0RT1vYwIa7IJmblcbiyvAyiS4WoApok',
+            page: `pages/group/contact/index?id=${payload.id}`,
+            data: {
+              thing1: {
+                value: i.nickname,
+              },
+              thing2: {
+                value: payload.title,
+              },
+              time5: {
+                value: moment().format('YYYY年MM月DD日 HH:mm'),
+              },
+            },
+          });
+        }
+      });
+    }
   }
 
   @OnEvent('groupOrder.leave')
