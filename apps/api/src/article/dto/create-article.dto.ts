@@ -35,5 +35,5 @@ export class CreateArticleDto {
   author: number;
 
   @ApiHideProperty()
-  updateTime: Date;
+  updateTime?: Date;
 }

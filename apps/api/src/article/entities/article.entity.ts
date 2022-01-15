@@ -63,9 +63,9 @@ export class Article {
   @Transform((d) => moment(d.value).toDate().getTime())
   createTime: Date;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'datetime', nullable: true })
   @Transform((d) => moment(d.value).toDate().getTime())
-  updateTime: Date;
+  updateTime?: Date;
 
   @DeleteDateColumn()
   @Transform((d) => moment(d.value).toDate().getTime())
