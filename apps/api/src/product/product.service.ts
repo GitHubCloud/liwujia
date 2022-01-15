@@ -53,7 +53,8 @@ export class ProductService {
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.owner', 'owner')
       .leftJoinAndSelect('product.images', 'images')
-      .where(query);
+      .where(query)
+      .groupBy('product.id');
 
     if (exclude && exclude.length) {
       queryBuilder.orderBy(`product.id IN (${exclude})`, 'DESC');
