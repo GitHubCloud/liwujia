@@ -6,6 +6,7 @@ import { CommonService } from '../common/common.service';
 import { GroupOrder } from '../group-order/entities/group-order.entity';
 import { Order } from '../order/entities/order.entity';
 import { pointEnum, PointService } from '../point/point.service';
+import { CreateMessageDto } from './dto/create-message.dto';
 import { MessageService } from './message.service';
 
 @Injectable()
@@ -61,6 +62,72 @@ export class EventListener {
       content: '卖家已更换买家',
       order: payload.id,
     });
+  }
+
+  @OnEvent('order.create')
+  handleOrderCreateEvent(payload: Order) {
+    Logger.log(`Event 'order.create' emitted, id: '${payload.id}'.`);
+
+    this.messageService.create({
+      to: payload.seller.id,
+      content: '您的订单有新的买家',
+      order: payload.id,
+    });
+    if (payload.seller.wechatOpenID) {
+      this.commonService.sendSubscribeMessage({
+        touser: payload.seller.wechatOpenID,
+        template_id: 'Tfu-OZnetf6LyJ-QbWAaGKMyi4WeJb6o1LJQSvX1MNs',
+        page: 'pages/order/sell/index',
+        data: {
+          thing1: {
+            value: payload.buyer.nickname,
+          },
+          time3: {
+            value: moment(payload.createTime).format('YYYY年MM月DD日 HH:mm'),
+          },
+          thing9: {
+            value: payload.product.content,
+          },
+          amount7: {
+            value: payload.product.price,
+          },
+        },
+      });
+    }
+  }
+
+  @OnEvent('order.message')
+  handleOrderMessageEvent(payload: Order, messageDto: CreateMessageDto) {
+    Logger.log(`Event 'groupOrder.message' emitted, id: '${payload.id}' .`);
+
+    let target = null;
+    if (messageDto.to == payload.buyer.id) {
+      target = payload.buyer;
+    } else if (messageDto.to == payload.seller.id) {
+      target = payload.seller;
+    }
+
+    if (target.wechatOpenID) {
+      this.commonService.sendSubscribeMessage({
+        touser: target.wechatOpenID,
+        template_id: 'rKad24nzu47td4XAQLJQcm8e2AZSMYYdmxH7SEQGT8s',
+        page: `pages/order/contact/index?id=${payload.id}`,
+        data: {
+          name1: {
+            value: target.nickname,
+          },
+          date3: {
+            value: moment(payload.createTime).format('YYYY年MM月DD日 HH:mm'),
+          },
+          thing5: {
+            value: messageDto.content,
+          },
+          thing8: {
+            value: payload.product.content,
+          },
+        },
+      });
+    }
   }
 
   @OnEvent('stuff.create')

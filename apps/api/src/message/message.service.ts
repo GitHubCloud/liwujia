@@ -51,6 +51,8 @@ export class MessageService {
         }
       }
 
+      this.eventEmitter.emit('order.message', order, createMessageDto);
+
       this.redisClient.incr(`message:order:${createMessageDto.to}`);
     } else if (createMessageDto.groupOrder) {
       // 团购下的沟通

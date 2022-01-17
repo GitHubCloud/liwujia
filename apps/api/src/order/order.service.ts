@@ -11,6 +11,7 @@ import * as _ from 'lodash';
 import { OrderRoles } from './orderRoles.enum';
 import { OrderStatus } from './orderStatus.enum';
 import { MessageService } from '../message/message.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class OrderService {
@@ -19,6 +20,7 @@ export class OrderService {
     private readonly orderRepo: Repository<Order>,
     private readonly productService: ProductService,
     private readonly messageService: MessageService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(createOrderDto: CreateOrderDto) {
@@ -47,7 +49,7 @@ export class OrderService {
       buyer: createOrderDto.buyer,
     });
 
-    let result = null;
+    let result: Order = null;
     if (exists && exists.status === OrderStatus.CANCELED) {
       exists.status = OrderStatus.INIT;
       result = await this.orderRepo.save(exists);
@@ -55,11 +57,7 @@ export class OrderService {
       result = await this.orderRepo.save(this.orderRepo.create(createOrderDto));
     }
 
-    this.messageService.create({
-      to: result.seller.id,
-      content: '您的订单有新的买家',
-      order: result.id,
-    });
+    this.eventEmitter.emit('order.create', result);
 
     return result;
   }
