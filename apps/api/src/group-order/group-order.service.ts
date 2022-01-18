@@ -113,8 +113,8 @@ export class GroupOrderService {
           `(
           6380 * acos (
             cos ( radians(${latitude}) )
-            * cos( radians(groupOrder.longitude) )
-            * cos( radians(groupOrder.latitude) - radians(${longitude}) )
+            * cos( radians(groupOrder.latitude) )
+            * cos( radians(groupOrder.longitude) - radians(${longitude}) )
             + sin( radians(${latitude}) )
             * sin( radians(groupOrder.latitude) )
           )
@@ -125,8 +125,8 @@ export class GroupOrderService {
           queryBuilder.andWhere(`(
             6380 * acos (
               cos ( radians(${latitude}) )
-              * cos( radians(groupOrder.longitude) )
-              * cos( radians(groupOrder.latitude) - radians(${longitude}) )
+              * cos( radians(groupOrder.latitude) )
+              * cos( radians(groupOrder.longitude) - radians(${longitude}) )
               + sin( radians(${latitude}) )
               * sin( radians(groupOrder.latitude) )
             )

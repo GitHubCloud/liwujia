@@ -68,8 +68,8 @@ export class ProductService {
         `(
           6380 * acos (
             cos ( radians(${latitude}) )
-            * cos( radians(product.longitude) )
-            * cos( radians(product.latitude) - radians(${longitude}) )
+            * cos( radians(product.latitude) )
+            * cos( radians(product.longitude) - radians(${longitude}) )
             + sin( radians(${latitude}) )
             * sin( radians(product.latitude) )
           )
@@ -80,8 +80,8 @@ export class ProductService {
         queryBuilder.andWhere(`(
           6380 * acos (
             cos ( radians(${latitude}) )
-            * cos( radians(product.longitude) )
-            * cos( radians(product.latitude) - radians(${longitude}) )
+            * cos( radians(product.latitude) )
+            * cos( radians(product.longitude) - radians(${longitude}) )
             + sin( radians(${latitude}) )
             * sin( radians(product.latitude) )
           )
