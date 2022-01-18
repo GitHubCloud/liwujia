@@ -34,11 +34,13 @@ export class GroupOrder {
   @Column()
   describe: string;
 
-  @Column()
-  latitude: string;
+  @Column({ type: 'double' })
+  latitude: number;
 
-  @Column()
-  longitude: string;
+  @Column({ type: 'double' })
+  longitude: number;
+
+  distance: number;
 
   @Column()
   position: string;

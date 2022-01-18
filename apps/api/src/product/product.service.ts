@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { paginate, Pagination } from 'nestjs-typeorm-paginate';
+import { paginateRawAndEntities, Pagination } from 'nestjs-typeorm-paginate';
 import { getRepository, In, Not, Repository } from 'typeorm';
 import { CollectService } from '../collect/collect.service';
 import { PaginationDto } from '../pagination.dto';
@@ -47,28 +47,61 @@ export class ProductService {
     paginationDto: PaginationDto,
     user?: any,
   ): Promise<Pagination<Product>> {
-    const { page, limit, isRandom, exclude, query } = paginationDto;
+    const {
+      page,
+      limit,
+      query,
+      nearest,
+      longitude,
+      latitude,
+      distance,
+    } = paginationDto;
 
     const queryBuilder = getRepository(Product)
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.owner', 'owner')
       .leftJoinAndSelect('product.images', 'images')
-      .where(query)
-      .groupBy('product.id');
+      .where(query);
 
-    if (exclude && exclude.length) {
-      queryBuilder.orderBy(`product.id IN (${exclude})`, 'DESC');
-    }
-    if (isRandom) {
-      queryBuilder.addOrderBy('RAND()');
-    } else {
-      queryBuilder.addOrderBy('product.id', 'DESC');
+    if (longitude && latitude) {
+      queryBuilder.addSelect(
+        `(
+          6380 * acos (
+            cos ( radians(${latitude}) )
+            * cos( radians(product.longitude) )
+            * cos( radians(product.latitude) - radians(${longitude}) )
+            + sin( radians(${latitude}) )
+            * sin( radians(product.latitude) )
+          )
+        )`,
+        'distance',
+      );
+      if (distance) {
+        queryBuilder.andWhere(`(
+          6380 * acos (
+            cos ( radians(${latitude}) )
+            * cos( radians(product.longitude) )
+            * cos( radians(product.latitude) - radians(${longitude}) )
+            + sin( radians(${latitude}) )
+            * sin( radians(product.latitude) )
+          )
+        ) < ${distance}`);
+      }
+      if (nearest) {
+        queryBuilder.addOrderBy(`distance`, 'ASC');
+      }
     }
 
-    const pagination = await paginate(queryBuilder, { page, limit });
+    queryBuilder.groupBy('product.id');
+    queryBuilder.addOrderBy('product.id', 'DESC');
+
+    const [pagination, raw] = await paginateRawAndEntities(queryBuilder, {
+      page,
+      limit,
+    });
 
     await Promise.all(
-      pagination.items.map(async (item) => {
+      pagination.items.map(async (item, index) => {
         const buyers = await this.orderRepo.find({
           where: {
             product: item,
@@ -104,6 +137,8 @@ export class ProductService {
             status: Not(OrderStatus.CANCELED),
           }),
         );
+
+        item.distance = raw[index].distance;
       }),
     );
 

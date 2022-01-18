@@ -12,10 +12,10 @@ export class CreateProductDto {
   images?: Resource[];
 
   @IsNotEmpty({ message: '纬度不能为空' })
-  latitude: string;
+  latitude: number;
 
   @IsNotEmpty({ message: '经度不能为空' })
-  longitude: string;
+  longitude: number;
 
   @IsNotEmpty({ message: '地理位置不能为空' })
   position: string;

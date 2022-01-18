@@ -50,7 +50,7 @@ import { Feedback } from './feedback.entity';
         database: configService.get('MYSQL_DATABASE'),
         autoLoadEntities: true,
         synchronize: true,
-        // logging: 'all',
+        logging: 'all',
       }),
       inject: [ConfigService],
     }),

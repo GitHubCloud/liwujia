@@ -41,7 +41,7 @@ export class ArticleService {
     withDeleted = false,
     user?: any,
   ): Promise<Pagination<any>> {
-    const { page, limit, isRandom, exclude, query } = paginationDto;
+    const { page, limit, query } = paginationDto;
 
     const queryBuilder = getRepository(Article)
       .createQueryBuilder('article')

@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from 'eventemitter2';
 import * as moment from 'moment';
-import { paginate, Pagination } from 'nestjs-typeorm-paginate';
+import { paginateRawAndEntities, Pagination } from 'nestjs-typeorm-paginate';
 import { getRepository, LessThan, Repository } from 'typeorm';
 import { PaginationDto } from '../pagination.dto';
 import { Resource } from '../resource/entities/resource.entity';
@@ -45,7 +45,15 @@ export class GroupOrderService {
     involved: boolean,
     user: any,
   ): Promise<Pagination<GroupOrder>> {
-    const { page, limit, isRandom, exclude, query } = paginationDto;
+    const {
+      page,
+      limit,
+      query,
+      nearest,
+      longitude,
+      latitude,
+      distance,
+    } = paginationDto;
 
     const queryBuilder = getRepository(GroupOrder)
       .createQueryBuilder('groupOrder')
@@ -100,15 +108,47 @@ export class GroupOrderService {
         .execute();
 
       queryBuilder.andWhereInIds(unfullgroupIds.map((i) => i.id));
-      if (isRandom) {
-        queryBuilder.orderBy(`groupOrder.id IN (${exclude})`, 'DESC');
-        queryBuilder.addOrderBy('RAND()');
-      } else {
-        queryBuilder.orderBy('groupOrder.id', 'DESC');
+      if (longitude && latitude) {
+        queryBuilder.addSelect(
+          `(
+          6380 * acos (
+            cos ( radians(${latitude}) )
+            * cos( radians(groupOrder.longitude) )
+            * cos( radians(groupOrder.latitude) - radians(${longitude}) )
+            + sin( radians(${latitude}) )
+            * sin( radians(groupOrder.latitude) )
+          )
+        )`,
+          'distance',
+        );
+        if (distance) {
+          queryBuilder.andWhere(`(
+            6380 * acos (
+              cos ( radians(${latitude}) )
+              * cos( radians(groupOrder.longitude) )
+              * cos( radians(groupOrder.latitude) - radians(${longitude}) )
+              + sin( radians(${latitude}) )
+              * sin( radians(groupOrder.latitude) )
+            )
+          ) < ${distance}`);
+        }
+        if (nearest) {
+          queryBuilder.addOrderBy(`distance`, 'ASC');
+        }
       }
+      queryBuilder.addOrderBy('groupOrder.id', 'DESC');
     }
 
-    return paginate(queryBuilder, { page, limit });
+    const [pagination, raw] = await paginateRawAndEntities(queryBuilder, {
+      page,
+      limit,
+    });
+
+    for (const i in pagination.items) {
+      pagination.items[i].distance = raw[i].distance;
+    }
+
+    return pagination;
   }
 
   async findOne(condition: any): Promise<GroupOrder> {
