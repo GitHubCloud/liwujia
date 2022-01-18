@@ -80,7 +80,7 @@ export class MessageService {
         this.eventEmitter.emit(
           'groupOrder.message',
           groupOrder,
-          createMessageDto.content,
+          createMessageDto,
         );
       }
     } else {

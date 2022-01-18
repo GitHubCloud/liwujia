@@ -75,7 +75,7 @@ export class GroupOrderService {
         .execute();
 
       // 满员拼团优先展示
-      const fullgroupIds = await getRepository(GroupOrder)
+      /* const fullgroupIds = await getRepository(GroupOrder)
         .createQueryBuilder('groupOrder')
         .leftJoinAndSelect('groupOrder.joiner', 'joiner')
         .where(`(status = :status)`, {
@@ -86,11 +86,11 @@ export class GroupOrderService {
         .addSelect('groupOrder.joinLimit')
         .addSelect('COUNT(joiner.id)', 'joinerLength')
         .having('joinerLength = groupOrder.joinLimit')
-        .execute();
+        .execute(); */
 
       queryBuilder
         .andWhereInIds(involvedIds.map((i) => i.id))
-        .orderBy(`groupOrder.id IN (${fullgroupIds.map((i) => i.id)})`, 'DESC')
+        // .orderBy(`groupOrder.id IN (${fullgroupIds.map((i) => i.id)})`, 'DESC')
         .addOrderBy('groupOrder.id', 'DESC');
     } else {
       // 剔除满员拼团
