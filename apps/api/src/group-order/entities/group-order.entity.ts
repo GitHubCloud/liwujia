@@ -35,10 +35,10 @@ export class GroupOrder {
   describe: string;
 
   @Column({ type: 'double' })
-  latitude: number;
+  longitude: number;
 
   @Column({ type: 'double' })
-  longitude: number;
+  latitude: number;
 
   distance: number;
 

@@ -31,10 +31,10 @@ export class Product {
   images?: Resource[];
 
   @Column({ type: 'double' })
-  latitude: number;
+  longitude: number;
 
   @Column({ type: 'double' })
-  longitude: number;
+  latitude: number;
 
   distance: number;
 
