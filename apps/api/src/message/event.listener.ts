@@ -67,7 +67,6 @@ export class EventListener {
   @OnEvent('order.create')
   handleOrderCreateEvent(payload: Order) {
     Logger.log(`Event 'order.create' emitted, id: '${payload.id}'.`);
-    console.log({ payload });
 
     this.messageService.create({
       to: payload.seller.id,
@@ -99,7 +98,8 @@ export class EventListener {
 
   @OnEvent('order.message')
   handleOrderMessageEvent(payload: Order, messageDto: CreateMessageDto) {
-    Logger.log(`Event 'groupOrder.message' emitted, id: '${payload.id}' .`);
+    if (!messageDto.from || !messageDto.to) return;
+    Logger.log(`Event 'order.message' emitted, id: '${payload.id}' .`);
 
     let target = null;
     if (messageDto.to == payload.buyer.id) {
@@ -107,11 +107,6 @@ export class EventListener {
     } else if (messageDto.to == payload.seller.id) {
       target = payload.seller;
     }
-    console.log({
-      payload,
-      messageDto,
-      target,
-    });
 
     if (target.wechatOpenID) {
       this.commonService.sendSubscribeMessage({
@@ -125,7 +120,7 @@ export class EventListener {
           date3: {
             value: moment(payload.createTime).format('YYYY年MM月DD日 HH:mm'),
           },
-          thing5: {
+          thing2: {
             value: messageDto.content,
           },
           thing8: {
@@ -196,11 +191,6 @@ export class EventListener {
     let sender = payload.initiator;
     payload.joiner.map((i) => {
       if (i.id == messageDto.from) sender = i;
-    });
-    console.log({
-      payload,
-      messageDto,
-      sender,
     });
 
     if (payload.initiator.wechatOpenID && sender.id != payload.initiator.id) {
