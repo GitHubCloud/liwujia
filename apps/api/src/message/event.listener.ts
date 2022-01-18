@@ -67,6 +67,7 @@ export class EventListener {
   @OnEvent('order.create')
   handleOrderCreateEvent(payload: Order) {
     Logger.log(`Event 'order.create' emitted, id: '${payload.id}'.`);
+    console.log({ payload });
 
     this.messageService.create({
       to: payload.seller.id,
@@ -106,6 +107,11 @@ export class EventListener {
     } else if (messageDto.to == payload.seller.id) {
       target = payload.seller;
     }
+    console.log({
+      payload,
+      messageDto,
+      target,
+    });
 
     if (target.wechatOpenID) {
       this.commonService.sendSubscribeMessage({
@@ -181,8 +187,21 @@ export class EventListener {
   }
 
   @OnEvent('groupOrder.message')
-  handleGroupOrderMessageEvent(payload: GroupOrder, content: string) {
+  handleGroupOrderMessageEvent(
+    payload: GroupOrder,
+    messageDto: CreateMessageDto,
+  ) {
     Logger.log(`Event 'groupOrder.message' emitted, id: '${payload.id}' .`);
+
+    let sender = null;
+    payload.joiner.map((i) => {
+      if (i.id == messageDto.from) sender = i;
+    });
+    console.log({
+      payload,
+      messageDto,
+      sender,
+    });
 
     if (payload.initiator.wechatOpenID) {
       this.commonService.sendSubscribeMessage({
@@ -191,13 +210,13 @@ export class EventListener {
         page: `pages/group/contact/index?id=${payload.id}`,
         data: {
           name1: {
-            value: payload.initiator.nickname,
+            value: sender.nickname,
           },
           date3: {
             value: moment().format('YYYY年MM月DD日 HH:mm'),
           },
           thing5: {
-            value: content,
+            value: messageDto.content,
           },
           thing8: {
             value: payload.title,
@@ -207,20 +226,20 @@ export class EventListener {
     }
 
     payload.joiner.map((i) => {
-      if (i.wechatOpenID) {
+      if (i.wechatOpenID && sender) {
         this.commonService.sendSubscribeMessage({
           touser: i.wechatOpenID,
           template_id: 'rKad24nzu47td4XAQLJQcpNduHHG1G0E6vT7gPOCltE',
           page: `pages/group/contact/index?id=${payload.id}`,
           data: {
             name1: {
-              value: payload.initiator.nickname,
+              value: sender.nickname,
             },
             date3: {
               value: moment().format('YYYY年MM月DD日 HH:mm'),
             },
             thing5: {
-              value: content,
+              value: message.content,
             },
             thing8: {
               value: payload.title,
@@ -307,7 +326,7 @@ export class EventListener {
       this.commonService.sendSubscribeMessage({
         touser: payload.initiator.wechatOpenID,
         template_id: 'WLP27zK4ISz2bpUfP_01UF3t1AP8oUYxGLMuYpYJ7ts',
-        page: 'pages/group/my/index',
+        page: `/pages/group/contact/index?id=${payload.id}`,
         data: {
           thing1: {
             value: payload.title,
@@ -333,7 +352,7 @@ export class EventListener {
         this.commonService.sendSubscribeMessage({
           touser: i.wechatOpenID,
           template_id: 'WLP27zK4ISz2bpUfP_01UF3t1AP8oUYxGLMuYpYJ7ts',
-          page: 'pages/group/my/index',
+          page: `/pages/group/contact/index?id=${payload.id}`,
           data: {
             thing1: {
               value: payload.title,
