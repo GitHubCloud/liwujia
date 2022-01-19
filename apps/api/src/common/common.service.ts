@@ -42,7 +42,7 @@ export class CommonService {
       }
       accessToken = tokenResult.access_token;
       await this.redisClient.set('wechat:accessToken', accessToken);
-      await this.redisClient.expire('wechat:accessToken', 3600);
+      await this.redisClient.expire('wechat:accessToken', 600);
     }
 
     return accessToken;
@@ -50,7 +50,6 @@ export class CommonService {
 
   async sendSubscribeMessage(body) {
     const accessToken = await this.getWechatAccessToken();
-    console.log({ accessToken });
 
     const { data } = await this.httpService
       .post(
