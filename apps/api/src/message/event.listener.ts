@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { User } from 'apps/api/src/user/entities/user.entity';
 import * as moment from 'moment';
+import { RedisService } from 'nestjs-redis';
 import { CommonService } from '../common/common.service';
 import { GroupOrder } from '../group-order/entities/group-order.entity';
 import { Order } from '../order/entities/order.entity';
@@ -15,7 +16,11 @@ export class EventListener {
     private readonly messageService: MessageService,
     private readonly pointService: PointService,
     private readonly commonService: CommonService,
+    private readonly redisService: RedisService,
   ) {}
+
+  private redisClient = this.redisService.getClient();
+
   @OnEvent('user.create')
   handleRegisterEvent(payload: User) {
     Logger.log(`Event 'user.create' emitted, id: '${payload.id}'.`);
@@ -97,7 +102,7 @@ export class EventListener {
   }
 
   @OnEvent('order.message')
-  handleOrderMessageEvent(payload: Order, messageDto: CreateMessageDto) {
+  async handleOrderMessageEvent(payload: Order, messageDto: CreateMessageDto) {
     if (!messageDto.from || !messageDto.to) return;
     Logger.log(`Event 'order.message' emitted, id: '${payload.id}' .`);
 
@@ -109,25 +114,36 @@ export class EventListener {
     }
 
     if (target.wechatOpenID) {
-      this.commonService.sendSubscribeMessage({
-        touser: target.wechatOpenID,
-        template_id: 'rKad24nzu47td4XAQLJQcm8e2AZSMYYdmxH7SEQGT8s',
-        page: `pages/order/contact/index?id=${payload.id}`,
-        data: {
-          name1: {
-            value: target.nickname,
+      const isPushed = await this.redisClient.hget(
+        'subscribe:orderMessage',
+        target.wechatOpenID,
+      );
+      if (!isPushed) {
+        this.commonService.sendSubscribeMessage({
+          touser: target.wechatOpenID,
+          template_id: 'rKad24nzu47td4XAQLJQcm8e2AZSMYYdmxH7SEQGT8s',
+          page: `pages/order/contact/index?id=${payload.id}`,
+          data: {
+            name1: {
+              value: target.nickname,
+            },
+            date3: {
+              value: moment(payload.createTime).format('YYYY年MM月DD日 HH:mm'),
+            },
+            thing2: {
+              value: messageDto.content,
+            },
+            thing8: {
+              value: payload.product.content,
+            },
           },
-          date3: {
-            value: moment(payload.createTime).format('YYYY年MM月DD日 HH:mm'),
-          },
-          thing2: {
-            value: messageDto.content,
-          },
-          thing8: {
-            value: payload.product.content,
-          },
-        },
-      });
+        });
+        await this.redisClient.hset(
+          'subscribe:orderMessage',
+          target.wechatOpenID,
+          1,
+        );
+      }
     }
   }
 
@@ -182,7 +198,7 @@ export class EventListener {
   }
 
   @OnEvent('groupOrder.message')
-  handleGroupOrderMessageEvent(
+  async handleGroupOrderMessageEvent(
     payload: GroupOrder,
     messageDto: CreateMessageDto,
   ) {
@@ -194,31 +210,13 @@ export class EventListener {
     });
 
     if (payload.initiator.wechatOpenID && sender.id != payload.initiator.id) {
-      this.commonService.sendSubscribeMessage({
-        touser: payload.initiator.wechatOpenID,
-        template_id: 'rKad24nzu47td4XAQLJQcpNduHHG1G0E6vT7gPOCltE',
-        page: `pages/group/contact/index?id=${payload.id}`,
-        data: {
-          name1: {
-            value: sender.nickname,
-          },
-          date3: {
-            value: moment().format('YYYY年MM月DD日 HH:mm'),
-          },
-          thing5: {
-            value: messageDto.content,
-          },
-          thing8: {
-            value: payload.title,
-          },
-        },
-      });
-    }
-
-    payload.joiner.map((i) => {
-      if (i.wechatOpenID && sender.id != i.id) {
+      const isPushed = await this.redisClient.hget(
+        'subscribe:groupMessage',
+        payload.initiator.wechatOpenID,
+      );
+      if (!isPushed) {
         this.commonService.sendSubscribeMessage({
-          touser: i.wechatOpenID,
+          touser: payload.initiator.wechatOpenID,
           template_id: 'rKad24nzu47td4XAQLJQcpNduHHG1G0E6vT7gPOCltE',
           page: `pages/group/contact/index?id=${payload.id}`,
           data: {
@@ -236,8 +234,48 @@ export class EventListener {
             },
           },
         });
+        await this.redisClient.hset(
+          'subscribe:groupMessage',
+          payload.initiator.wechatOpenID,
+          1,
+        );
       }
-    });
+    }
+
+    for (const i in payload.joiner) {
+      if (payload.joiner[i].wechatOpenID && sender.id != payload.joiner[i].id) {
+        const isPushed = await this.redisClient.hget(
+          'subscribe:groupMessage',
+          payload.initiator.wechatOpenID,
+        );
+        if (!isPushed) {
+          this.commonService.sendSubscribeMessage({
+            touser: payload.joiner[i].wechatOpenID,
+            template_id: 'rKad24nzu47td4XAQLJQcpNduHHG1G0E6vT7gPOCltE',
+            page: `pages/group/contact/index?id=${payload.id}`,
+            data: {
+              name1: {
+                value: sender.nickname,
+              },
+              date3: {
+                value: moment().format('YYYY年MM月DD日 HH:mm'),
+              },
+              thing5: {
+                value: messageDto.content,
+              },
+              thing8: {
+                value: payload.title,
+              },
+            },
+          });
+          await this.redisClient.hset(
+            'subscribe:groupMessage',
+            payload.initiator.wechatOpenID,
+            1,
+          );
+        }
+      }
+    }
   }
 
   @OnEvent('groupOrder.join')

@@ -86,6 +86,12 @@ export class MiniProgramStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException(data.errmsg || null);
     }
     let exists = await this.userService.findByOpenID(data.openid);
+    console.log({
+      code,
+      data,
+      exists,
+    });
+
     if (!exists) {
       exists = await this.userService.create({
         wechatOpenID: data.openid,
