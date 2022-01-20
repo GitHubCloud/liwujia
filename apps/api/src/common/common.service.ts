@@ -57,7 +57,7 @@ export class CommonService {
         body,
       )
       .toPromise();
-    console.log({ data });
+    console.log({ body, data });
   }
 
   async WechatMessageSecurityCheck(scene: sceneEnum, contents: any) {
