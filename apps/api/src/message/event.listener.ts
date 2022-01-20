@@ -246,7 +246,7 @@ export class EventListener {
       if (payload.joiner[i].wechatOpenID && sender.id != payload.joiner[i].id) {
         const isPushed = await this.redisClient.hget(
           'subscribe:groupMessage',
-          payload.initiator.wechatOpenID,
+          payload.joiner[i].wechatOpenID,
         );
         if (!isPushed) {
           this.commonService.sendSubscribeMessage({
@@ -270,7 +270,7 @@ export class EventListener {
           });
           await this.redisClient.hset(
             'subscribe:groupMessage',
-            payload.initiator.wechatOpenID,
+            payload.joiner[i].wechatOpenID,
             1,
           );
         }
