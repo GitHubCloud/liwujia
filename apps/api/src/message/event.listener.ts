@@ -115,7 +115,7 @@ export class EventListener {
 
     if (target.wechatOpenID) {
       const isPushed = await this.redisClient.hget(
-        'subscribe:orderMessage',
+        `subscribe:orderMessage:${payload.id}`,
         target.wechatOpenID,
       );
       if (!isPushed) {
@@ -139,7 +139,7 @@ export class EventListener {
           },
         });
         await this.redisClient.hset(
-          'subscribe:orderMessage',
+          `subscribe:orderMessage:${payload.id}`,
           target.wechatOpenID,
           1,
         );
@@ -211,7 +211,7 @@ export class EventListener {
 
     if (payload.initiator.wechatOpenID && sender.id != payload.initiator.id) {
       const isPushed = await this.redisClient.hget(
-        'subscribe:groupMessage',
+        `subscribe:groupMessage:${payload.id}`,
         payload.initiator.wechatOpenID,
       );
       if (!isPushed) {
@@ -235,7 +235,7 @@ export class EventListener {
           },
         });
         await this.redisClient.hset(
-          'subscribe:groupMessage',
+          `subscribe:groupMessage:${payload.id}`,
           payload.initiator.wechatOpenID,
           1,
         );
@@ -245,7 +245,7 @@ export class EventListener {
     for (const i in payload.joiner) {
       if (payload.joiner[i].wechatOpenID && sender.id != payload.joiner[i].id) {
         const isPushed = await this.redisClient.hget(
-          'subscribe:groupMessage',
+          `subscribe:groupMessage:${payload.id}`,
           payload.joiner[i].wechatOpenID,
         );
         if (!isPushed) {
@@ -269,7 +269,7 @@ export class EventListener {
             },
           });
           await this.redisClient.hset(
-            'subscribe:groupMessage',
+            `subscribe:groupMessage:${payload.id}`,
             payload.joiner[i].wechatOpenID,
             1,
           );
