@@ -114,14 +114,14 @@ export class GroupOrderController {
     return this.groupOrderService.join(id, req.user);
   }
 
-  @Delete('/:id/:uid')
-  async kick(@Param('id') id: number, @Param('uid') uid: number, @Req() req) {
-    return this.groupOrderService.kick(id, uid, req.user);
-  }
-
   @Delete('/:id/cancel')
   async cancel(@Req() req, @Param('id') id: number) {
     return this.groupOrderService.cancel(id, req.user);
+  }
+
+  @Delete('/:id/:uid')
+  async kick(@Param('id') id: number, @Param('uid') uid: number, @Req() req) {
+    return this.groupOrderService.kick(id, uid, req.user);
   }
 
   @Put('/:id/start')
