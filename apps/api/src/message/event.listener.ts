@@ -330,6 +330,18 @@ export class EventListener {
     }
   }
 
+  @OnEvent('groupOrder.kick')
+  handleGroupOrderKickEvent(payload: GroupOrder, target: User) {
+    Logger.log(`Event 'groupOrder.kick' emitted, id: '${payload.id}' .`);
+
+    this.messageService.create({
+      to: target.id,
+      content:
+        '由于您长时间未响应，您已被团主移除此拼团群，下次拼团请记得及时参与交流沟通哦。',
+      groupOrder: payload.id,
+    });
+  }
+
   @OnEvent('groupOrder.leave')
   handleGroupOrderLeaveEvent(payload: GroupOrder) {
     Logger.log(`Event 'groupOrder.leave' emitted, id: '${payload.id}' .`);

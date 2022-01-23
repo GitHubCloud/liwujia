@@ -59,6 +59,10 @@ export class GroupOrder {
   @ManyToMany(() => Resource, { cascade: true, eager: true })
   images?: Resource[];
 
+  @JoinTable()
+  @ManyToOne(() => Resource, { cascade: true, eager: true })
+  qrcode?: Resource;
+
   @JoinColumn()
   @ManyToOne(() => User, (user) => user.groupOrder, { eager: true })
   initiator: User;

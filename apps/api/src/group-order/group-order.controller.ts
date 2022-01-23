@@ -67,6 +67,19 @@ export class GroupOrderController {
     return this.groupOrderService.findOne(id);
   }
 
+  @Put(':id')
+  async update(
+    @Req() req,
+    @Param('id') id: number,
+    @Body() updateGroupOrderDto: UpdateGroupOrderDto,
+  ) {
+    return await this.groupOrderService.update(
+      id,
+      updateGroupOrderDto,
+      req.user,
+    );
+  }
+
   @Post('/:id/comment')
   async createComment(
     @Req() req,
@@ -96,22 +109,14 @@ export class GroupOrderController {
     return await this.commentService.paginate(paginationDto);
   }
 
-  /* @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateGroupOrderDto: UpdateGroupOrderDto,
-  ) {
-    return this.groupOrderService.update(+id, updateGroupOrderDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.groupOrderService.remove(+id);
-  } */
-
   @Post('/:id/join')
   async join(@Req() req, @Param('id') id: number) {
     return this.groupOrderService.join(id, req.user);
+  }
+
+  @Delete('/:id/:uid')
+  async kick(@Param('id') id: number, @Param('uid') uid: number, @Req() req) {
+    return this.groupOrderService.kick(id, uid, req.user);
   }
 
   @Delete('/:id/cancel')

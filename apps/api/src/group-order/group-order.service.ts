@@ -58,6 +58,7 @@ export class GroupOrderService {
     const queryBuilder = getRepository(GroupOrder)
       .createQueryBuilder('groupOrder')
       .leftJoinAndSelect('groupOrder.images', 'images')
+      .leftJoinAndSelect('groupOrder.qrcode', 'qrcode')
       .leftJoinAndSelect('groupOrder.initiator', 'initiator')
       .leftJoinAndSelect('groupOrder.joiner', 'joiner')
       .where(query);
@@ -155,12 +156,20 @@ export class GroupOrderService {
     return this.groupOrderRepo.findOne(condition);
   }
 
-  update(id: number, updateGroupOrderDto: UpdateGroupOrderDto) {
-    return `This action updates a #${id} groupOrder`;
-  }
+  async update(
+    condition: any,
+    updateGroupOrderDto: UpdateGroupOrderDto,
+    user?: any,
+  ) {
+    const group = await this.findOne(condition);
+    if (!group || group.initiator.id != user.id) {
+      throw new HttpException('无权进行操作', 400);
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} groupOrder`;
+    return await this.groupOrderRepo.save({
+      ...group,
+      ...updateGroupOrderDto,
+    });
   }
 
   async join(id: number, user: any) {
@@ -193,6 +202,28 @@ export class GroupOrderService {
       this.eventEmitter.emit('groupOrder.full', entity);
     }
 
+    return res;
+  }
+
+  async kick(id: number, uid: number, user: any) {
+    const group = await this.groupOrderRepo.findOne(id);
+    const target = await this.userRepo.findOne(uid);
+    if (!group || !target || group.initiator.id != user.id) {
+      throw new HttpException('无权进行操作', 400);
+    }
+
+    if (moment(group.deadline).isBefore()) {
+      throw new HttpException('该拼团已过截止时间', 400);
+    }
+
+    group.joiner.map((i, index) => {
+      if (i.id === uid) {
+        group.joiner.splice(index, 1);
+      }
+    });
+
+    const res = await this.groupOrderRepo.save(group);
+    this.eventEmitter.emit('groupOrder.kick', group, target);
     return res;
   }
 
