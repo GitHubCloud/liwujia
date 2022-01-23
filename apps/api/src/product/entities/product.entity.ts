@@ -30,11 +30,13 @@ export class Product {
   @ManyToMany(() => Resource, { cascade: true, eager: true })
   images?: Resource[];
 
-  @Column()
-  latitude: string;
+  @Column({ type: 'double' })
+  longitude: number;
 
-  @Column()
-  longitude: string;
+  @Column({ type: 'double' })
+  latitude: number;
+
+  distance: number;
 
   @Column()
   position: string;

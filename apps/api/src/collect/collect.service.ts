@@ -24,6 +24,19 @@ export class CollectService {
   private redisClient = this.redisService.getClient();
 
   async create(createCollectDto: CreateCollectDto): Promise<Collect> {
+    const isPushed = await this.redisClient.hget(
+      'subscribe:groupMessage',
+      'o421i5VEodo9GTUsBwV5_ujOn5i8',
+    );
+    console.log({ isPushed });
+
+    await this.redisClient.hset(
+      'subscribe:groupMessage',
+      'o421i5VEodo9GTUsBwV5_ujOn5i8',
+      1,
+    );
+
+    return this.collectRepo.findOne({});
     const collect = await this.collectRepo.save(
       this.collectRepo.create(createCollectDto),
     );

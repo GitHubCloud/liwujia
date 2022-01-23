@@ -10,10 +10,16 @@ export class PaginationDto {
   limit?: number = 10;
 
   @IsOptional()
-  isRandom?: boolean = false;
+  nearest?: boolean = false;
 
   @IsOptional()
-  exclude?: Array<string> = [];
+  longitude?: number;
+
+  @IsOptional()
+  latitude?: number;
+
+  @IsOptional()
+  distance?: number;
 
   @ApiHideProperty()
   query?: any;

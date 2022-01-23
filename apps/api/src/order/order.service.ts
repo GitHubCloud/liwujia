@@ -57,6 +57,11 @@ export class OrderService {
       result = await this.orderRepo.save(this.orderRepo.create(createOrderDto));
     }
 
+    result = await this.findOne({
+      product,
+      buyer: createOrderDto.buyer,
+    });
+
     this.eventEmitter.emit('order.create', result);
 
     return result;
