@@ -57,45 +57,28 @@ export class GroupOrderService {
 
     const queryBuilder = getRepository(GroupOrder)
       .createQueryBuilder('groupOrder')
-      .leftJoinAndSelect('groupOrder.images', 'images')
-      .leftJoinAndSelect('groupOrder.qrcode', 'qrcode')
-      .leftJoinAndSelect('groupOrder.initiator', 'initiator')
       .leftJoinAndSelect('groupOrder.joiner', 'joiner')
-      .where(query);
+      .where(query)
+      .groupBy('groupOrder.id');
 
+    let ids;
     if (involved) {
-      // 剔除用户没有参与的拼团
-      const involvedIds = await getRepository(GroupOrder)
+      // 只获取用户参与的拼团
+      ids = await getRepository(GroupOrder)
         .createQueryBuilder('groupOrder')
         .leftJoinAndSelect('groupOrder.joiner', 'joiner')
-        .where(`(joiner.id = :userid OR groupOrder.initiator = :userid)`, {
+        .where(query)
+        .andWhere(`(joiner.id = :userid OR groupOrder.initiator = :userid)`, {
           userid: user.id,
         })
         .groupBy('groupOrder.id')
         .select('groupOrder.id', 'id')
         .execute();
 
-      // 满员拼团优先展示
-      /* const fullgroupIds = await getRepository(GroupOrder)
-        .createQueryBuilder('groupOrder')
-        .leftJoinAndSelect('groupOrder.joiner', 'joiner')
-        .where(`(status = :status)`, {
-          status: GroupOrderStatus.INIT,
-        })
-        .groupBy('groupOrder.id')
-        .select('groupOrder.id', 'id')
-        .addSelect('groupOrder.joinLimit')
-        .addSelect('COUNT(joiner.id)', 'joinerLength')
-        .having('joinerLength = groupOrder.joinLimit')
-        .execute(); */
-
-      queryBuilder
-        .andWhereInIds(involvedIds.map((i) => i.id))
-        // .orderBy(`groupOrder.id IN (${fullgroupIds.map((i) => i.id)})`, 'DESC')
-        .addOrderBy('groupOrder.id', 'DESC');
+      queryBuilder.andWhereInIds(ids.map((i) => i.id));
     } else {
-      // 剔除满员拼团
-      const unfullgroupIds = await getRepository(GroupOrder)
+      // 只获取未满员拼团
+      ids = await getRepository(GroupOrder)
         .createQueryBuilder('groupOrder')
         .leftJoinAndSelect('groupOrder.joiner', 'joiner')
         .where(`(status = :status)`, {
@@ -108,10 +91,24 @@ export class GroupOrderService {
         .having('joinerLength != groupOrder.joinLimit')
         .execute();
 
-      queryBuilder.andWhereInIds(unfullgroupIds.map((i) => i.id));
-      if (longitude && latitude) {
-        queryBuilder.addSelect(
-          `(
+      queryBuilder.andWhereInIds(ids.map((i) => i.id));
+    }
+
+    if (longitude && latitude) {
+      queryBuilder.addSelect(
+        `(
+        6380 * acos (
+          cos ( radians(${latitude}) )
+          * cos( radians(groupOrder.latitude) )
+          * cos( radians(groupOrder.longitude) - radians(${longitude}) )
+          + sin( radians(${latitude}) )
+          * sin( radians(groupOrder.latitude) )
+        )
+      )`,
+        'distance',
+      );
+      if (distance) {
+        queryBuilder.andWhere(`(
           6380 * acos (
             cos ( radians(${latitude}) )
             * cos( radians(groupOrder.latitude) )
@@ -119,33 +116,31 @@ export class GroupOrderService {
             + sin( radians(${latitude}) )
             * sin( radians(groupOrder.latitude) )
           )
-        )`,
-          'distance',
-        );
-        if (distance) {
-          queryBuilder.andWhere(`(
-            6380 * acos (
-              cos ( radians(${latitude}) )
-              * cos( radians(groupOrder.latitude) )
-              * cos( radians(groupOrder.longitude) - radians(${longitude}) )
-              + sin( radians(${latitude}) )
-              * sin( radians(groupOrder.latitude) )
-            )
-          ) < ${distance}`);
-        }
-        if (nearest) {
-          queryBuilder.addOrderBy(`distance`, 'ASC');
-        }
+        ) < ${distance}`);
       }
-      queryBuilder.addOrderBy('groupOrder.id', 'DESC');
+      if (nearest) {
+        queryBuilder.addOrderBy(`distance`, 'ASC');
+      }
     }
+    queryBuilder.addOrderBy('groupOrder.id', 'DESC');
 
     const [pagination, raw] = await paginateRawAndEntities(queryBuilder, {
       page,
       limit,
     });
 
+    const groups = await getRepository(GroupOrder)
+      .createQueryBuilder('groupOrder')
+      .leftJoinAndSelect('groupOrder.images', 'images')
+      .leftJoinAndSelect('groupOrder.qrcode', 'qrcode')
+      .leftJoinAndSelect('groupOrder.initiator', 'initiator')
+      .leftJoinAndSelect('groupOrder.joiner', 'joiner')
+      .where(query)
+      .andWhereInIds(ids.map((i) => i.id))
+      .getMany();
+
     for (const i in pagination.items) {
+      pagination.items[i] = groups.find((j) => j.id == pagination.items[i].id);
       pagination.items[i].distance = raw[i].distance;
     }
 
