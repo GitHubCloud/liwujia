@@ -82,6 +82,8 @@ export class GroupOrder {
   @Column({ default: GroupOrderStatus.INIT })
   status: GroupOrderStatus;
 
+  isOutdated: boolean;
+
   @AfterLoad()
   async afterLoad() {
     this.price = Number(this.price) ? this.price : 0;
@@ -92,5 +94,7 @@ export class GroupOrder {
 
       this.images = [defaultImage];
     }
+
+    this.isOutdated = moment(this.deadline).isBefore();
   }
 }
