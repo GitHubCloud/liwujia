@@ -57,49 +57,31 @@ export class GroupOrderService {
 
     const queryBuilder = getRepository(GroupOrder)
       .createQueryBuilder('groupOrder')
-      .leftJoinAndSelect('groupOrder.images', 'images')
-      .leftJoinAndSelect('groupOrder.initiator', 'initiator')
       .leftJoinAndSelect('groupOrder.joiner', 'joiner')
-      .where(query);
+      .where(query)
+      .groupBy('groupOrder.id');
 
+    let ids;
     if (involved) {
-      // 剔除用户没有参与的拼团
-      const involvedIds = await getRepository(GroupOrder)
+      // 只获取用户参与的拼团
+      ids = await getRepository(GroupOrder)
         .createQueryBuilder('groupOrder')
         .leftJoinAndSelect('groupOrder.joiner', 'joiner')
-        .where(`(joiner.id = :userid OR groupOrder.initiator = :userid)`, {
+        .where(query)
+        .andWhere(`(joiner.id = :userid OR groupOrder.initiator = :userid)`, {
           userid: user.id,
         })
         .groupBy('groupOrder.id')
         .select('groupOrder.id', 'id')
         .execute();
 
-      // 满员拼团优先展示
-      /* const fullgroupIds = await getRepository(GroupOrder)
-        .createQueryBuilder('groupOrder')
-        .leftJoinAndSelect('groupOrder.joiner', 'joiner')
-        .where(`(status = :status)`, {
-          status: GroupOrderStatus.INIT,
-        })
-        .groupBy('groupOrder.id')
-        .select('groupOrder.id', 'id')
-        .addSelect('groupOrder.joinLimit')
-        .addSelect('COUNT(joiner.id)', 'joinerLength')
-        .having('joinerLength = groupOrder.joinLimit')
-        .execute(); */
-
-      queryBuilder
-        .andWhereInIds(involvedIds.map((i) => i.id))
-        // .orderBy(`groupOrder.id IN (${fullgroupIds.map((i) => i.id)})`, 'DESC')
-        .addOrderBy('groupOrder.id', 'DESC');
+      queryBuilder.andWhereInIds(ids.map((i) => i.id));
     } else {
-      // 剔除满员拼团
-      const unfullgroupIds = await getRepository(GroupOrder)
+      // 只获取未满员拼团
+      ids = await getRepository(GroupOrder)
         .createQueryBuilder('groupOrder')
         .leftJoinAndSelect('groupOrder.joiner', 'joiner')
-        .where(`(status = :status)`, {
-          status: GroupOrderStatus.INIT,
-        })
+        .where(query)
         .groupBy('groupOrder.id')
         .select('groupOrder.id', 'id')
         .addSelect('groupOrder.joinLimit')
@@ -107,10 +89,24 @@ export class GroupOrderService {
         .having('joinerLength != groupOrder.joinLimit')
         .execute();
 
-      queryBuilder.andWhereInIds(unfullgroupIds.map((i) => i.id));
-      if (longitude && latitude) {
-        queryBuilder.addSelect(
-          `(
+      queryBuilder.andWhereInIds(ids.map((i) => i.id));
+    }
+
+    if (longitude && latitude) {
+      queryBuilder.addSelect(
+        `(
+        6380 * acos (
+          cos ( radians(${latitude}) )
+          * cos( radians(groupOrder.latitude) )
+          * cos( radians(groupOrder.longitude) - radians(${longitude}) )
+          + sin( radians(${latitude}) )
+          * sin( radians(groupOrder.latitude) )
+        )
+      )`,
+        'distance',
+      );
+      if (distance) {
+        queryBuilder.andWhere(`(
           6380 * acos (
             cos ( radians(${latitude}) )
             * cos( radians(groupOrder.latitude) )
@@ -118,33 +114,31 @@ export class GroupOrderService {
             + sin( radians(${latitude}) )
             * sin( radians(groupOrder.latitude) )
           )
-        )`,
-          'distance',
-        );
-        if (distance) {
-          queryBuilder.andWhere(`(
-            6380 * acos (
-              cos ( radians(${latitude}) )
-              * cos( radians(groupOrder.latitude) )
-              * cos( radians(groupOrder.longitude) - radians(${longitude}) )
-              + sin( radians(${latitude}) )
-              * sin( radians(groupOrder.latitude) )
-            )
-          ) < ${distance}`);
-        }
-        if (nearest) {
-          queryBuilder.addOrderBy(`distance`, 'ASC');
-        }
+        ) < ${distance}`);
       }
-      queryBuilder.addOrderBy('groupOrder.id', 'DESC');
+      if (nearest) {
+        queryBuilder.addOrderBy(`distance`, 'ASC');
+      }
     }
+    queryBuilder.addOrderBy('groupOrder.id', 'DESC');
 
     const [pagination, raw] = await paginateRawAndEntities(queryBuilder, {
       page,
       limit,
     });
 
+    const groups = await getRepository(GroupOrder)
+      .createQueryBuilder('groupOrder')
+      .leftJoinAndSelect('groupOrder.images', 'images')
+      .leftJoinAndSelect('groupOrder.qrcode', 'qrcode')
+      .leftJoinAndSelect('groupOrder.initiator', 'initiator')
+      .leftJoinAndSelect('groupOrder.joiner', 'joiner')
+      .where(query)
+      .andWhereInIds(ids.map((i) => i.id))
+      .getMany();
+
     for (const i in pagination.items) {
+      pagination.items[i] = groups.find((j) => j.id == pagination.items[i].id);
       pagination.items[i].distance = raw[i].distance;
     }
 
@@ -155,12 +149,20 @@ export class GroupOrderService {
     return this.groupOrderRepo.findOne(condition);
   }
 
-  update(id: number, updateGroupOrderDto: UpdateGroupOrderDto) {
-    return `This action updates a #${id} groupOrder`;
-  }
+  async update(
+    condition: any,
+    updateGroupOrderDto: UpdateGroupOrderDto,
+    user?: any,
+  ) {
+    const group = await this.findOne(condition);
+    if (!group || group.initiator.id != user.id) {
+      throw new HttpException('无权进行操作', 400);
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} groupOrder`;
+    return await this.groupOrderRepo.save({
+      ...group,
+      ...updateGroupOrderDto,
+    });
   }
 
   async join(id: number, user: any) {
@@ -196,6 +198,28 @@ export class GroupOrderService {
     return res;
   }
 
+  async kick(id: number, uid: number, user: any) {
+    const group = await this.groupOrderRepo.findOne(id);
+    const target = await this.userRepo.findOne(uid);
+    if (!group || !target || group.initiator.id != user.id) {
+      throw new HttpException('无权进行操作', 400);
+    }
+
+    if (moment(group.deadline).isBefore()) {
+      throw new HttpException('该拼团已过截止时间', 400);
+    }
+
+    group.joiner.map((i, index) => {
+      if (i.id === uid) {
+        group.joiner.splice(index, 1);
+      }
+    });
+
+    const res = await this.groupOrderRepo.save(group);
+    this.eventEmitter.emit('groupOrder.kick', group, target);
+    return res;
+  }
+
   async cancel(id: number, user: any) {
     const entity = await this.groupOrderRepo.findOne(id);
     const userEntity = await this.userRepo.findOne(user.id);
@@ -205,6 +229,10 @@ export class GroupOrderService {
 
     if (entity.status !== GroupOrderStatus.INIT) {
       throw new HttpException('该拼团已结束', 400);
+    }
+
+    if (moment(entity.deadline).isBefore()) {
+      throw new HttpException('该拼团已过截止时间', 400);
     }
 
     let res;

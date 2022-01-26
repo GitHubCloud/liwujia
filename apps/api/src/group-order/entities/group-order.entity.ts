@@ -59,6 +59,10 @@ export class GroupOrder {
   @ManyToMany(() => Resource, { cascade: true, eager: true })
   images?: Resource[];
 
+  @JoinTable()
+  @ManyToOne(() => Resource, { cascade: true, eager: true })
+  qrcode?: Resource;
+
   @JoinColumn()
   @ManyToOne(() => User, (user) => user.groupOrder, { eager: true })
   initiator: User;
@@ -78,6 +82,8 @@ export class GroupOrder {
   @Column({ default: GroupOrderStatus.INIT })
   status: GroupOrderStatus;
 
+  isOutdated: boolean;
+
   @AfterLoad()
   async afterLoad() {
     this.price = Number(this.price) ? this.price : 0;
@@ -88,5 +94,7 @@ export class GroupOrder {
 
       this.images = [defaultImage];
     }
+
+    this.isOutdated = moment(this.deadline).isBefore();
   }
 }

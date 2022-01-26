@@ -45,6 +45,9 @@ export class User {
   @Column({ nullable: true })
   channel?: string;
 
+  @Column({ nullable: true })
+  mobile?: string;
+
   @CreateDateColumn()
   @Transform((d) => moment(d.value).toDate().getTime())
   createTime: Date;

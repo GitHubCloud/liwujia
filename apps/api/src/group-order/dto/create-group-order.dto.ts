@@ -40,6 +40,10 @@ export class CreateGroupOrderDto {
   @IsExistsInTable('resource', 'id', { message: '图片不存在', each: true })
   images?: Resource[];
 
+  @IsOptional()
+  @IsExistsInTable('resource', 'id', { message: '图片不存在' })
+  qrcode?: Resource;
+
   @ApiHideProperty()
   initiator: User;
 }

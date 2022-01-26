@@ -1,4 +1,5 @@
 import {
+  IsMobilePhone,
   IsNotEmpty,
   IsOptional,
   IsUrl,
@@ -25,6 +26,9 @@ export class CreateUserDto {
 
   @IsOptional()
   channel?: string;
+
+  @IsMobilePhone('zh-CN')
+  mobile?: string;
 
   @ValidateIf((o) => _.isEmpty(o.wechatOpenID))
   @Matches(
