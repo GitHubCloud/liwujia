@@ -81,9 +81,7 @@ export class GroupOrderService {
       ids = await getRepository(GroupOrder)
         .createQueryBuilder('groupOrder')
         .leftJoinAndSelect('groupOrder.joiner', 'joiner')
-        .where(`(status = :status)`, {
-          status: GroupOrderStatus.INIT,
-        })
+        .where(query)
         .groupBy('groupOrder.id')
         .select('groupOrder.id', 'id')
         .addSelect('groupOrder.joinLimit')
@@ -231,6 +229,10 @@ export class GroupOrderService {
 
     if (entity.status !== GroupOrderStatus.INIT) {
       throw new HttpException('该拼团已结束', 400);
+    }
+
+    if (moment(entity.deadline).isBefore()) {
+      throw new HttpException('该拼团已过截止时间', 400);
     }
 
     let res;

@@ -134,7 +134,7 @@ export class EventListener {
               value: messageDto.content,
             },
             thing8: {
-              value: payload.product.content,
+              value: `物品名称: ${payload.product.content}`,
             },
           },
         });
@@ -230,7 +230,7 @@ export class EventListener {
               value: messageDto.content,
             },
             thing8: {
-              value: payload.title,
+              value: `拼团名称: ${payload.title}`,
             },
           },
         });
