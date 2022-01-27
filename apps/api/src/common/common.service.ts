@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from 'nestjs-redis';
+import { inspect } from 'util';
 
 export enum sceneEnum {
   '资料' = '1',
@@ -57,7 +58,7 @@ export class CommonService {
         body,
       )
       .toPromise();
-    console.log({ body, data });
+    console.log(inspect({ body, data }, false, null, true));
   }
 
   async WechatMessageSecurityCheck(scene: sceneEnum, contents: any) {
