@@ -85,13 +85,13 @@ export class EventListener {
         page: 'pages/order/sell/index',
         data: {
           thing1: {
-            value: payload.buyer.nickname,
+            value: payload.buyer.nickname.substring(0, 18),
           },
           time3: {
             value: moment(payload.createTime).format('YYYY年MM月DD日 HH:mm'),
           },
           thing9: {
-            value: payload.product.content,
+            value: payload.product.content.substring(0, 18),
           },
           amount7: {
             value: payload.product.price,
@@ -125,16 +125,16 @@ export class EventListener {
           page: `pages/order/contact/index?id=${payload.id}`,
           data: {
             name1: {
-              value: target.nickname,
+              value: target.nickname.substring(0, 18),
             },
             date3: {
               value: moment(payload.createTime).format('YYYY年MM月DD日 HH:mm'),
             },
             thing2: {
-              value: messageDto.content,
+              value: messageDto.content.substring(0, 18),
             },
             thing8: {
-              value: `物品名称: ${payload.product.content}`,
+              value: `物品名称: ${payload.product.content}`.substring(0, 18),
             },
           },
         });
@@ -221,16 +221,16 @@ export class EventListener {
           page: `pages/group/contact/index?id=${payload.id}`,
           data: {
             name1: {
-              value: sender.nickname,
+              value: sender.nickname.substring(0, 18),
             },
             date3: {
               value: moment().format('YYYY年MM月DD日 HH:mm'),
             },
             thing5: {
-              value: messageDto.content,
+              value: messageDto.content.substring(0, 18),
             },
             thing8: {
-              value: `拼团名称: ${payload.title}`,
+              value: `拼团名称: ${payload.title}`.substring(0, 18),
             },
           },
         });
@@ -255,16 +255,16 @@ export class EventListener {
             page: `pages/group/contact/index?id=${payload.id}`,
             data: {
               name1: {
-                value: sender.nickname,
+                value: sender.nickname.substring(0, 18),
               },
               date3: {
                 value: moment().format('YYYY年MM月DD日 HH:mm'),
               },
               thing5: {
-                value: messageDto.content,
+                value: messageDto.content.substring(0, 18),
               },
               thing8: {
-                value: payload.title,
+                value: `拼团名称: ${payload.title}`.substring(0, 18),
               },
             },
           });
@@ -296,10 +296,10 @@ export class EventListener {
           page: `pages/group/contact/index?id=${payload.id}`,
           data: {
             thing1: {
-              value: payload.initiator.nickname,
+              value: payload.initiator.nickname.substring(0, 18),
             },
             thing2: {
-              value: payload.title,
+              value: payload.title.substring(0, 18),
             },
             time5: {
               value: moment().format('YYYY年MM月DD日 HH:mm'),
@@ -315,10 +315,10 @@ export class EventListener {
             page: `pages/group/contact/index?id=${payload.id}`,
             data: {
               thing1: {
-                value: i.nickname,
+                value: i.nickname.substring(0, 18),
               },
               thing2: {
-                value: payload.title,
+                value: payload.title.substring(0, 18),
               },
               time5: {
                 value: moment().format('YYYY年MM月DD日 HH:mm'),
@@ -369,7 +369,7 @@ export class EventListener {
         page: `/pages/group/contact/index?id=${payload.id}`,
         data: {
           thing1: {
-            value: payload.title,
+            value: payload.title.substring(0, 18),
           },
           time3: {
             value: moment().format('YYYY年MM月DD日 HH:mm'),
@@ -395,7 +395,7 @@ export class EventListener {
           page: `/pages/group/contact/index?id=${payload.id}`,
           data: {
             thing1: {
-              value: payload.title,
+              value: payload.title.substring(0, 18),
             },
             time3: {
               value: moment().format('YYYY年MM月DD日 HH:mm'),
