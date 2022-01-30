@@ -155,7 +155,7 @@ export class StuffService {
       const openLimit = _.get(item, 'detail.openLimit');
       const openExpire = moment(openDate).add(openLimit, 'month');
       let expirationDate = _.get(item, 'detail.expirationDate');
-      if (openExpire.isBefore(expirationDate)) {
+      if (openDate && openLimit && openExpire.isBefore(expirationDate)) {
         expirationDate = openExpire;
       }
 
