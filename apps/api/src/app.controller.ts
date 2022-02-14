@@ -14,6 +14,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RedisService } from 'nestjs-redis';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { getRepository, Repository } from 'typeorm';
 import { Feedback } from './feedback.entity';
@@ -27,7 +28,15 @@ export class AppController {
   constructor(
     @InjectRepository(Feedback)
     private readonly feedbackRepo: Repository<Feedback>,
+    private readonly redisService: RedisService,
   ) {}
+
+  private redisClient = this.redisService.getClient();
+
+  @Get('marquee')
+  async marquee() {
+    return await this.redisClient.lrange('marquee', 0, 100);
+  }
 
   @Post('feedback')
   async feedback(@Req() req, @Body('content') content): Promise<Feedback> {

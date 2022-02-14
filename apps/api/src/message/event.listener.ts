@@ -7,6 +7,7 @@ import { CommonService } from '../common/common.service';
 import { GroupOrder } from '../group-order/entities/group-order.entity';
 import { Order } from '../order/entities/order.entity';
 import { pointEnum, PointService } from '../point/point.service';
+import { Product } from '../product/entities/product.entity';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { MessageService } from './message.service';
 
@@ -35,8 +36,13 @@ export class EventListener {
   }
 
   @OnEvent('product.create')
-  handleProductCreateEvent(payload: User) {
+  handleProductCreateEvent(payload: Product) {
     Logger.log(`Event 'product.create' emitted, id: '${payload.id}'.`);
+
+    this.redisClient.lpush(
+      `marquee`,
+      `"${payload.owner.nickname}"发布了闲置"${payload.content}"`,
+    );
 
     this.pointService.create(payload, pointEnum.productCreate, 'productCreate');
   }
@@ -72,6 +78,11 @@ export class EventListener {
   @OnEvent('order.create')
   handleOrderCreateEvent(payload: Order) {
     Logger.log(`Event 'order.create' emitted, id: '${payload.id}'.`);
+
+    this.redisClient.lpush(
+      `marquee`,
+      `"${payload.buyer.nickname}"想要闲置"${payload.product.content}"`,
+    );
 
     this.messageService.create({
       to: payload.seller.id,
@@ -176,8 +187,13 @@ export class EventListener {
   }
 
   @OnEvent('group.create')
-  handleGroupCreateEvent(payload: User) {
+  handleGroupCreateEvent(payload: User, group: GroupOrder) {
     Logger.log(`Event 'group.create' emitted, id: '${payload.id}'.`);
+
+    this.redisClient.lpush(
+      `marquee`,
+      `"${payload.nickname}"发布了拼团"${group.title}"`,
+    );
 
     this.pointService.create(payload, pointEnum.groupCreate, 'groupCreate');
   }
@@ -279,8 +295,13 @@ export class EventListener {
   }
 
   @OnEvent('groupOrder.join')
-  handleGroupOrderJoinEvent(payload: GroupOrder) {
+  handleGroupOrderJoinEvent(payload: GroupOrder, user: User) {
     Logger.log(`Event 'groupOrder.join' emitted, id: '${payload.id}' .`);
+
+    this.redisClient.lpush(
+      `marquee`,
+      `"${user.nickname}"加入了拼团"${payload.title}"`,
+    );
 
     this.messageService.create({
       to: payload.initiator.id,

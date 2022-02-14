@@ -101,6 +101,8 @@ export class ArticleService {
   }
 
   async findOne(id: number, user?: any): Promise<Article> {
+    await this.articleRepo.increment({ id }, 'view', 1);
+
     const data = await this.articleRepo.findOne(id);
 
     if (user) {

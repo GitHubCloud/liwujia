@@ -38,7 +38,7 @@ export class ProductService {
       this.productRepo.create(createProductDto),
     );
 
-    this.eventEmitter.emit('product.create', product.owner);
+    this.eventEmitter.emit('product.create', product);
 
     return product;
   }

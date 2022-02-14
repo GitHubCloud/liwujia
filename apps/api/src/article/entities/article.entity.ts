@@ -77,6 +77,9 @@ export class Article {
   @Column({ default: 0 })
   collect: number;
 
+  @Column({ default: 0 })
+  view: number;
+
   isCollected: boolean;
   isFavorite: boolean;
 }
