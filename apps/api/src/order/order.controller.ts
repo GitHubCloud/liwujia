@@ -25,6 +25,7 @@ import { In, Not } from 'typeorm';
 import { ProductService } from '../product/product.service';
 import { MessageService } from '../message/message.service';
 import { EventEmitter2 } from 'eventemitter2';
+import { RedisService } from 'nestjs-redis';
 
 @ApiTags('Order')
 @Controller('order')
@@ -36,7 +37,10 @@ export class OrderController {
     private readonly productService: ProductService,
     private readonly messageService: MessageService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly redisService: RedisService,
   ) {}
+
+  private redisClient = this.redisService.getClient();
 
   @Post()
   async create(
@@ -72,8 +76,20 @@ export class OrderController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number): Promise<Order> {
-    return await this.orderService.findOne(id);
+  async findOne(@Req() req, @Param('id') id: number): Promise<Order> {
+    const order = await this.orderService.findOne(id);
+    if (!order) return order;
+
+    if ([(order.seller.id, order.buyer.id)].includes(req.user.id)) {
+      order.notifyUsed = !!(await this.redisClient.hget(
+        `subscribe:orderNotify:${order.id}`,
+        order.seller.id == req.user.id
+          ? order.seller.wechatOpenID
+          : order.buyer.wechatOpenID,
+      ));
+    }
+
+    return order;
   }
 
   @Put(':id/cancel')

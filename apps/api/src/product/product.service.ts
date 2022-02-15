@@ -34,10 +34,11 @@ export class ProductService {
       createProductDto.images = images;
     }
 
-    const product = await this.productRepo.save(
+    const result = await this.productRepo.save(
       this.productRepo.create(createProductDto),
     );
 
+    const product = await this.findOne(result.id);
     this.eventEmitter.emit('product.create', product);
 
     return product;
