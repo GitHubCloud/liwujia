@@ -61,7 +61,7 @@ export class AppController {
       case 'group':
         entity = await this.groupOrderRepo.findOne(id);
         if (entity?.initiator?.id == req.user.id) {
-          targets = [entity?.joiner];
+          targets = entity?.joiner;
           msg = '团长提示您及时关注拼团进程';
         } else {
           targets = [entity?.initiator];
