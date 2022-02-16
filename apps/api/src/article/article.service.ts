@@ -101,7 +101,11 @@ export class ArticleService {
   }
 
   async findOne(id: number, user?: any): Promise<Article> {
-    await this.articleRepo.increment({ id }, 'view', 1);
+    await this.articleRepo.increment(
+      { id },
+      'view',
+      Math.ceil(Math.random() * 5),
+    );
 
     const data = await this.articleRepo.findOne(id);
 
@@ -159,7 +163,11 @@ export class ArticleService {
         user: user.id,
         article: article.id,
       });
-      await this.articleRepo.increment({ id }, 'favorite', 1);
+      await this.articleRepo.increment(
+        { id },
+        'favorite',
+        Math.ceil(Math.random() * 5),
+      );
     } else {
       await this.favoriteService.remove(exists.id);
       await this.articleRepo.decrement({ id }, 'favorite', 1);

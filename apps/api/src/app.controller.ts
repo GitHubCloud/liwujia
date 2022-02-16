@@ -18,6 +18,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { RedisService } from 'nestjs-redis';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { getRepository, Repository } from 'typeorm';
+import { MessageService } from './message/message.service';
+import { CreateMessageDto } from './message/dto/create-message.dto';
 import { CommonService } from './common/common.service';
 import { Feedback } from './feedback.entity';
 import { GroupOrder } from './group-order/entities/group-order.entity';
@@ -39,6 +41,7 @@ export class AppController {
     private readonly orderRepo: Repository<Order>,
     private readonly redisService: RedisService,
     private readonly commonService: CommonService,
+    private readonly messageService: MessageService,
   ) {}
 
   private redisClient = this.redisService.getClient();
@@ -85,9 +88,6 @@ export class AppController {
         break;
     }
 
-    console.log(
-      require('util').inspect({ entity, targets }, false, null, true),
-    );
     if (_.isEmpty(sender) || _.isEmpty(entity) || _.isEmpty(targets)) {
       throw new HttpException('没有可以提醒的对象', 400);
     }
@@ -117,6 +117,12 @@ export class AppController {
         },
       });
     });
+
+    const messageDto = new CreateMessageDto();
+    messageDto['from'] = sender.id;
+    messageDto[type] = id;
+    messageDto['content'] = '系统消息：发起了取货提醒';
+    await this.messageService.create(messageDto, req.user);
   }
 
   @Post('feedback')
