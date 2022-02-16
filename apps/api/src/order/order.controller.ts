@@ -80,12 +80,12 @@ export class OrderController {
     const order = await this.orderService.findOne(id);
     if (!order) return order;
 
-    if ([(order.seller.id, order.buyer.id)].includes(req.user.id)) {
+    if ([order?.seller?.id, order?.buyer?.id].includes(req.user.id)) {
       order.notifyUsed = !!(await this.redisClient.hget(
         `subscribe:orderNotify:${order.id}`,
-        order.seller.id == req.user.id
-          ? order.seller.wechatOpenID
-          : order.buyer.wechatOpenID,
+        order?.seller?.id == req.user.id
+          ? order?.seller?.wechatOpenID
+          : order?.buyer?.wechatOpenID,
       ));
     }
 
