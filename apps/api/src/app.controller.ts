@@ -120,7 +120,7 @@ export class AppController {
 
     const messageDto = new CreateMessageDto();
     messageDto['from'] = sender.id;
-    messageDto[type] = id;
+    messageDto[type == 'group' ? 'groupOrder' : 'order'] = id;
     messageDto['content'] = '系统消息：发起了取货提醒';
     await this.messageService.create(messageDto, req.user);
   }
