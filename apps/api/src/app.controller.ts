@@ -103,19 +103,31 @@ export class AppController {
       1,
     );
     targets.map(async (target) => {
-      this.commonService.sendSubscribeMessage({
-        touser: target.wechatOpenID,
-        template_id: '7EH3_iuPNBcmjT8eVS86-55SyGkY35LLNmmoevzvtzs',
-        page: `pages/${type}/contact/index?id=${entity.id}`,
-        data: {
-          thing3: {
-            value: entity?.product?.content || entity?.title,
+      const isReceived = await this.redisClient.hget(
+        `subscribe:${type}NotifyReceived:${entity.id}`,
+        target.wechatOpenID,
+      );
+
+      if (!isReceived) {
+        this.commonService.sendSubscribeMessage({
+          touser: target.wechatOpenID,
+          template_id: '7EH3_iuPNBcmjT8eVS86-55SyGkY35LLNmmoevzvtzs',
+          page: `pages/${type}/contact/index?id=${entity.id}`,
+          data: {
+            thing3: {
+              value: entity?.product?.content || entity?.title,
+            },
+            thing5: {
+              value: msg,
+            },
           },
-          thing5: {
-            value: msg,
-          },
-        },
-      });
+        });
+        await this.redisClient.hset(
+          `subscribe:${type}NotifyReceived:${entity.id}`,
+          target.wechatOpenID,
+          1,
+        );
+      }
     });
 
     const messageDto = new CreateMessageDto();

@@ -90,25 +90,37 @@ export class EventListener {
       order: payload.id,
     });
     if (payload.seller.wechatOpenID) {
-      this.commonService.sendSubscribeMessage({
-        touser: payload.seller.wechatOpenID,
-        template_id: 'Tfu-OZnetf6LyJ-QbWAaGKMyi4WeJb6o1LJQSvX1MNs',
-        page: 'pages/order/sell/index',
-        data: {
-          thing1: {
-            value: payload.buyer.nickname,
+      const isPushed = this.redisClient.hget(
+        `subscribe:productOrder:${payload.product.id}`,
+        payload.seller.wechatOpenID,
+      );
+
+      if (!isPushed) {
+        this.commonService.sendSubscribeMessage({
+          touser: payload.seller.wechatOpenID,
+          template_id: 'Tfu-OZnetf6LyJ-QbWAaGKMyi4WeJb6o1LJQSvX1MNs',
+          page: 'pages/order/sell/index',
+          data: {
+            thing1: {
+              value: payload.buyer.nickname,
+            },
+            time3: {
+              value: moment(payload.createTime).format('YYYY年MM月DD日 HH:mm'),
+            },
+            thing9: {
+              value: payload.product.content,
+            },
+            amount7: {
+              value: payload.product.price,
+            },
           },
-          time3: {
-            value: moment(payload.createTime).format('YYYY年MM月DD日 HH:mm'),
-          },
-          thing9: {
-            value: payload.product.content,
-          },
-          amount7: {
-            value: payload.product.price,
-          },
-        },
-      });
+        });
+        this.redisClient.hset(
+          `subscribe:productOrder:${payload.product.id}`,
+          payload.seller.wechatOpenID,
+          1,
+        );
+      }
     }
   }
 

@@ -215,7 +215,7 @@ export class OrderController {
       id,
       status: OrderStatus.DELIVERED,
     });
-    if (!order || req.user.id !== order.seller.id) {
+    if (!order || ![order.buyer.id, order.seller.id].includes(req.user.id)) {
       throw new HttpException('无权进行操作', HttpStatus.BAD_REQUEST);
     }
 
@@ -225,7 +225,10 @@ export class OrderController {
 
     this.messageService.create({
       to: order.buyer.id,
-      content: '卖家标记订单已完成',
+      content:
+        req.user.id == order.buyer.id
+          ? '买家确认订单已完成'
+          : '卖家确认订单已完成',
       order: order.id,
     });
 
