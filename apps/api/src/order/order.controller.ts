@@ -215,6 +215,12 @@ export class OrderController {
       id,
       status: OrderStatus.DELIVERED,
     });
+
+    console.log({
+      user: [order.buyer.id, order.seller.id],
+      id: req.user.id,
+    });
+
     if (
       !order ||
       ![order.buyer.id, order.seller.id].includes(Number(req.user.id))
