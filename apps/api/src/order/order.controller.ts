@@ -215,7 +215,10 @@ export class OrderController {
       id,
       status: OrderStatus.DELIVERED,
     });
-    if (!order || ![order.buyer.id, order.seller.id].includes(req.user.id)) {
+    if (
+      !order ||
+      ![order.buyer.id, order.seller.id].includes(Number(req.user.id))
+    ) {
       throw new HttpException('无权进行操作', HttpStatus.BAD_REQUEST);
     }
 

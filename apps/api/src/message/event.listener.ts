@@ -95,6 +95,10 @@ export class EventListener {
         payload.seller.wechatOpenID,
       );
 
+      console.log(
+        require('util').insepect({ payload, isPushed }, false, null, true),
+      );
+
       if (!isPushed) {
         this.commonService.sendSubscribeMessage({
           touser: payload.seller.wechatOpenID,
