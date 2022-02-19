@@ -76,7 +76,7 @@ export class EventListener {
   }
 
   @OnEvent('order.create')
-  handleOrderCreateEvent(payload: Order) {
+  async handleOrderCreateEvent(payload: Order) {
     Logger.log(`Event 'order.create' emitted, id: '${payload.id}'.`);
 
     this.redisClient.lpush(
@@ -90,15 +90,11 @@ export class EventListener {
       order: payload.id,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    console.log(require('util').inspect({ payload }, false, null, true));
     if (payload.seller.wechatOpenID) {
-      const isPushed = this.redisClient.hget(
+      const isPushed = await this.redisClient.hget(
         `subscribe:productOrder:${payload.product.id}`,
         payload.seller.wechatOpenID,
       );
-
-      console.log(require('util').inspect({ isPushed }, false, null, true));
 
       if (!isPushed) {
         this.commonService.sendSubscribeMessage({
