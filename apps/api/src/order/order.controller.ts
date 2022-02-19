@@ -232,8 +232,26 @@ export class OrderController {
     this.eventEmitter.emit('product.sold', order.seller);
     this.eventEmitter.emit('product.bought', order.buyer);
 
+    // 将其他未进行的订单关闭
+    const orders = await this.orderService.find({
+      id: Not(order.id),
+      product: order.product,
+      status: Not(OrderStatus.CANCELED),
+    });
+    orders.map((i) => {
+      this.messageService.create({
+        to: i.buyer.id,
+        content: '卖家已和其他买家达成交易',
+        order: i.id,
+      });
+    });
+    await this.orderService.update(
+      { id: In(orders.map((i) => i.id)) },
+      { status: OrderStatus.CANCELED },
+    );
+
     this.messageService.create({
-      to: order.buyer.id,
+      to: req.user.id == order.buyer.id ? order.seller.id : order.buyer.id,
       content:
         req.user.id == order.buyer.id
           ? '买家确认订单已完成'
