@@ -213,7 +213,12 @@ export class OrderController {
   async complete(@Req() req, @Param('id') id: number) {
     const order = await this.orderService.findOne({
       id,
-      status: OrderStatus.DELIVERED,
+      // 买家选择后双方都可以直接点击完成交易
+      status: In([
+        OrderStatus.ONGOING,
+        OrderStatus.DELIVERED,
+        OrderStatus.RECEIVED,
+      ]),
     });
 
     if (
