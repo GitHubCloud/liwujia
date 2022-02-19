@@ -89,15 +89,16 @@ export class EventListener {
       content: '您的订单有新的买家',
       order: payload.id,
     });
+
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    console.log(require('util').inspect({ payload }, false, null, true));
     if (payload.seller.wechatOpenID) {
       const isPushed = this.redisClient.hget(
         `subscribe:productOrder:${payload.product.id}`,
         payload.seller.wechatOpenID,
       );
 
-      console.log(
-        require('util').insepect({ payload, isPushed }, false, null, true),
-      );
+      console.log(require('util').inspect({ isPushed }, false, null, true));
 
       if (!isPushed) {
         this.commonService.sendSubscribeMessage({
