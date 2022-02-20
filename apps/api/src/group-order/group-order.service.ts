@@ -35,7 +35,7 @@ export class GroupOrderService {
     }
 
     const entity = await this.groupOrderRepo.save(createGroupOrderDto);
-    this.eventEmitter.emit('group.create', entity.initiator);
+    this.eventEmitter.emit('group.create', entity.initiator, entity);
 
     return entity;
   }
@@ -190,7 +190,7 @@ export class GroupOrderService {
     entity.joiner.push(userEntity);
     const res = await this.groupOrderRepo.save(entity);
 
-    this.eventEmitter.emit('groupOrder.join', entity);
+    this.eventEmitter.emit('groupOrder.join', entity, userEntity);
     if (entity.joiner.length >= entity.joinLimit) {
       this.eventEmitter.emit('groupOrder.full', entity);
     }

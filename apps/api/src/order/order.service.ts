@@ -50,9 +50,13 @@ export class OrderService {
     });
 
     let result: Order = null;
-    if (exists && exists.status === OrderStatus.CANCELED) {
-      exists.status = OrderStatus.INIT;
-      result = await this.orderRepo.save(exists);
+    if (exists) {
+      if (exists.status === OrderStatus.CANCELED) {
+        exists.status = OrderStatus.INIT;
+        result = await this.orderRepo.save(exists);
+      } else {
+        throw new HttpException('有交易正在进行', 400);
+      }
     } else {
       result = await this.orderRepo.save(this.orderRepo.create(createOrderDto));
     }

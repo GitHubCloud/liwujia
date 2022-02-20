@@ -26,6 +26,7 @@ import { CommonService, sceneEnum } from '../common/common.service';
 import { CommentService } from '../comment/comment.service';
 import { Comment } from '../comment/entities/comment.entity';
 import { Like } from 'typeorm';
+import { RedisService } from 'nestjs-redis';
 
 @ApiTags('GroupOrder')
 @Controller('group-order')
@@ -36,7 +37,10 @@ export class GroupOrderController {
     private readonly groupOrderService: GroupOrderService,
     private readonly commentService: CommentService,
     private readonly commonService: CommonService,
+    private readonly redisService: RedisService,
   ) {}
+
+  private redisClient = this.redisService.getClient();
 
   @Post()
   async create(
@@ -64,7 +68,23 @@ export class GroupOrderController {
 
   @Get(':id')
   async findOne(@Req() req, @Param('id') id: number): Promise<GroupOrder> {
-    return this.groupOrderService.findOne(id);
+    const group = await this.groupOrderService.findOne(id);
+    if (!group) return group;
+
+    if (
+      [...group.joiner.map((i) => i.id), group.initiator.id].includes(
+        req.user.id,
+      )
+    ) {
+      group.notifyUsed = !!(await this.redisClient.hget(
+        `subscribe:groupNotify:${group.id}`,
+        group.initiator.id == req.user.id
+          ? group.initiator.wechatOpenID
+          : group.joiner.find((i) => i.id == req.user.id).wechatOpenID,
+      ));
+    }
+
+    return group;
   }
 
   @Put(':id')

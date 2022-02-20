@@ -164,7 +164,7 @@ export class MessageService {
         this.redisClient.set(`message:groupOrder:${user.id}`, 0);
       }
     }
-    queryBuilder.orderBy('message.id', 'DESC');
+    queryBuilder.orderBy('message.id', 'DESC').groupBy('message.id');
 
     return await paginate(queryBuilder, { page, limit });
   }

@@ -24,6 +24,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ScheduleService } from './schedule/schedule.service';
 import { AppController } from './app.controller';
 import { Feedback } from './feedback.entity';
+import { Order } from './order/entities/order.entity';
+import { GroupOrder } from './group-order/entities/group-order.entity';
 
 @Module({
   imports: [
@@ -73,7 +75,7 @@ import { Feedback } from './feedback.entity';
     CommonModule,
     PointModule,
     GroupOrderModule,
-    TypeOrmModule.forFeature([Feedback]),
+    TypeOrmModule.forFeature([Feedback, GroupOrder, Order]),
   ],
   providers: [ScheduleService],
   controllers: [AppController],

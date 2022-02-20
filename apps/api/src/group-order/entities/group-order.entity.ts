@@ -83,6 +83,7 @@ export class GroupOrder {
   status: GroupOrderStatus;
 
   isOutdated: boolean;
+  notifyUsed: boolean;
 
   @AfterLoad()
   async afterLoad() {

@@ -39,4 +39,5 @@ export class Order {
   createTime: Date;
 
   buyers: any;
+  notifyUsed: boolean;
 }
