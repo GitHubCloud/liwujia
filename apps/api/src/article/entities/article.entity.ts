@@ -28,7 +28,7 @@ export class Article {
   @Column('enum', { enum: ArticleTypes })
   type: ArticleTypes;
 
-  @Column('enum', { enum: SectionTypes })
+  @Column('enum', { enum: SectionTypes, nullable: true })
   sectionType: SectionTypes;
 
   @Column({ nullable: true })
