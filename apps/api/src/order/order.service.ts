@@ -96,11 +96,13 @@ export class OrderService {
         break;
       case OrderRoles.SELLER:
         query['seller'] = user.id;
-        queryBuilder.groupBy('order.product');
         break;
     }
 
-    queryBuilder.where(query).orderBy('order.id', 'DESC');
+    queryBuilder
+      .groupBy('order.product')
+      .where(query)
+      .orderBy('order.id', 'DESC');
 
     const pagination = await paginate(queryBuilder, { page, limit });
 
