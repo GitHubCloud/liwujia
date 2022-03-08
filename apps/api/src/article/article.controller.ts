@@ -58,6 +58,7 @@ export class ArticleController {
   async paginate(
     @Req() req,
     @Query('type') type: string,
+    @Query('sectionType') sectionType: string,
     @Query('author') author: number,
     @Query('search') search: string,
     @Query('withDeleted') withDeleted: boolean,
@@ -65,6 +66,7 @@ export class ArticleController {
   ): Promise<Pagination<Article>> {
     paginationDto.query = {};
     if (type) paginationDto.query['type'] = type;
+    if (sectionType) paginationDto.query['sectionType'] = sectionType;
     if (author) paginationDto.query['author'] = author;
     if (search) paginationDto.query['title'] = Like(`%${search}%`);
 
