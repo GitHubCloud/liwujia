@@ -6,6 +6,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Transform } from 'class-transformer';
@@ -14,6 +15,7 @@ import { User } from 'apps/api/src/user/entities/user.entity';
 import { Article } from 'apps/api/src/article/entities/article.entity';
 import { Product } from '../../product/entities/product.entity';
 import { GroupOrder } from '../../group-order/entities/group-order.entity';
+import { Resource } from '../../resource/entities/resource.entity';
 
 @Entity()
 export class Comment {
@@ -22,6 +24,10 @@ export class Comment {
 
   @Column()
   content: string;
+
+  @JoinColumn()
+  @OneToOne(() => Resource, { eager: true })
+  image?: Resource;
 
   @JoinColumn()
   @ManyToOne(() => User, (user) => user.comments, { eager: true })

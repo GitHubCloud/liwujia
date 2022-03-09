@@ -89,6 +89,7 @@ export class CommentService {
 
     const queryBuilder = getRepository(Comment)
       .createQueryBuilder('comment')
+      .leftJoinAndSelect('comment.image', 'image')
       .leftJoinAndSelect('comment.author', 'author');
 
     if (query) {
