@@ -115,7 +115,10 @@ export class AppController {
           page: `pages/${type}/contact/index?id=${entity.id}`,
           data: {
             thing3: {
-              value: entity?.product?.content || entity?.title,
+              value: (entity?.product?.content || entity?.title).substring(
+                0,
+                16,
+              ),
             },
             thing5: {
               value: msg,
