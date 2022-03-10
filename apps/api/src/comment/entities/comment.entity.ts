@@ -22,8 +22,8 @@ export class Comment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  content: string;
+  @Column({ nullable: true })
+  content?: string;
 
   @JoinColumn()
   @OneToOne(() => Resource, { eager: true })
