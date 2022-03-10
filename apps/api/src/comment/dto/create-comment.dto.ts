@@ -4,7 +4,7 @@ import { IsExistsInTable } from '../../custom.decorator';
 import { Resource } from '../../resource/entities/resource.entity';
 
 export class CreateCommentDto {
-  @ValidateIf((o) => o.image) // 有图片无须内容
+  @ValidateIf((o) => !o.image) // 有图片无须内容
   @IsNotEmpty({ message: '内容不能为空' })
   content?: string;
 
