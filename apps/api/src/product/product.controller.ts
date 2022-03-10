@@ -96,9 +96,11 @@ export class ProductController {
     createCommentDto.product = id;
     createCommentDto.author = req.user.id;
 
-    await this.commonService.WechatMessageSecurityCheck(sceneEnum.评论, {
-      content: createCommentDto.content,
-    });
+    if (createCommentDto.content) {
+      await this.commonService.WechatMessageSecurityCheck(sceneEnum.评论, {
+        content: createCommentDto.content,
+      });
+    }
 
     return await this.commentService.create(createCommentDto);
   }
