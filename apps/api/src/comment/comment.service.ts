@@ -94,6 +94,7 @@ export class CommentService {
 
     if (query) {
       queryBuilder.leftJoinAndSelect('comment.replys', 'replys');
+      queryBuilder.leftJoinAndSelect('replys.image', 'replysImage');
       queryBuilder.leftJoinAndSelect(
         'replys.author',
         'replys.author',
