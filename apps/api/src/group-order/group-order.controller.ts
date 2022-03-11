@@ -109,10 +109,11 @@ export class GroupOrderController {
     createCommentDto.groupOrder = id;
     createCommentDto.author = req.user.id;
 
-    await this.commonService.WechatMessageSecurityCheck(sceneEnum.评论, {
-      content: createCommentDto.content,
-    });
-
+    if (createCommentDto.content) {
+      await this.commonService.WechatMessageSecurityCheck(sceneEnum.评论, {
+        content: createCommentDto.content,
+      });
+    }
     return this.commentService.create(createCommentDto);
   }
 
