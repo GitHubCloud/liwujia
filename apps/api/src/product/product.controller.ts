@@ -54,10 +54,12 @@ export class ProductController {
     @Query('owner') owner?: number,
     @Query('isSold') isSold?: boolean,
     @Query('search') search?: string,
+    @Query('category') category?: string,
   ): Promise<Pagination<Product>> {
     paginationDto.query = {};
     if (owner) paginationDto.query['owner'] = owner;
     if (search) paginationDto.query['content'] = Like(`%${search}%`);
+    if (category) paginationDto.query['category'] = category;
     paginationDto.query['isSold'] = !!isSold;
 
     return this.productService.paginate(paginationDto, req.user);
