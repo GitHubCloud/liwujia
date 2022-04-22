@@ -22,7 +22,7 @@ export class Article {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'text' })
   title: string;
 
   @Column('enum', { enum: ArticleTypes })
