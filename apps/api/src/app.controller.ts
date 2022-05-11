@@ -30,7 +30,6 @@ import * as _ from 'lodash';
 @ApiTags('App')
 @Controller('/')
 @UseInterceptors(ClassSerializerInterceptor)
-@UseGuards(AuthGuard('jwt'))
 export class AppController {
   constructor(
     @InjectRepository(Feedback)
@@ -46,12 +45,19 @@ export class AppController {
 
   private redisClient = this.redisService.getClient();
 
+  @Get()
+  async home() {
+    return '<h1>理物加</h1><br><a href="https://beian.miit.gov.cn/" target="_blank">沪ICP备2021015643号-1</a>';
+  }
+
   @Get('marquee')
+  @UseGuards(AuthGuard('jwt'))
   async marquee() {
     return await this.redisClient.lrange('marquee', 0, 100);
   }
 
   @Put('notify')
+  @UseGuards(AuthGuard('jwt'))
   async notify(
     @Req() req,
     @Body('id') id: number,
@@ -138,6 +144,7 @@ export class AppController {
   }
 
   @Post('feedback')
+  @UseGuards(AuthGuard('jwt'))
   async feedback(@Req() req, @Body('content') content): Promise<Feedback> {
     return await this.feedbackRepo.save({
       creator: req.user.id,
@@ -146,6 +153,7 @@ export class AppController {
   }
 
   @Get('feedback')
+  @UseGuards(AuthGuard('jwt'))
   async getMyFeedbacks(
     @Req() req,
     @Query() paginationDto: PaginationDto,
@@ -163,6 +171,7 @@ export class AppController {
   }
 
   @Get('feedback/all')
+  @UseGuards(AuthGuard('jwt'))
   async getFeedbacks(
     @Req() req,
     @Query() paginationDto: PaginationDto,
@@ -179,6 +188,7 @@ export class AppController {
   }
 
   @Put('feedback/:id')
+  @UseGuards(AuthGuard('jwt'))
   async response(
     @Req() req,
     @Param('id') id: number,
