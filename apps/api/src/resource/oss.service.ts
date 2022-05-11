@@ -4,13 +4,12 @@ import * as ObsClient from 'esdk-obs-nodejs';
 import * as OssClient from 'ali-oss';
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import path from 'path';
 
 @Injectable()
 export class OssService {
   constructor(private readonly configService: ConfigService) {}
 
-  async uploadHuawei(
+  async upload(
     file: { originalname: string; filename: any; path: any },
     dest = 'public',
   ) {
@@ -39,7 +38,7 @@ export class OssService {
     return storePath;
   }
 
-  async upload(
+  async uploadAli(
     file: { originalname: string; filename: any; path: any },
     dest = 'public',
   ) {
