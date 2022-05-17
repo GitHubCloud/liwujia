@@ -22,7 +22,7 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="版块">
-        <el-radio-group v-model="form.type">
+        <el-radio-group v-model="form.sectionType">
           <el-radio-button label="1">便民信息</el-radio-button>
           <el-radio-button label="2">小区活动</el-radio-button>
           <el-radio-button label="3">邻里互助</el-radio-button>
@@ -162,6 +162,7 @@ export default {
       const data = {
         title: this.form.title,
         type: this.form.type,
+        sectionType: this.form.sectionType,
         content: this.form.content,
       };
       if (this.fileList) {
@@ -187,6 +188,7 @@ export default {
       const data = {
         title: this.form.title,
         type: this.form.type,
+        sectionType: this.form.sectionType,
         content: this.form.content,
       };
       if (this.fileList) {
@@ -256,10 +258,11 @@ export default {
         method: 'get',
       });
       if (res.statusCode == 200) {
-        const { title, type, content, images } = res.data;
+        const { title, type, sectionType, content, images } = res.data;
         this.form = {
           title,
           type,
+          sectionType,
           content,
         };
         this.fileList = images;
