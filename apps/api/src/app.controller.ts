@@ -47,6 +47,7 @@ export class AppController {
 
   @Get()
   async home() {
+    await this.commonService.updateSubscriber();
     return '<h1>理物加</h1><br><a href="https://beian.miit.gov.cn/" target="_blank">沪ICP备2021015643号-1</a>';
   }
 
