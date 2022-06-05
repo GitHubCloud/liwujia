@@ -42,6 +42,12 @@ export class User {
   @Column({ nullable: true, unique: true })
   wechatOpenID?: string;
 
+  @Column({ nullable: true, unique: true })
+  officialOpenID?: string;
+
+  @Column({ nullable: true, unique: true })
+  unionid?: string;
+
   @Column({ nullable: true })
   channel?: string;
 

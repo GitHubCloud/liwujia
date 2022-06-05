@@ -1,12 +1,15 @@
 import {
   BadRequestException,
+  forwardRef,
   HttpService,
+  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from 'nestjs-redis';
 import { inspect } from 'util';
+import { UserService } from '../user/user.service';
 
 export enum sceneEnum {
   '资料' = '1',
@@ -15,22 +18,33 @@ export enum sceneEnum {
   '社交日志' = '4',
 }
 
+export enum wechatType {
+  'mini',
+  'official',
+}
+
 @Injectable()
 export class CommonService {
   constructor(
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     private readonly redisService: RedisService,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
   ) {}
 
   private readonly logger = new Logger('Common');
   private readonly redisClient = this.redisService.getClient();
 
-  async getWechatAccessToken() {
-    const APPID = this.configService.get('WECHAT_APPID');
-    const SECRET = this.configService.get('WECHAT_SECRET');
+  async getWechatAccessToken(type = wechatType.mini) {
+    let APPID = this.configService.get('WECHAT_APPID');
+    let SECRET = this.configService.get('WECHAT_SECRET');
+    if (type == wechatType.official) {
+      APPID = this.configService.get('OFFICIAL_WECHAT_APPID');
+      SECRET = this.configService.get('OFFICIAL_WECHAT_SECRET');
+    }
 
-    let accessToken = await this.redisClient.get('wechat:accessToken');
+    let accessToken = await this.redisClient.get(`wechat:${type}:accessToken`);
     if (!accessToken) {
       const { data: tokenResult } = await this.httpService
         .get(
@@ -42,8 +56,8 @@ export class CommonService {
         throw new BadRequestException('Unable to get access_token.');
       }
       accessToken = tokenResult.access_token;
-      await this.redisClient.set('wechat:accessToken', accessToken);
-      await this.redisClient.expire('wechat:accessToken', 600);
+      await this.redisClient.set(`wechat:${type}:accessToken`, accessToken);
+      await this.redisClient.expire(`wechat:${type}:accessToken`, 600);
     }
 
     return accessToken;
@@ -81,5 +95,43 @@ export class CommonService {
     }
 
     return true;
+  }
+
+  async updateSubscriber(next_openid = '') {
+    const accessToken = await this.getWechatAccessToken(wechatType.official);
+
+    const { data } = await this.httpService
+      .get(
+        `https://api.weixin.qq.com/cgi-bin/user/get?access_token=${accessToken}&next_openid=${next_openid}`,
+      )
+      .toPromise();
+    if (!data?.count) return;
+
+    for await (const openid of data?.data?.openid) {
+      const { data: userData } = await this.httpService
+        .get(
+          `https://api.weixin.qq.com/cgi-bin/user/info?access_token=${accessToken}&openid=${openid}`,
+        )
+        .toPromise();
+
+      await this.userService.updateByUnionID(userData.unionid, {
+        officialOpenID: openid,
+      });
+    }
+
+    await this.updateSubscriber(data.next_openid);
+  }
+
+  async sendTemplateMessage(body) {
+    if (!body.touser) return false;
+    const accessToken = await this.getWechatAccessToken(wechatType.official);
+
+    const { data } = await this.httpService
+      .post(
+        `https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=${accessToken}`,
+        body,
+      )
+      .toPromise();
+    console.log(inspect({ body, data }, false, null, true));
   }
 }

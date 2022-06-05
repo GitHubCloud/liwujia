@@ -9,6 +9,7 @@ import {
 import passport, { StrategyCreated, StrategyCreatedStatic } from 'passport';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '../user/user.service';
+import { CommonService } from '../common/common.service';
 
 // define strategy
 class Strategy implements passport.Strategy {
@@ -67,6 +68,7 @@ export class MiniProgramStrategy extends PassportStrategy(Strategy) {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly userService: UserService,
+    private readonly commonService: CommonService,
   ) {
     super();
   }
@@ -95,9 +97,17 @@ export class MiniProgramStrategy extends PassportStrategy(Strategy) {
     if (!exists) {
       exists = await this.userService.create({
         wechatOpenID: data.openid,
+        unionid: data.unionid,
         channel,
       });
       exists.isNewbie = true;
+    }
+
+    if (exists && !exists.unionid) {
+      await this.userService.update(exists.id, {
+        unionid: data.unionid,
+      });
+      exists.unionid = data.unionid;
     }
 
     return {

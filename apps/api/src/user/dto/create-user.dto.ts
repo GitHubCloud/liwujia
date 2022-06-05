@@ -25,6 +25,12 @@ export class CreateUserDto {
   wechatOpenID?: string;
 
   @IsOptional()
+  officialOpenID?: string;
+
+  @IsOptional()
+  unionid?: string;
+
+  @IsOptional()
   channel?: string;
 
   @IsMobilePhone('zh-CN')

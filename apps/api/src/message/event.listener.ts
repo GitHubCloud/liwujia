@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { User } from 'apps/api/src/user/entities/user.entity';
 import * as moment from 'moment';
@@ -18,6 +19,7 @@ export class EventListener {
     private readonly pointService: PointService,
     private readonly commonService: CommonService,
     private readonly redisService: RedisService,
+    private readonly configService: ConfigService,
   ) {}
 
   private redisClient = this.redisService.getClient();
@@ -162,6 +164,37 @@ export class EventListener {
             },
           },
         });
+        this.commonService.sendTemplateMessage({
+          touser: target.officialOpenID,
+          template_id: 'KUUl3n88fRvhvXKrSn1NJ32vQIc8sbuybej-3sr7UW4',
+          miniprogram: {
+            appid: this.configService.get('WECHAT_APPID'),
+            pagepath: `pages/order/contact/index?id=${payload.id}`,
+          },
+          topcolor: '#FF0000',
+          data: {
+            first: {
+              value: target.nickname.substring(0, 16),
+              color: '#173177',
+            },
+            keyword1: {
+              value: moment(payload.createTime).format('YYYY年MM月DD日 HH:mm'),
+              color: '#173177',
+            },
+            keyword2: {
+              value: `${payload.product.content}`.substring(0, 16),
+              color: '#173177',
+            },
+            keyword3: {
+              value: moment(payload.createTime).format('YYYY年MM月DD日 HH:mm'),
+              color: '#173177',
+            },
+            remark: {
+              value: messageDto.content.substring(0, 16),
+              color: '#173177',
+            },
+          },
+        });
         await this.redisClient.hset(
           `subscribe:orderMessage:${payload.id}`,
           target.wechatOpenID,
@@ -263,6 +296,37 @@ export class EventListener {
             },
           },
         });
+        this.commonService.sendTemplateMessage({
+          touser: payload.initiator.officialOpenID,
+          template_id: 'KUUl3n88fRvhvXKrSn1NJ32vQIc8sbuybej-3sr7UW4',
+          miniprogram: {
+            appid: this.configService.get('WECHAT_APPID'),
+            pagepath: `pages/group/contact/index?id=${payload.id}`,
+          },
+          topcolor: '#FF0000',
+          data: {
+            first: {
+              value: payload.initiator.nickname.substring(0, 16),
+              color: '#173177',
+            },
+            keyword1: {
+              value: moment(payload.createTime).format('YYYY年MM月DD日 HH:mm'),
+              color: '#173177',
+            },
+            keyword2: {
+              value: `${payload.title}`.substring(0, 16),
+              color: '#173177',
+            },
+            keyword3: {
+              value: moment(payload.createTime).format('YYYY年MM月DD日 HH:mm'),
+              color: '#173177',
+            },
+            remark: {
+              value: messageDto.content.substring(0, 16),
+              color: '#173177',
+            },
+          },
+        });
         await this.redisClient.hset(
           `subscribe:groupMessage:${payload.id}`,
           payload.initiator.wechatOpenID,
@@ -340,10 +404,41 @@ export class EventListener {
             },
           },
         });
+        this.commonService.sendTemplateMessage({
+          touser: payload.initiator.officialOpenID,
+          template_id: 'ABaonbk_ou1hG9Fwc1Mg7QfmqoWAIxowm5j6EtEH-UM',
+          miniprogram: {
+            appid: this.configService.get('WECHAT_APPID'),
+            pagepath: `pages/group/contact/index?id=${payload.id}`,
+          },
+          topcolor: '#FF0000',
+          data: {
+            first: {
+              value: payload.initiator.nickname.substring(0, 16),
+              color: '#173177',
+            },
+            keyword1: {
+              value: payload.title.substring(0, 16),
+              color: '#173177',
+            },
+            keyword2: {
+              value: payload.joiner.length,
+              color: '#173177',
+            },
+            keyword3: {
+              value: moment().format('YYYY年MM月DD日 HH:mm'),
+              color: '#173177',
+            },
+            remark: {
+              value: '',
+              color: '#173177',
+            },
+          },
+        });
       }
       payload.joiner.map((i) => {
         if (i.wechatOpenID) {
-          this.commonService.sendSubscribeMessage({
+          this.commonService.sendTemplateMessage({
             touser: i.wechatOpenID,
             template_id: 'ZfvL1Iwwn9lk0RT1vYwIa7IJmblcbiyvAyiS4WoApok',
             page: `pages/group/contact/index?id=${payload.id}`,
@@ -356,6 +451,37 @@ export class EventListener {
               },
               time5: {
                 value: moment().format('YYYY年MM月DD日 HH:mm'),
+              },
+            },
+          });
+          this.commonService.sendSubscribeMessage({
+            touser: i.officialOpenID,
+            template_id: 'ABaonbk_ou1hG9Fwc1Mg7QfmqoWAIxowm5j6EtEH-UM',
+            miniprogram: {
+              appid: this.configService.get('WECHAT_APPID'),
+              pagepath: `pages/group/contact/index?id=${payload.id}`,
+            },
+            topcolor: '#FF0000',
+            data: {
+              first: {
+                value: payload.initiator.nickname.substring(0, 16),
+                color: '#173177',
+              },
+              keyword1: {
+                value: payload.title.substring(0, 16),
+                color: '#173177',
+              },
+              keyword2: {
+                value: payload.joiner.length,
+                color: '#173177',
+              },
+              keyword3: {
+                value: moment().format('YYYY年MM月DD日 HH:mm'),
+                color: '#173177',
+              },
+              remark: {
+                value: '',
+                color: '#173177',
               },
             },
           });

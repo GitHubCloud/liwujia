@@ -61,4 +61,15 @@ export class UserService {
 
     return await this.userRepo.update(id, updateUserDto);
   }
+
+  async updateByUnionID(unionid: string, updateUserDto: UpdateUserDto) {
+    if (updateUserDto.biography) {
+      await this.commonService.WechatMessageSecurityCheck(sceneEnum.资料, {
+        content: updateUserDto.biography,
+        signature: updateUserDto.biography,
+      });
+    }
+
+    return await this.userRepo.update({ unionid }, updateUserDto);
+  }
 }

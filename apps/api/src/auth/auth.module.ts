@@ -10,6 +10,7 @@ import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
 import { MiniProgramStrategy } from './mini-program.strategy';
 import { WsJwtStrategy } from './ws-jwt.strategy';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { WsJwtStrategy } from './ws-jwt.strategy';
       inject: [ConfigService],
     }),
     UserModule,
+    CommonModule,
   ],
   providers: [
     AuthService,
