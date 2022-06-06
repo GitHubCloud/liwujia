@@ -63,7 +63,11 @@ export class CommonService {
     return accessToken;
   }
 
+  /**
+   * @deprecated
+   */
   async sendSubscribeMessage(body) {
+    return false;
     const accessToken = await this.getWechatAccessToken();
 
     const { data } = await this.httpService
