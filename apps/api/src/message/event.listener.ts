@@ -450,7 +450,7 @@ export class EventListener {
         }
 
         this.commonService.sendTemplateMessage({
-          touser: payload.joiner[i].wechatOpenID,
+          touser: payload.joiner[i].officialOpenID,
           template_id: 'KUUl3n88fRvhvXKrSn1NJ32vQIc8sbuybej-3sr7UW4',
           miniprogram: {
             appid: this.configService.get('WECHAT_APPID'),
@@ -716,7 +716,7 @@ export class EventListener {
           },
         });
         this.commonService.sendTemplateMessage({
-          touser: i.wechatOpenID,
+          touser: i.officialOpenID,
           template_id: 'Z-9a3LUJA4CuiPcBfapVCkPuTK6RhKk_afBPiaw6xxk',
           miniprogram: {
             appid: this.configService.get('WECHAT_APPID'),
