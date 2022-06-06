@@ -55,13 +55,13 @@ export class AppController {
   @Post('officialNotify')
   async officialNotify(@Query() query, @Body() body) {
     console.log({ type: 'post', query, body });
-    return 'ok';
+    return query.echostr;
   }
 
   @Get('officialNotify')
   async officialNotifyGet(@Query() query, @Body() body) {
     console.log({ type: 'get', query, body });
-    return 'ok2';
+    return query.echostr;
   }
 
   @Get('marquee')
