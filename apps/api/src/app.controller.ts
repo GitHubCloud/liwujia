@@ -26,6 +26,7 @@ import { GroupOrder } from './group-order/entities/group-order.entity';
 import { Order } from './order/entities/order.entity';
 import { PaginationDto } from './pagination.dto';
 import * as _ from 'lodash';
+import { query } from 'express';
 
 @ApiTags('App')
 @Controller('/')
@@ -52,9 +53,15 @@ export class AppController {
   }
 
   @Post('officialNotify')
-  async officialNotify(@Body() body) {
-    console.log({ body });
+  async officialNotify(@Query() query, @Body() body) {
+    console.log({ type: 'post', query, body });
     return 'ok';
+  }
+
+  @Get('officialNotify')
+  async officialNotifyGet(@Query() query, @Body() body) {
+    console.log({ type: 'get', query, body });
+    return 'ok2';
   }
 
   @Get('marquee')
