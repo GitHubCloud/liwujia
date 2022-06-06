@@ -299,7 +299,7 @@ export class EventListener {
         },
         keyword3: {
           value: `${comment?.image ? '[图片]' : ''}${
-            comment?.content
+            comment?.content ? comment?.content : ''
           }`.substring(0, 16),
           color: '#173177',
         },
