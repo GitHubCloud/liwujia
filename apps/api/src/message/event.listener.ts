@@ -278,7 +278,7 @@ export class EventListener {
 
     this.commonService.sendTemplateMessage({
       touser: payload.officialOpenID,
-      template_id: 'KUUl3n88fRvhvXKrSn1NJ32vQIc8sbuybej-3sr7UW4',
+      template_id: 'dpu3XUAS1safkL9EA85Tv2vMOBWTs_jXK5SDkZ5eroI',
       miniprogram: {
         appid: this.configService.get('WECHAT_APPID'),
         pagepath,
