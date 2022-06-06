@@ -101,7 +101,7 @@ export class EventListener {
       );
 
       if (!isPushed) {
-        this.commonService.sendSubscribeMessage({
+        /* this.commonService.sendSubscribeMessage({
           touser: payload.seller.wechatOpenID,
           template_id: 'Tfu-OZnetf6LyJ-QbWAaGKMyi4WeJb6o1LJQSvX1MNs',
           page: 'pages/order/sell/index',
@@ -119,7 +119,7 @@ export class EventListener {
               value: payload.product.price,
             },
           },
-        });
+        }); */
         this.commonService.sendTemplateMessage({
           touser: payload.seller.officialOpenID,
           template_id: 'O0pZKjkBiQBIicQaget9cRvBC9FqO2Aw4tkpc85P88o',
@@ -182,7 +182,7 @@ export class EventListener {
         target.wechatOpenID,
       );
       if (!isPushed) {
-        this.commonService.sendSubscribeMessage({
+        /* this.commonService.sendSubscribeMessage({
           touser: target.wechatOpenID,
           template_id: 'rKad24nzu47td4XAQLJQcm8e2AZSMYYdmxH7SEQGT8s',
           page: `pages/order/contact/index?id=${payload.id}`,
@@ -200,7 +200,7 @@ export class EventListener {
               value: `${payload.product.content}`.substring(0, 16),
             },
           },
-        });
+        }); */
         this.commonService.sendTemplateMessage({
           touser: target.officialOpenID,
           template_id: 'KUUl3n88fRvhvXKrSn1NJ32vQIc8sbuybej-3sr7UW4',
@@ -355,7 +355,7 @@ export class EventListener {
         payload.initiator.wechatOpenID,
       );
       if (!isPushed) {
-        this.commonService.sendSubscribeMessage({
+        /* this.commonService.sendSubscribeMessage({
           touser: payload.initiator.wechatOpenID,
           template_id: 'rKad24nzu47td4XAQLJQcpNduHHG1G0E6vT7gPOCltE',
           page: `pages/group/contact/index?id=${payload.id}`,
@@ -373,7 +373,7 @@ export class EventListener {
               value: `${payload.title}`.substring(0, 16),
             },
           },
-        });
+        }); */
         this.commonService.sendTemplateMessage({
           touser: payload.initiator.officialOpenID,
           template_id: 'KUUl3n88fRvhvXKrSn1NJ32vQIc8sbuybej-3sr7UW4',
@@ -420,7 +420,7 @@ export class EventListener {
           payload.joiner[i].wechatOpenID,
         );
         if (!isPushed) {
-          this.commonService.sendSubscribeMessage({
+          /* this.commonService.sendSubscribeMessage({
             touser: payload.joiner[i].wechatOpenID,
             template_id: 'rKad24nzu47td4XAQLJQcpNduHHG1G0E6vT7gPOCltE',
             page: `pages/group/contact/index?id=${payload.id}`,
@@ -438,7 +438,7 @@ export class EventListener {
                 value: `${payload.title}`.substring(0, 16),
               },
             },
-          });
+          }); */
           this.commonService.sendTemplateMessage({
             touser: payload.joiner[i].wechatOpenID,
             template_id: 'KUUl3n88fRvhvXKrSn1NJ32vQIc8sbuybej-3sr7UW4',
@@ -496,7 +496,7 @@ export class EventListener {
     });
 
     if (payload.joinLimit != payload.joiner.length) {
-      if (payload.initiator.wechatOpenID) {
+      /* if (payload.initiator.wechatOpenID) {
         this.commonService.sendSubscribeMessage({
           touser: payload.initiator.wechatOpenID,
           template_id: 'ZfvL1Iwwn9lk0RT1vYwIa7IJmblcbiyvAyiS4WoApok',
@@ -513,7 +513,7 @@ export class EventListener {
             },
           },
         });
-      }
+      } */
       if (payload.initiator.officialOpenID) {
         this.commonService.sendTemplateMessage({
           touser: payload.initiator.officialOpenID,
@@ -549,7 +549,7 @@ export class EventListener {
       }
       payload.joiner.map((i) => {
         if (user.id != i.id) {
-          if (i.wechatOpenID) {
+          /* if (i.wechatOpenID) {
             this.commonService.sendSubscribeMessage({
               touser: i.wechatOpenID,
               template_id: 'ZfvL1Iwwn9lk0RT1vYwIa7IJmblcbiyvAyiS4WoApok',
@@ -566,7 +566,7 @@ export class EventListener {
                 },
               },
             });
-          }
+          } */
           if (i.officialOpenID) {
             this.commonService.sendTemplateMessage({
               touser: i.officialOpenID,
@@ -638,7 +638,7 @@ export class EventListener {
       groupOrder: payload.id,
     });
     if (payload.initiator.wechatOpenID) {
-      this.commonService.sendSubscribeMessage({
+      /* this.commonService.sendSubscribeMessage({
         touser: payload.initiator.wechatOpenID,
         template_id: 'WLP27zK4ISz2bpUfP_01UF3t1AP8oUYxGLMuYpYJ7ts',
         page: `/pages/group/contact/index?id=${payload.id}`,
@@ -653,7 +653,7 @@ export class EventListener {
             value: '已满员',
           },
         },
-      });
+      }); */
       this.commonService.sendTemplateMessage({
         touser: payload.initiator.officialOpenID,
         template_id: 'Z-9a3LUJA4CuiPcBfapVCkPuTK6RhKk_afBPiaw6xxk',
@@ -695,7 +695,7 @@ export class EventListener {
       });
 
       if (i.wechatOpenID) {
-        this.commonService.sendSubscribeMessage({
+        /* this.commonService.sendSubscribeMessage({
           touser: i.wechatOpenID,
           template_id: 'WLP27zK4ISz2bpUfP_01UF3t1AP8oUYxGLMuYpYJ7ts',
           page: `/pages/group/contact/index?id=${payload.id}`,
@@ -710,7 +710,7 @@ export class EventListener {
               value: '已满员',
             },
           },
-        });
+        }); */
         this.commonService.sendTemplateMessage({
           touser: i.wechatOpenID,
           template_id: 'Z-9a3LUJA4CuiPcBfapVCkPuTK6RhKk_afBPiaw6xxk',
