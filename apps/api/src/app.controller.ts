@@ -52,7 +52,6 @@ export class AppController {
   }
 
   @Post('officialNotify')
-  @UseGuards(AuthGuard('jwt'))
   async officialNotify(@Body() body) {
     console.log({ body });
     return 'ok';
