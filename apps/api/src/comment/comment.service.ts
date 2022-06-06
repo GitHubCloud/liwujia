@@ -12,6 +12,7 @@ import { Product } from '../product/entities/product.entity';
 import { GroupOrder } from '../group-order/entities/group-order.entity';
 import { FavoriteService } from '../favorite/favorite.service';
 import * as _ from 'lodash';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class CommentService {
@@ -24,6 +25,8 @@ export class CommentService {
     private readonly productRepo: Repository<Product>,
     @InjectRepository(GroupOrder)
     private readonly groupOrderRepo: Repository<GroupOrder>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
     private readonly redisService: RedisService,
     private readonly favoriteService: FavoriteService,
     private readonly eventEmitter: EventEmitter2,
@@ -50,7 +53,7 @@ export class CommentService {
     // 消息数量缓存
     let targetUser = null;
     if (parentComment) {
-      targetUser = parentComment.author;
+      targetUser = await this.userRepo.findOne(parentComment.author);
     } else {
       if (createCommentDto.article) {
         const article = await this.articleRepo.findOne(
@@ -128,10 +131,10 @@ export class CommentService {
         )`,
         { userid: user.id },
       );
-      queryBuilder.orderBy('comment.id', 'DESC');
       this.redisClient.set(`message:comment:${user.id}`, 0);
     }
 
+    queryBuilder.orderBy('comment.id', 'DESC');
     const pagination = await paginate(queryBuilder, { page, limit });
     await Promise.all(
       pagination.items.map(async (item, index) => {

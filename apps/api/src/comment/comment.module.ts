@@ -7,10 +7,11 @@ import { Article } from '../article/entities/article.entity';
 import { Product } from '../product/entities/product.entity';
 import { GroupOrder } from '../group-order/entities/group-order.entity';
 import { FavoriteModule } from '../favorite/favorite.module';
+import { User } from '../user/entities/user.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Comment, Article, Product, GroupOrder]),
+    TypeOrmModule.forFeature([Comment, Article, Product, GroupOrder, User]),
     FavoriteModule,
   ],
   providers: [CommentService],
