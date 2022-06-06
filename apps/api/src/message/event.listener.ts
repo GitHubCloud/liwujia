@@ -130,10 +130,7 @@ export class EventListener {
           topcolor: '#FF0000',
           data: {
             first: {
-              value: `${payload.seller.nickname}，您的闲置有新的买家`.substring(
-                0,
-                16,
-              ),
+              value: '您的订单有新的买家'.substring(0, 16),
               color: '#173177',
             },
             keyword1: {
@@ -214,7 +211,7 @@ export class EventListener {
           topcolor: '#FF0000',
           data: {
             first: {
-              value: `${target.nickname}，您的闲置有新的消息`.substring(0, 16),
+              value: '您的闲置有新的消息'.substring(0, 16),
               color: '#173177',
             },
             keyword1: {
@@ -288,7 +285,7 @@ export class EventListener {
       topcolor: '#FF0000',
       data: {
         first: {
-          value: `${payload.nickname}，您收到了新的评论`.substring(0, 16),
+          value: '您收到了新的评论'.substring(0, 16),
           color: '#173177',
         },
         keyword1: {
@@ -387,10 +384,7 @@ export class EventListener {
           topcolor: '#FF0000',
           data: {
             first: {
-              value: `${payload.initiator.nickname}，您的拼团有新的消息`.substring(
-                0,
-                16,
-              ),
+              value: '您的拼团有新的消息'.substring(0, 16),
               color: '#173177',
             },
             keyword1: {
@@ -455,10 +449,7 @@ export class EventListener {
             topcolor: '#FF0000',
             data: {
               first: {
-                value: `${sender.nickname}，您的拼团有新的消息`.substring(
-                  0,
-                  16,
-                ),
+                value: '您的拼团有新的消息'.substring(0, 16),
                 color: '#173177',
               },
               keyword1: {
@@ -522,6 +513,8 @@ export class EventListener {
             },
           },
         });
+      }
+      if (payload.initiator.officialOpenID) {
         this.commonService.sendTemplateMessage({
           touser: payload.initiator.officialOpenID,
           template_id: 'ABaonbk_ou1hG9Fwc1Mg7QfmqoWAIxowm5j6EtEH-UM',
@@ -532,10 +525,7 @@ export class EventListener {
           topcolor: '#FF0000',
           data: {
             first: {
-              value: `${payload.initiator.nickname}，您发起的拼团有新的成员`.substring(
-                0,
-                16,
-              ),
+              value: '您发起的拼团有新的成员'.substring(0, 16),
               color: '#173177',
             },
             keyword1: {
@@ -558,54 +548,58 @@ export class EventListener {
         });
       }
       payload.joiner.map((i) => {
-        if (i.wechatOpenID) {
-          this.commonService.sendSubscribeMessage({
-            touser: i.wechatOpenID,
-            template_id: 'ZfvL1Iwwn9lk0RT1vYwIa7IJmblcbiyvAyiS4WoApok',
-            page: `pages/group/contact/index?id=${payload.id}`,
-            data: {
-              thing1: {
-                value: i.nickname.substring(0, 16),
+        if (user.id != i.id) {
+          if (i.wechatOpenID) {
+            this.commonService.sendSubscribeMessage({
+              touser: i.wechatOpenID,
+              template_id: 'ZfvL1Iwwn9lk0RT1vYwIa7IJmblcbiyvAyiS4WoApok',
+              page: `pages/group/contact/index?id=${payload.id}`,
+              data: {
+                thing1: {
+                  value: i.nickname.substring(0, 16),
+                },
+                thing2: {
+                  value: payload.title.substring(0, 16),
+                },
+                time5: {
+                  value: moment().format('YYYY年MM月DD日 HH:mm'),
+                },
               },
-              thing2: {
-                value: payload.title.substring(0, 16),
+            });
+          }
+          if (i.officialOpenID) {
+            this.commonService.sendTemplateMessage({
+              touser: i.officialOpenID,
+              template_id: 'ABaonbk_ou1hG9Fwc1Mg7QfmqoWAIxowm5j6EtEH-UM',
+              miniprogram: {
+                appid: this.configService.get('WECHAT_APPID'),
+                pagepath: `pages/group/contact/index?id=${payload.id}`,
               },
-              time5: {
-                value: moment().format('YYYY年MM月DD日 HH:mm'),
+              topcolor: '#FF0000',
+              data: {
+                first: {
+                  value: '您参与的拼团有新的成员'.substring(0, 16),
+                  color: '#173177',
+                },
+                keyword1: {
+                  value: payload.title.substring(0, 16),
+                  color: '#173177',
+                },
+                keyword2: {
+                  value: payload.joiner.length,
+                  color: '#173177',
+                },
+                keyword3: {
+                  value: moment().format('YYYY年MM月DD日 HH:mm'),
+                  color: '#173177',
+                },
+                remark: {
+                  value: '',
+                  color: '#173177',
+                },
               },
-            },
-          });
-          this.commonService.sendTemplateMessage({
-            touser: i.officialOpenID,
-            template_id: 'ABaonbk_ou1hG9Fwc1Mg7QfmqoWAIxowm5j6EtEH-UM',
-            miniprogram: {
-              appid: this.configService.get('WECHAT_APPID'),
-              pagepath: `pages/group/contact/index?id=${payload.id}`,
-            },
-            topcolor: '#FF0000',
-            data: {
-              first: {
-                value: `${i.nickname}，您参与的拼团有新的成员`.substring(0, 16),
-                color: '#173177',
-              },
-              keyword1: {
-                value: payload.title.substring(0, 16),
-                color: '#173177',
-              },
-              keyword2: {
-                value: payload.joiner.length,
-                color: '#173177',
-              },
-              keyword3: {
-                value: moment().format('YYYY年MM月DD日 HH:mm'),
-                color: '#173177',
-              },
-              remark: {
-                value: '',
-                color: '#173177',
-              },
-            },
-          });
+            });
+          }
         }
       });
     }
@@ -670,10 +664,7 @@ export class EventListener {
         topcolor: '#FF0000',
         data: {
           first: {
-            value: `${payload.initiator.nickname}，您的拼团已经满员`.substring(
-              0,
-              16,
-            ),
+            value: '您加入的拼团已经满员啦'.substring(0, 16),
             color: '#173177',
           },
           keyword1: {
@@ -730,7 +721,7 @@ export class EventListener {
           topcolor: '#FF0000',
           data: {
             first: {
-              value: `${i.nickname}，您的拼团已经满员`.substring(0, 16),
+              value: '您加入的拼团已经满员啦'.substring(0, 16),
               color: '#173177',
             },
             keyword1: {
