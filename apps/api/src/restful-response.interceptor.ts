@@ -13,7 +13,11 @@ export class RESTfulResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map((data) => {
-        if (['home', 'officialNotifyGet'].includes(context.getHandler().name)) {
+        if (
+          ['home', 'officialNotify', 'officialNotifyGet'].includes(
+            context.getHandler().name,
+          )
+        ) {
           return data;
         } else {
           return {
