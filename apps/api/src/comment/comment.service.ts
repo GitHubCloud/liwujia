@@ -72,8 +72,11 @@ export class CommentService {
       }
     }
     if (!parentComment || parentComment.author != createCommentDto.author) {
+      comment.article = createCommentDto.article;
+      comment.product = createCommentDto.product;
+      comment.groupOrder = createCommentDto.groupOrder;
       this.eventEmitter.emit('comment.create', targetUser, comment);
-      await this.redisClient.incr(`message:comment:${targetUser}`);
+      await this.redisClient.incr(`message:comment:${targetUser.id}`);
     }
 
     return comment;
