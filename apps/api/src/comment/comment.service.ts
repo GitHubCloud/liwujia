@@ -55,21 +55,18 @@ export class CommentService {
       if (createCommentDto.article) {
         const article = await this.articleRepo.findOne(
           createCommentDto.article,
-          { loadRelationIds: true },
         );
         targetUser = article.author;
       }
       if (createCommentDto.product) {
         const product = await this.productRepo.findOne(
           createCommentDto.product,
-          { loadRelationIds: true },
         );
         targetUser = product.owner;
       }
       if (createCommentDto.groupOrder) {
         const groupOrder = await this.groupOrderRepo.findOne(
           createCommentDto.groupOrder,
-          { loadRelationIds: true },
         );
         targetUser = groupOrder.initiator;
       }
