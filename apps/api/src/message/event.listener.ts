@@ -120,41 +120,6 @@ export class EventListener {
             },
           },
         });
-        this.commonService.sendTemplateMessage({
-          touser: payload.seller.officialOpenID,
-          template_id: 'O0pZKjkBiQBIicQaget9cRvBC9FqO2Aw4tkpc85P88o',
-          miniprogram: {
-            appid: this.configService.get('WECHAT_APPID'),
-            pagepath: 'pages/order/sell/index',
-          },
-          topcolor: '#FF0000',
-          data: {
-            first: {
-              value: '您的订单有新的买家'.substring(0, 16),
-              color: '#173177',
-            },
-            keyword1: {
-              value: payload.product.content.substring(0, 16),
-              color: '#173177',
-            },
-            keyword2: {
-              value: payload.product.price,
-              color: '#173177',
-            },
-            keyword3: {
-              value: moment(payload.createTime).format('YYYY年MM月DD日 HH:mm'),
-              color: '#173177',
-            },
-            /* keyword4: {
-              value: '',
-              color: '#173177',
-            },
-            remark: {
-              value: '',
-              color: '#173177',
-            }, */
-          },
-        });
         this.redisClient.hset(
           `subscribe:productOrder:${payload.product.id}`,
           payload.seller.wechatOpenID,
@@ -162,6 +127,42 @@ export class EventListener {
         );
       }
     }
+
+    this.commonService.sendTemplateMessage({
+      touser: payload.seller.officialOpenID,
+      template_id: 'O0pZKjkBiQBIicQaget9cRvBC9FqO2Aw4tkpc85P88o',
+      miniprogram: {
+        appid: this.configService.get('WECHAT_APPID'),
+        pagepath: 'pages/order/sell/index',
+      },
+      topcolor: '#FF0000',
+      data: {
+        first: {
+          value: '您的订单有新的买家'.substring(0, 16),
+          color: '#173177',
+        },
+        keyword1: {
+          value: payload.product.content.substring(0, 16),
+          color: '#173177',
+        },
+        keyword2: {
+          value: payload.product.price,
+          color: '#173177',
+        },
+        keyword3: {
+          value: moment(payload.createTime).format('YYYY年MM月DD日 HH:mm'),
+          color: '#173177',
+        },
+        /* keyword4: {
+          value: '',
+          color: '#173177',
+        },
+        remark: {
+          value: '',
+          color: '#173177',
+        }, */
+      },
+    });
   }
 
   @OnEvent('order.message')
@@ -201,37 +202,6 @@ export class EventListener {
             },
           },
         });
-        this.commonService.sendTemplateMessage({
-          touser: target.officialOpenID,
-          template_id: 'KUUl3n88fRvhvXKrSn1NJ32vQIc8sbuybej-3sr7UW4',
-          miniprogram: {
-            appid: this.configService.get('WECHAT_APPID'),
-            pagepath: `pages/order/contact/index?id=${payload.id}`,
-          },
-          topcolor: '#FF0000',
-          data: {
-            first: {
-              value: '您的闲置有新的消息'.substring(0, 16),
-              color: '#173177',
-            },
-            keyword1: {
-              value: '闲置私聊',
-              color: '#173177',
-            },
-            keyword2: {
-              value: `${payload.product.content}`.substring(0, 16),
-              color: '#173177',
-            },
-            /* keyword3: {
-              value: '理物加',
-              color: '#173177',
-            }, */
-            remark: {
-              value: messageDto.content.substring(0, 16),
-              color: '#173177',
-            },
-          },
-        });
         await this.redisClient.hset(
           `subscribe:orderMessage:${payload.id}`,
           target.wechatOpenID,
@@ -239,6 +209,38 @@ export class EventListener {
         );
       }
     }
+
+    this.commonService.sendTemplateMessage({
+      touser: target.officialOpenID,
+      template_id: 'KUUl3n88fRvhvXKrSn1NJ32vQIc8sbuybej-3sr7UW4',
+      miniprogram: {
+        appid: this.configService.get('WECHAT_APPID'),
+        pagepath: `pages/order/contact/index?id=${payload.id}`,
+      },
+      topcolor: '#FF0000',
+      data: {
+        first: {
+          value: '您的闲置有新的消息'.substring(0, 16),
+          color: '#173177',
+        },
+        keyword1: {
+          value: '闲置私聊',
+          color: '#173177',
+        },
+        keyword2: {
+          value: `${payload.product.content}`.substring(0, 16),
+          color: '#173177',
+        },
+        /* keyword3: {
+          value: '理物加',
+          color: '#173177',
+        }, */
+        remark: {
+          value: messageDto.content.substring(0, 16),
+          color: '#173177',
+        },
+      },
+    });
   }
 
   @OnEvent('stuff.create')
@@ -374,43 +376,44 @@ export class EventListener {
             },
           },
         });
-        this.commonService.sendTemplateMessage({
-          touser: payload.initiator.officialOpenID,
-          template_id: 'KUUl3n88fRvhvXKrSn1NJ32vQIc8sbuybej-3sr7UW4',
-          miniprogram: {
-            appid: this.configService.get('WECHAT_APPID'),
-            pagepath: `pages/group/contact/index?id=${payload.id}`,
-          },
-          topcolor: '#FF0000',
-          data: {
-            first: {
-              value: '您的拼团有新的消息'.substring(0, 16),
-              color: '#173177',
-            },
-            keyword1: {
-              value: '拼团群聊',
-              color: '#173177',
-            },
-            keyword2: {
-              value: payload.title.substring(0, 16),
-              color: '#173177',
-            },
-            /* keyword3: {
-              value: '理物加',
-              color: '#173177',
-            }, */
-            remark: {
-              value: messageDto.content.substring(0, 16),
-              color: '#173177',
-            },
-          },
-        });
         await this.redisClient.hset(
           `subscribe:groupMessage:${payload.id}`,
           payload.initiator.wechatOpenID,
           1,
         );
       }
+
+      this.commonService.sendTemplateMessage({
+        touser: payload.initiator.officialOpenID,
+        template_id: 'KUUl3n88fRvhvXKrSn1NJ32vQIc8sbuybej-3sr7UW4',
+        miniprogram: {
+          appid: this.configService.get('WECHAT_APPID'),
+          pagepath: `pages/group/contact/index?id=${payload.id}`,
+        },
+        topcolor: '#FF0000',
+        data: {
+          first: {
+            value: '您的拼团有新的消息'.substring(0, 16),
+            color: '#173177',
+          },
+          keyword1: {
+            value: '拼团群聊',
+            color: '#173177',
+          },
+          keyword2: {
+            value: payload.title.substring(0, 16),
+            color: '#173177',
+          },
+          /* keyword3: {
+            value: '理物加',
+            color: '#173177',
+          }, */
+          remark: {
+            value: messageDto.content.substring(0, 16),
+            color: '#173177',
+          },
+        },
+      });
     }
 
     for (const i in payload.joiner) {
@@ -439,43 +442,44 @@ export class EventListener {
               },
             },
           });
-          this.commonService.sendTemplateMessage({
-            touser: payload.joiner[i].wechatOpenID,
-            template_id: 'KUUl3n88fRvhvXKrSn1NJ32vQIc8sbuybej-3sr7UW4',
-            miniprogram: {
-              appid: this.configService.get('WECHAT_APPID'),
-              pagepath: `pages/group/contact/index?id=${payload.id}`,
-            },
-            topcolor: '#FF0000',
-            data: {
-              first: {
-                value: '您的拼团有新的消息'.substring(0, 16),
-                color: '#173177',
-              },
-              keyword1: {
-                value: '拼团群聊',
-                color: '#173177',
-              },
-              keyword2: {
-                value: `${payload.title}`.substring(0, 16),
-                color: '#173177',
-              },
-              /* keyword3: {
-                value: '理物加',
-                color: '#173177',
-              }, */
-              remark: {
-                value: messageDto.content.substring(0, 16),
-                color: '#173177',
-              },
-            },
-          });
           await this.redisClient.hset(
             `subscribe:groupMessage:${payload.id}`,
             payload.joiner[i].wechatOpenID,
             1,
           );
         }
+
+        this.commonService.sendTemplateMessage({
+          touser: payload.joiner[i].wechatOpenID,
+          template_id: 'KUUl3n88fRvhvXKrSn1NJ32vQIc8sbuybej-3sr7UW4',
+          miniprogram: {
+            appid: this.configService.get('WECHAT_APPID'),
+            pagepath: `pages/group/contact/index?id=${payload.id}`,
+          },
+          topcolor: '#FF0000',
+          data: {
+            first: {
+              value: '您的拼团有新的消息'.substring(0, 16),
+              color: '#173177',
+            },
+            keyword1: {
+              value: '拼团群聊',
+              color: '#173177',
+            },
+            keyword2: {
+              value: `${payload.title}`.substring(0, 16),
+              color: '#173177',
+            },
+            /* keyword3: {
+              value: '理物加',
+              color: '#173177',
+            }, */
+            remark: {
+              value: messageDto.content.substring(0, 16),
+              color: '#173177',
+            },
+          },
+        });
       }
     }
   }
