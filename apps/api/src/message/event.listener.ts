@@ -407,10 +407,10 @@ export class EventListener {
             value: payload.title.substring(0, 16),
             color: '#173177',
           },
-          /* keyword3: {
-            value: '理物加',
+          keyword3: {
+            value: sender.nickname.substring(0, 16),
             color: '#173177',
-          }, */
+          },
           remark: {
             value: messageDto.content.substring(0, 16),
             color: '#173177',
@@ -473,10 +473,10 @@ export class EventListener {
               value: `${payload.title}`.substring(0, 16),
               color: '#173177',
             },
-            /* keyword3: {
-              value: '理物加',
+            keyword3: {
+              value: sender.nickname.substring(0, 16),
               color: '#173177',
-            }, */
+            },
             remark: {
               value: messageDto.content.substring(0, 16),
               color: '#173177',

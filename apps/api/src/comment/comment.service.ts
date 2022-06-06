@@ -53,28 +53,37 @@ export class CommentService {
     // 消息数量缓存
     let targetUser = null;
     if (parentComment) {
-      targetUser = await this.userRepo.findOne(parentComment.author);
+      if (createCommentDto.author != parentComment.author) {
+        targetUser = parentComment.author;
+      }
     } else {
       if (createCommentDto.article) {
         const article = await this.articleRepo.findOne(
           createCommentDto.article,
         );
-        targetUser = article.author;
+        if (createCommentDto.author != (<any>article).author.id) {
+          targetUser = article.author;
+        }
       }
       if (createCommentDto.product) {
         const product = await this.productRepo.findOne(
           createCommentDto.product,
         );
-        targetUser = product.owner;
+        if (createCommentDto.author != (<any>product).owner.id) {
+          targetUser = product.owner;
+        }
       }
       if (createCommentDto.groupOrder) {
         const groupOrder = await this.groupOrderRepo.findOne(
           createCommentDto.groupOrder,
         );
-        targetUser = groupOrder.initiator;
+        if (createCommentDto.author != (<any>groupOrder).initiator.id) {
+          targetUser = groupOrder.initiator;
+        }
       }
     }
-    if (!parentComment || parentComment.author != createCommentDto.author) {
+
+    if (targetUser) {
       comment.article = createCommentDto.article;
       comment.product = createCommentDto.product;
       comment.groupOrder = createCommentDto.groupOrder;
