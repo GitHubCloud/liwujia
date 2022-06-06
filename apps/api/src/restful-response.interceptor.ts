@@ -13,13 +13,15 @@ export class RESTfulResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map((data) => {
-        return String(data).indexOf('beian.miit.gov.cn') >= 0
-          ? data
-          : {
-              statusCode: HttpStatus.OK,
-              message: 'success',
-              data,
-            };
+        if (['home', 'officialNotifyGet'].includes(context.getHandler().name)) {
+          return data;
+        } else {
+          return {
+            statusCode: HttpStatus.OK,
+            message: 'success',
+            data,
+          };
+        }
       }),
     );
   }

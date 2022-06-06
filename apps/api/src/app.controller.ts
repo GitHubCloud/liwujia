@@ -26,7 +26,6 @@ import { GroupOrder } from './group-order/entities/group-order.entity';
 import { Order } from './order/entities/order.entity';
 import { PaginationDto } from './pagination.dto';
 import * as _ from 'lodash';
-import { query } from 'express';
 
 @ApiTags('App')
 @Controller('/')
