@@ -308,7 +308,11 @@ export class EventListener {
       },
     });
 
-    this.pointService.create(payload, pointEnum.commentCreate, 'commentCreate');
+    this.pointService.create(
+      payload.id,
+      pointEnum.commentCreate,
+      'commentCreate',
+    );
   }
 
   @OnEvent('group.create')
