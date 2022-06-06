@@ -54,7 +54,7 @@ export class CommentService {
     let targetUser = null;
     if (parentComment) {
       if (createCommentDto.author != parentComment.author) {
-        targetUser = parentComment.author;
+        targetUser = await this.userRepo.findOne(parentComment.author);
       }
     } else {
       if (createCommentDto.article) {

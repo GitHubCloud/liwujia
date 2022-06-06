@@ -298,7 +298,9 @@ export class EventListener {
           color: '#173177',
         },
         keyword3: {
-          value: comment.content.substring(0, 16),
+          value: `${comment?.image ? '[图片]' : ''}${
+            comment?.content
+          }`.substring(0, 16),
           color: '#173177',
         },
         /* remark: {
