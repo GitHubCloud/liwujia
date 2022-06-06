@@ -122,6 +122,26 @@ export class CommonService {
     await this.updateSubscriber(data.next_openid);
   }
 
+  async handleSubscribe(openid: string) {
+    const accessToken = await this.getWechatAccessToken(wechatType.official);
+
+    const { data: userData } = await this.httpService
+      .get(
+        `https://api.weixin.qq.com/cgi-bin/user/info?access_token=${accessToken}&openid=${openid}`,
+      )
+      .toPromise();
+
+    await this.userService.updateByUnionID(userData.unionid, {
+      officialOpenID: openid,
+    });
+  }
+
+  async handleUnsubscribe(openid: string) {
+    await this.userService.updateByOfficialOpenID(openid, {
+      officialOpenID: null,
+    });
+  }
+
   async sendTemplateMessage(body) {
     if (!body.touser) return false;
     const accessToken = await this.getWechatAccessToken(wechatType.official);

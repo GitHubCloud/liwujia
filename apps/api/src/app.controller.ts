@@ -59,11 +59,22 @@ export class AppController {
 
   @Post('officialNotify')
   async officialNotify(@Query() query, @Body() body) {
-    console.log({ type: 'post', query, body });
-    console.log({
-      xml: body?.xml,
-    });
-    return query.echostr;
+    const xml = body?.xml;
+
+    switch (_.first(xml?.Event)) {
+      case 'subscribe':
+        for (const openid of xml?.FromUserName) {
+          this.commonService.handleSubscribe(openid);
+        }
+        break;
+      case 'unsubscribe':
+        for (const openid of xml?.FromUserName) {
+          this.commonService.handleUnsubscribe(openid);
+        }
+        break;
+    }
+
+    return '';
   }
 
   @Get('marquee')
