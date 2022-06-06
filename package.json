@@ -38,6 +38,8 @@
     "@types/passport-jwt": "^3.0.5",
     "ali-oss": "^6.17.1",
     "bcrypt": "^5.0.1",
+    "body-parser": "^1.20.0",
+    "body-parser-xml": "^2.0.3",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "esdk-obs-nodejs": "^3.21.3",

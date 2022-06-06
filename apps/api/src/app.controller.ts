@@ -51,15 +51,18 @@ export class AppController {
     return '<h1>理物加</h1><br><a href="https://beian.miit.gov.cn/" target="_blank">沪ICP备2021015643号-1</a>';
   }
 
-  @Post('officialNotify')
-  async officialNotify(@Query() query, @Body() body) {
-    console.log({ type: 'post', query, body });
-    return query.echostr;
-  }
-
   @Get('officialNotify')
   async officialNotifyGet(@Query() query, @Body() body) {
     console.log({ type: 'get', query, body });
+    return query.echostr;
+  }
+
+  @Post('officialNotify')
+  async officialNotify(@Query() query, @Body() body) {
+    console.log({ type: 'post', query, body });
+    console.log({
+      xml: body?.xml,
+    });
     return query.echostr;
   }
 
