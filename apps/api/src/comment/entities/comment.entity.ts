@@ -31,7 +31,7 @@ export class Comment {
 
   @JoinColumn()
   @ManyToOne(() => User, (user) => user.comments, { eager: true })
-  author: number;
+  author: User;
 
   @JoinColumn()
   @ManyToOne(() => Article, (article) => article.comments)

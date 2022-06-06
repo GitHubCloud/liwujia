@@ -51,6 +51,13 @@ export class AppController {
     return '<h1>理物加</h1><br><a href="https://beian.miit.gov.cn/" target="_blank">沪ICP备2021015643号-1</a>';
   }
 
+  @Post('officialNotify')
+  @UseGuards(AuthGuard('jwt'))
+  async officialNotify(@Body() body) {
+    console.log({ body });
+    return 'ok';
+  }
+
   @Get('marquee')
   @UseGuards(AuthGuard('jwt'))
   async marquee() {

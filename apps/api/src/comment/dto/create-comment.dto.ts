@@ -2,6 +2,7 @@ import { ApiHideProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, ValidateIf } from 'class-validator';
 import { IsExistsInTable } from '../../custom.decorator';
 import { Resource } from '../../resource/entities/resource.entity';
+import { User } from '../../user/entities/user.entity';
 
 export class CreateCommentDto {
   @ValidateIf((o) => !o.image) // 有图片无须内容
@@ -28,5 +29,5 @@ export class CreateCommentDto {
   replyTo: number;
 
   @ApiHideProperty()
-  author: number;
+  author: User;
 }

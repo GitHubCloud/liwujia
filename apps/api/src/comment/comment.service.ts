@@ -45,7 +45,6 @@ export class CommentService {
     const comment = await this.commentRepo.save(
       this.commentRepo.create(createCommentDto),
     );
-    this.eventEmitter.emit('comment.create', createCommentDto.author);
 
     // 消息数量缓存
     let targetUser = null;
@@ -75,6 +74,7 @@ export class CommentService {
       }
     }
     if (!parentComment || parentComment.author != createCommentDto.author) {
+      this.eventEmitter.emit('comment.create', targetUser, comment);
       await this.redisClient.incr(`message:comment:${targetUser}`);
     }
 
