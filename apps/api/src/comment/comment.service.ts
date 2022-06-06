@@ -42,9 +42,10 @@ export class CommentService {
       createCommentDto.groupOrder = parentComment.groupOrder;
     }
 
-    const comment = await this.commentRepo.save(
+    let comment = await this.commentRepo.save(
       this.commentRepo.create(createCommentDto),
     );
+    comment = await this.commentRepo.findOne(comment.id);
 
     // 消息数量缓存
     let targetUser = null;

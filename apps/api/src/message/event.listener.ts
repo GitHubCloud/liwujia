@@ -4,7 +4,6 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { User } from 'apps/api/src/user/entities/user.entity';
 import * as moment from 'moment';
 import { RedisService } from 'nestjs-redis';
-import { CreateCommentDto } from '../comment/dto/create-comment.dto';
 import { Comment } from '../comment/entities/comment.entity';
 import { CommonService } from '../common/common.service';
 import { GroupOrder } from '../group-order/entities/group-order.entity';
