@@ -58,10 +58,12 @@ export class GroupOrderController {
     @Query() paginationDto: PaginationDto,
     @Query('status') status: GroupOrderStatus,
     @Query('involved') involved: boolean,
+    @Query('initiator') initiator: number,
     @Query('search') search: string,
   ): Promise<Pagination<GroupOrder>> {
     paginationDto.query = { status: status || GroupOrderStatus.INIT };
     if (search) paginationDto.query['title'] = Like(`%${search}%`);
+    if (initiator) paginationDto.query['initiator'] = initiator;
 
     return this.groupOrderService.paginate(paginationDto, involved, req.user);
   }

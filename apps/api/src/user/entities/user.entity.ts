@@ -4,6 +4,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -105,6 +107,18 @@ export class User {
   @JoinColumn()
   @OneToMany(() => Feedback, (feedback) => feedback.creator)
   feedbacks: number;
+
+  @JoinTable({
+    name: 'follower',
+    joinColumn: { name: 'to', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'from', referencedColumnName: 'id' },
+  })
+  @ManyToMany(() => User, { cascade: true })
+  followers?: number[];
+
+  following: number;
+
+  isFollowed: boolean;
 
   isNewbie: boolean;
 

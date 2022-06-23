@@ -45,7 +45,7 @@ export class ArticleService {
 
     const queryBuilder = getRepository(Article)
       .createQueryBuilder('article')
-      // .leftJoinAndSelect('article.images', 'resource')
+      .leftJoinAndSelect('article.images', 'images')
       .leftJoinAndSelect('article.author', 'author')
       .leftJoin('article.comments', 'comments')
       .addSelect('COUNT(comments.id) as comments')
@@ -63,22 +63,10 @@ export class ArticleService {
       { page, limit },
     );
 
-    // TODO: replace with a better solution
-    const ids = pagination.items.map((i) => i.id);
-    const images = await this.articleRepo.find({
-      where: {
-        id: In(ids),
-      },
-    });
     await Promise.all(
       pagination.items.map(async (item, index) => {
         const raw = rawResults[index];
         item.comments = Number(raw.comments);
-        item.images = _.get(
-          _.find(images, (i) => i.id == item.id),
-          'images',
-          [],
-        );
 
         if (user) {
           item.isCollected = !_.isEmpty(
