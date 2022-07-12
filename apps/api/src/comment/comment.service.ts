@@ -140,6 +140,7 @@ export class CommentService {
         )`,
         { userid: user.id },
       );
+      queryBuilder.groupBy('comment.id');
       this.redisClient.set(`message:comment:${user.id}`, 0);
     }
 
