@@ -1,5 +1,7 @@
 # secret
 .env
+.env.test
+.env.prod
 
 # compiled output
 /dist
@@ -35,5 +37,3 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-.env.test
-.env.prod

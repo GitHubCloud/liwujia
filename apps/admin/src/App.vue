@@ -1,6 +1,6 @@
 <template>
   <el-container>
-    <sidemenu />
+    <sidemenu v-if="isLogin" />
 
     <el-container class="is-vertical">
       <el-header>
@@ -25,16 +25,14 @@ export default {
   components: {
     sidemenu,
   },
+  computed: {
+    isLogin() {
+      return this.$store.state.token && moment().isBefore(this.$store.state.tokenExpire);
+    }
+  },
   async created() {
-    if (this.$store.state.token && moment().isBefore(this.$store.state.tokenExpire)) return;
-    const res = await this.$api(this.$store.state, 'auth/login', {
-      body: {
-        loginName: '理物加',
-        loginPasswd: 'kelaode520',
-      },
-    });
-
-    this.$store.dispatch('setToken', res.data.token);
+    if (this.isLogin) return;
+    this.$router.push('login');
   },
 };
 </script>
