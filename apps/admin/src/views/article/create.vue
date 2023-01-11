@@ -26,6 +26,7 @@
           <el-radio-button label="1">便民信息</el-radio-button>
           <el-radio-button label="2">小区活动</el-radio-button>
           <el-radio-button label="3">邻里互助</el-radio-button>
+          <el-radio-button label="4">法律求助</el-radio-button>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="内容">
